@@ -1,58 +1,41 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<h1>SIGEP - Sistema de Gestão da Ética Pública</h1>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<img width="212" height="96" alt="Screenshot From 2026-04-26 00-15-44" src="https://github.com/user-attachments/assets/e0935a01-1817-4ab6-a817-fc8d350f579b" />
 
-## About Laravel
+<h2>O que é o SIGEP?</h2>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+SIGEP é a abreviação para Sistema de Gestão da Ética Pública. Se trata de um sistema web responsável por gerenciar os processos recebidos pela Comissão de Ética do Instituto Federal do Paraná (IFPR). Este sistema está sendo elaborado como projeto final do curso Técnico em Informática referente à disciplina de Projeto e Desenvolvimento de Sistemas.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<h2>O Problema</h2>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Atualmente, o gerenciamento das demandas éticas do IFPR é feito de forma manual: utiliza-se planilhas para controle de prazos e etapas, e o envio de documentos e comunicações ocorre por e-mail. A secretária geral precisa distribuir os processos entre os relatores manualmente e acompanhar o andamento de cada um sem uma ferramenta centralizada. Com forma de organização pode ocorrer o atrasado da tramitação dos processos, há o risco da perda de prazos, dificuldade em localizar o histórico e o status de cada demanda, a possibilidade de confusões na distribuição e na comunicação entre os membros e a má distribuição das funções de relator entre os membros.
 
-## Learning Laravel
+<h2>Propósito do Sistema</h2>
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+O propósito do SIGEP é automatizar e centralizar o fluxo de trabalho da Comissão de Ética. Com ele, será possível:
+<ul>
+    <li>Cadastro e autenticação de usuários (membros da comissão, secretária, presidente);</li>
+    <li>Cadastro de processos com tipificação e partes envolvidas;</li>
+    <li>Análise de admissibilidade;</li>
+    <li>Sorteio/designação automática de relator;</li>
+    <li>Definição automática de prazos conforme etapas regimentais;</li>
+    <li>Área do relator: elaboração de relatório preliminar;</li>
+    <li>Módulo de votação (aberta ou fechada);</li>
+    <li>Registro de decisão final e encaminhamentos;</li>
+    <li>Painel de acompanhamento (dashboard) com status dos processos;</li>
+    <li>Notificações por e-mail sobre prazos e movimentações.</li>
+</ul>
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+<h2>Resultados esperados</h2>
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+Acreditamos que, com a implementação do SIGEP e, por consequência, a agilização do gerenciamento das demandas e o aumento da eficiência das atividades da Comissão, contribuímos para um ambiente profissional mais seguro, transparente e em conformidade com as normas éticas institucionais.
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
-```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+<h1>Tecnologias utilizadas</h1>
+<ul>
+    <li>PHP 8.4.1</li>
+    <li>Laravel 13.x</li>
+    <li>Composer 2.8.12</li>
+    <li>MySQL 8.4.8</li>
+    <li>Sistema Operacional: Windows 11 25H2</li>
+    <li>Gerenciamento de versão: Git/GitHub</li>
+</ul>
