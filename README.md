@@ -6,6 +6,14 @@
 
 SIGEP é a abreviação para Sistema de Gestão da Ética Pública. Se trata de um sistema web responsável por gerenciar os processos recebidos pela Comissão de Ética do Instituto Federal do Paraná (IFPR). Este sistema está sendo elaborado como projeto final do curso Técnico em Informática referente à disciplina de Projeto e Desenvolvimento de Sistemas.
 
+<h2>Fluxo de um processo</h2>
+
+A jornada de uma denúncia dentro da Comissão pode ser dividida em conco grandes etapas, conforme a imagem abaixo:
+
+<img width="1408" height="803" alt="Screenshot From 2026-05-01 11-05-08" src="https://github.com/user-attachments/assets/025be9d2-ee02-4381-98a8-1ed03e400613" />
+
+A instituição faz uso de ferramentas poderosas como o Fala.Br, por onde as denúncias entram, e o SEI (sigla para Sistema Eletrônico de Informações), onde as denúncias são transformadas em processos administrativos. No entanto, nenhuma dessas duas ferramentas ajuda a gerenciar o trabalho interno da Comissão (como os processos são distribuídos, como as votações são feitas e registradas, etc.).
+
 <h2>O Problema</h2>
 
 Atualmente, o gerenciamento das demandas éticas do IFPR é feito de forma manual: utiliza-se planilhas para controle de prazos e etapas, e o envio de documentos e comunicações ocorre por e-mail. A secretária geral precisa distribuir os processos entre os relatores manualmente e acompanhar o andamento de cada um sem uma ferramenta centralizada. Com forma de organização pode ocorrer o atrasado da tramitação dos processos, há o risco da perda de prazos, dificuldade em localizar o histórico e o status de cada demanda, a possibilidade de confusões na distribuição e na comunicação entre os membros e a má distribuição das funções de relator entre os membros.
@@ -26,6 +34,31 @@ O propósito do SIGEP é automatizar e centralizar o fluxo de trabalho da Comiss
     <li>Notificações por e-mail sobre prazos e movimentações.</li>
 </ul>
 
+<h2>Estrutura do sistema</h2>
+
+<h3>Perfis de usuários</h3>
+
+Os perfis de usuários do Sistema é um espelho da Comissão na vida real, cada um com perfis bem definidos.
+
+<table>
+    <tr>
+        <th>Perfis de membros</th>
+        <th>Responsabilidade chave</th>
+    </tr>
+    <tr>
+        <td>Administrador (Secretária geral)</td>
+        <td>Insere casos, gerencia usuários</td>
+    </tr>
+    <tr>
+        <td>Membro titular</td>
+        <td>Vota em cada etapa e atua como relator quando selecionado</td>
+    </tr>
+    <tr>
+        <td>Presidente da CE</td>
+        <td>Exerce voto de minerva (desempate) e atua como relator quando selecionado<td>
+    </tr>
+</table>
+
 <h2>Resultados esperados</h2>
 
 Acreditamos que, com a implementação do SIGEP e, por consequência, a agilização do gerenciamento das demandas e o aumento da eficiência das atividades da Comissão, contribuímos para um ambiente profissional mais seguro, transparente e em conformidade com as normas éticas institucionais.
@@ -39,3 +72,7 @@ Acreditamos que, com a implementação do SIGEP e, por consequência, a agiliza�
     <li>Sistema Operacional: Windows 11 25H2</li>
     <li>Gerenciamento de versão: Git/GitHub</li>
 </ul>
+
+<h2>Saiba mais sobre o projeto</h2>
+
+Vídeo de apresentação do projeto: https://www.youtube.com/watch?v=Ss2oeBPBhDI 
