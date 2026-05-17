@@ -1,5 +1,5 @@
-<header class="flex justify-between items-center p-8 mb-5 bg-white">
-    <h2 class="text-2xl font-bold text-emerald-900">{{$titulo}}</h2>
+<header class="flex justify-between items-center p-8 mb-5 bg-white hover:shadow-sm transition-shadow">
+    <h2 class="text-2xl font-bold text-emerald-900 uppercase">Painel do {{$usuario}}</h2>
     <div class="flex items-center space-x-4">
         <button class="text-emerald-900 font-bold hover:underline">{{$usuario}}</button>
         <span class="text-slate-400">|</span>
