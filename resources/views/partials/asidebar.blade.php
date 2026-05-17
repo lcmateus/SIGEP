@@ -12,12 +12,10 @@
         </div>
     </div>
 
-    <?php $usuario?>
-
     <nav class="flex-1 space-y-2 text-sm font-medium">
         <a href="#" class="flex items-center p-3 bg-emerald-200 text-emerald-700">Dashboard</a>
 
-        @if($usuario == 'Admin')
+        @if($usuario == 'admin')
         <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Processos</a>
         <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Criar votação</a>
         <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Usuários</a>
