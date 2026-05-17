@@ -91,13 +91,19 @@
                     <input type="datetime-local" id="fim"
                         class="border border-slate-300 p-3 mt-1 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
+
+             </div> 
+
+            <div class="mt-8 flex justify-end">
+                <button type="submit" class="bg-emerald-600 text-white px-10 py-3 rounded-lg font-bold text-lg hover:bg-emerald-700 transition-all shadow-md">
+                    CRIAR VOTAÇÃO
+                </button>
             </div>
-        </div>
-        <div class="mt-8 flex justify-end">
-            <button type="submit"
-                class="bg-emerald-600 text-white px-10 py-3 rounded-lg font-bold text-lg hover:bg-emerald-700 transition-all shadow-md">
-                CRIAR VOTAÇÃO
-            </button>
-        </div>
-    </form>
-@endsection
+        </form>
+    </main>
+</div>
+
+</body>
+</html>
+
+
