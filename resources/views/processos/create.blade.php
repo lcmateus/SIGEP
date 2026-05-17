@@ -1,17 +1,11 @@
+@extends('layouts/main_layout')
 
+@section('titulo', 'Criar processo')
 
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sucesso - SIGEP</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-100 font-sans">
+@section('content')
 
-    <div class="flex min-h-screen bg-slate-100">
-    @include('partials.asidebar', ['usuario' => 'Admin'])
+<div class = "flex min-h-screen">
+    @include('partials.asidebar', ['usuario' => 'Admin']) 
     <main class="flex-1 bg-gray-200">
         @include('partials.header', ['titulo' => 'CRIAR VOTAÇÃO', 'usuario' => 'Admin'])
 
@@ -80,7 +74,7 @@
                     </div>
                 </div>
 
-             </div> 
+            </div> 
 
             <div class="mt-8 flex justify-end">
                 <button type="submit" class="bg-emerald-600 text-white px-10 py-3 rounded-lg font-bold text-lg hover:bg-emerald-700 transition-all shadow-md">
@@ -91,7 +85,4 @@
     </main>
 </div>
 
-</body>
-</html>
-
-
+@endsection
