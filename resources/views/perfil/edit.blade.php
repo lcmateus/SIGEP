@@ -1,7 +1,7 @@
-@extends('layouts.app', [
+@extends('layouts/main_layout', [
     'title' => 'Perfil - SIGEP',
     'titulo' => 'PERFIL',
-    'usuario' => 'usuario'
+    'usuario' => 'Usuario'
 ])
 @section('content')
 <div class="bg-white border-2 border-emerald-600 rounded-2xl shadow-sm p-10 max-w-5xl mx-auto">

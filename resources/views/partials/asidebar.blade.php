@@ -21,7 +21,7 @@
         <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Usuários</a>
         <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Resultados</a>
         <!----> 
-        @elseif($usuario == 'Usuario')
+        @elseif($usuario == 'usuario')
         <!-- Se o login for feito como usuário, mostrar as seguintes opções: -->
         <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Processos disponíveis</a>
         <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Perfil</a>

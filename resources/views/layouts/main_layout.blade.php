@@ -8,6 +8,25 @@
 </head>
 
 <body class="bg-slate-100 font-sans">
-    @yield('content')
+    <div class="flex min-h-screen bg-slate-100">
+
+        @include('partials.asidebar', ['usuario' => $usuario])
+
+        <main class="flex-1 bg-gray-200">
+
+            @include('partials.header', [
+                'titulo' => $titulo,
+                'usuario' => $usuario,
+            ])
+
+            <div class="p-8">
+                @yield('content')
+            </div>
+
+        </main>
+
+    </div>
+
 </body>
+
 </html>

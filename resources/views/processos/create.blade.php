@@ -1,9 +1,13 @@
-@extends('layouts.app', [
-    'title' => 'Criar Votação - SIGEP',
-    'titulo' => 'CRIAR VOTAÇÃO',
-    'usuario' => 'admin',
+@extends('layouts/main_layout', [
+    'title' => 'Perfil - SIGEP',
+    'titulo' => 'PERFIL',
+    'usuario' => 'Usuario'
 ])
+
+@section('titulo', 'Criar processo')
+
 @section('content')
+
     <form action="#" method="POST" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <div>
             <div class="ml-3 mr-3 mb-3">
@@ -106,4 +110,4 @@
 </body>
 </html>
 
-
+@endsection

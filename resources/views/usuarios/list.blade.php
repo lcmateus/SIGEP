@@ -1,4 +1,4 @@
-@extends('layouts.app', [
+@extends('layouts/main_layout', [
     'title' => 'Usuários - SIGEP',
     'titulo' => 'USUÁRIOS',
     'usuario' => 'admin',
