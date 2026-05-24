@@ -10,13 +10,13 @@
 <body class="bg-slate-100 font-sans">
     <div class="flex min-h-screen bg-slate-100">
 
-        @include('partials.asidebar', ['usuario' => $usuario])
+        @include('partials.asidebar', ['usuario' => auth()->user()?->tipo_membro ?? 'guest'])
 
         <main class="flex-1 bg-gray-200">
 
             @include('partials.header', [
-                'titulo' => $titulo,
-                'usuario' => $usuario,
+                'titulo' => $titulo ?? 'Dashboard',
+                'usuario' => auth()->user()?->name ?? 'Usuário',
             ])
 
             <div class="p-8">
@@ -26,7 +26,6 @@
         </main>
 
     </div>
-
 </body>
 
 </html>

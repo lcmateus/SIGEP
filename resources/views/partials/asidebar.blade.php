@@ -13,22 +13,20 @@
     </div>
 
     <nav class="flex-1 space-y-2 text-sm font-medium">
-        <a href="#" class="flex items-center p-3 bg-emerald-200 text-emerald-700">Dashboard</a>
+        <a href="{{ route('dashboard') }}" class="flex items-center p-3 {{ request()->routeIs('dashboard') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Dashboard</a>
 
         @if($usuario == 'admin')
-        <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Processos</a>
-        <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Criar votação</a>
-        <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Usuários</a>
-        <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Resultados</a>
-        <!----> 
+        <a href="{{ route('processos.create') }}" class="flex items-center p-3 {{ request()->routeIs('processos.*') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Processos</a>
+        <a href="{{ route('processos.create') }}" class="flex items-center p-3 {{ request()->routeIs('processos.create') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Criar votação</a>
+        <a href="{{ route('usuarios.list') }}" class="flex items-center p-3 {{ request()->routeIs('usuarios.*') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Usuários</a>
+        <a href="{{ route('resultados') }}" class="flex items-center p-3 {{ request()->routeIs('resultados') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Resultados</a>
         @elseif($usuario == 'usuario')
-        <!-- Se o login for feito como usuário, mostrar as seguintes opções: -->
-        <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Processos disponíveis</a>
-        <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Perfil</a>
-        <!---->
+        <a href="{{ route('votacao') }}" class="flex items-center p-3 {{ request()->routeIs('votacao') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Processos disponíveis</a>
+        <a href="{{ route('perfil') }}" class="flex items-center p-3 {{ request()->routeIs('perfil') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Perfil</a>
         @endif
+
         <hr>
-        <a href="#" class="flex items-center p-3 text-white hover:bg-emerald-900">Configurações</a>
+        <a href="{{ route('configuracoes') }}" class="flex items-center p-3 {{ request()->routeIs('configuracoes') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Configurações</a>
     </nav>
 </aside>
 
