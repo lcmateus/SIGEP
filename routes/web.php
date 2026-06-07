@@ -26,9 +26,9 @@ Route::get('/usuarios/cadastro', function () {
     return view('usuarios.create');
 })->name('usuarios.create');
 
-Route::get('/votacao', function () {
-    return view('votacao');
-})->name('votacao');
+Route::get('/votar', function () {
+    return view('processos.votar');
+})->name('votar');
 
 Route::get('/perfil', function () {
     return view('perfil.edit');
