@@ -10,9 +10,13 @@
 
 <body class="bg-slate-100 text-slate-800">
     <div class="min-h-screen flex items-center justify-center bg-slate-100">
-        <form method="POST" class="bg-white p-8 rounded-2xl shadow w-96 space-y-4">
+        <form method="POST" action="{{ route('login') }}" class="bg-white p-8 rounded-2xl shadow w-96 space-y-4">
             @csrf
             <h1 class="text-2xl font-bold text-center">SIGEP</h1>
+
+            @if (session('status'))
+                <p class="text-sm text-green-700 text-center">{{ session('status') }}</p>
+            @endif
             
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-2">SIAPE</label>

@@ -3,6 +3,9 @@
     <div class="flex items-center space-x-4">
         <button class="text-emerald-900 font-bold hover:underline">{{$usuario}}</button>
         <span class="text-slate-400">|</span>
-        <span class="text-left text-red-600 font-bold hover:underline">Sair</span>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="text-left text-red-600 font-bold hover:underline">Sair</button>
+        </form>
     </div>
 </header>
