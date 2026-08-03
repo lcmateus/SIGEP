@@ -18,7 +18,7 @@
 
         body {
             height: 100vh;
-            background: url('/images/bg-login..jpg') no-repeat center center/cover;
+            background: url('/images/bg-login.jpg') no-repeat center center/cover;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -144,24 +144,31 @@
     <h2>PLENÁRIO DIGITAL</h2>
 
     <form method="POST" action="/login">
-        @csrf
+    @csrf
 
-        <div class="input-group">
-            <input type="text" name="suap" placeholder="Suap" required>
-        </div>
+    <div class="input-group">
+        <input type="text" name="suap" placeholder="Suap" required>
+    </div>
 
-        <div class="input-group">
-            <input type="password" name="password" placeholder="Senha" required>
-        </div>
+    <div class="input-group">
+        <input type="password" name="password" placeholder="Senha" required>
+    </div>
 
-        <button type="submit" class="btn btn-login">ENTRAR</button>
+    <button type="submit" class="btn btn-login">
+        ENTRAR
+    </button>
 
-        <button type="button" class="btn btn-register">CADASTRAR</button>
-
-        <div class="forgot">
-            <a href="#">Esqueci minha senha</a>
-        </div>
     </form>
+
+
+    <a href="{{ route('register') }}" class="btn btn-register" style="display:block;text-decoration:none;text-align:center;">
+        CADASTRAR
+    </a>
+
+
+    <div class="forgot">
+        <a href="#">Esqueci minha senha</a>
+    </div>
 
 </div>
 
