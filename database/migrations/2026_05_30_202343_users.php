@@ -11,7 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('siape')->unique();
+            $table->string('nome');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->string('tipo');
+            $table->string('status')->default('pendente');
+            $table->timestamp('email_verified_at')->nullable();
+            $table->rememberToken();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -19,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('users');
     }
 };

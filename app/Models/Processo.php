@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProcessoStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,30 +12,40 @@ class Processo extends Model
 {
     use HasFactory;
 
+    protected $attributes = [
+        'status' => ProcessoStatus::EmElaboracao->value,
+    ];
+
     protected $fillable = [
-        'titulo',
-        'descricao',
+        'numero_sei',
+        'data_admissao',
+        'data_devolucao',
         'status',
-        'data_inicio',
-        'data_fim',
-        'created_by',
+        'id_administrador',
+        'id_relator',
     ];
 
     protected function casts(): array
     {
         return [
-            'data_inicio' => 'datetime',
-            'data_fim' => 'datetime',
+            'data_admissao' => 'date',
+            'data_devolucao' => 'date',
+            'status' => ProcessoStatus::class,
         ];
     }
 
-    public function criador(): BelongsTo
+    public function administrador(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'id_administrador');
     }
 
-    public function votos(): HasMany
+    public function relator(): BelongsTo
     {
-        return $this->hasMany(Voto::class);
+        return $this->belongsTo(User::class, 'id_relator');
+    }
+
+    public function etapas(): HasMany
+    {
+        return $this->hasMany(Etapa::class);
     }
 }
