@@ -2,8 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\UserStatus;
-use App\Enums\UserTipo;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -27,11 +25,12 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'siape' => fake()->unique()->numerify('#######'),
-            'nome' => fake()->name(),
+            'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'tipo' => UserTipo::Membro,
-            'status' => UserStatus::Ativo,
+            'siape' => fake()->unique()->numerify('#######'),
+            'role' => 'membro',
+            'status' => 'ativo',
+            'tipo_membro' => 'titular',
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
@@ -41,16 +40,17 @@ class UserFactory extends Factory
     public function admin(): static
     {
         return $this->state(fn (array $attributes) => [
-            'tipo' => UserTipo::Admin,
-            'status' => UserStatus::Ativo,
+            'role' => 'admin',
+            'status' => 'ativo',
+            'tipo_membro' => null,
         ]);
     }
 
     public function pendente(): static
     {
         return $this->state(fn (array $attributes) => [
-            'tipo' => UserTipo::Membro,
-            'status' => UserStatus::Pendente,
+            'role' => 'membro',
+            'status' => 'pendente',
         ]);
     }
 
