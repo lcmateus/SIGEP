@@ -2,41 +2,25 @@
 
 namespace App\Models;
 
-use App\Enums\VotoOpcao;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Voto extends Model
 {
-    use HasFactory;
-    protected $attributes = [
-        'is_minerva' => false,
-    ];
-
     protected $fillable = [
-        'opcao',
+        'usuario_id',
+        'processo_id',
+        'tipo',
         'justificativa',
-        'is_minerva',
-        'membro_id',
-        'rodada_id',
     ];
 
-    protected function casts(): array
+    public function usuario(): BelongsTo
     {
-        return [
-            'opcao' => VotoOpcao::class,
-            'is_minerva' => 'boolean',
-        ];
+        return $this->belongsTo(User::class, 'usuario_id');
     }
 
-    public function membro(): BelongsTo
+    public function processo(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'membro_id');
-    }
-
-    public function rodada(): BelongsTo
-    {
-        return $this->belongsTo(RodadaVotacao::class, 'rodada_id');
+        return $this->belongsTo(Processo::class);
     }
 }

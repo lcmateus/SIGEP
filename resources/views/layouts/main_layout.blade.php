@@ -19,7 +19,7 @@
 <body class="bg-slate-100 font-sans">
     <div class="flex min-h-screen bg-slate-100">
 
-        @include('partials.asidebar', ['usuario' => auth()->user()?->tipo_membro ?? 'guest'])
+        @include('partials.asidebar', ['usuario' => auth()->user()?->role ?? 'guest'])
 
         <main class="flex-1 bg-gray-200">
 
