@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\UsuarioMembro;
+use App\Models\UsuarioAdministrador;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,26 +23,31 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (! Auth::attempt($credentials)) {
-            return back()->withErrors([
-                'siape' => 'SIAPE ou senha invalidos.',
-            ])->onlyInput('siape');
+        $membro = UsuarioMembro::where('siape', $credentials['siape'])->first();
+        
+        if ($membro && Auth::guard('web')->validate(['siape' => $credentials['siape'], 'password' => $credentials['password']])) {
+            if (!$membro->data_ativacao) {
+                return back()->withErrors([
+                    'siape' => 'Cadastro aguardando aprovacao.',
+                ])->onlyInput('siape');
+            }
+            
+            Auth::login($membro);
+            $request->session()->regenerate();
+            return redirect()->route('dashboard');
         }
 
-        $request->session()->regenerate();
-
-        if (! $request->user()->isAtivo()) {
-            Auth::logout();
-
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            return back()->withErrors([
-                'siape' => 'Cadastro aguardando aprovacao.',
-            ])->onlyInput('siape');
+        $admin = UsuarioAdministrador::where('siape', $credentials['siape'])->first();
+        
+        if ($admin && Auth::guard('web')->validate(['siape' => $credentials['siape'], 'password' => $credentials['password']])) {
+            Auth::login($admin);
+            $request->session()->regenerate();
+            return redirect()->route('dashboard');
         }
 
-        return redirect()->route('dashboard');
+        return back()->withErrors([
+            'siape' => 'SIAPE ou senha invalidos.',
+        ])->onlyInput('siape');
     }
 
     public function showRegister(): View
@@ -52,18 +58,14 @@ class AuthController extends Controller
     public function register(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'siape' => ['required', 'string', 'max:20', 'unique:users,siape'],
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'tipo_membro' => ['required', 'in:titular,suplente'],
+            'siape' => ['required', 'string', 'max:20', 'unique:usuario_membro,siape'],
+            'nome' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:usuario_membro,email'],
             'password' => ['required', 'confirmed', 'min:8'],
         ]);
 
-        User::query()->create([
-            ...$data,
-            'role' => 'membro',
-            'status' => 'pendente',
-        ]);
+        $data['password'] = bcrypt($data['password']);
+        UsuarioMembro::create($data);
 
         return redirect()->route('home')->with('status', 'Cadastro enviado para aprovacao.');
     }
