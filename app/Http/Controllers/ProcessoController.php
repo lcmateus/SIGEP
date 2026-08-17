@@ -2,83 +2,90 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ProcessoStatus;
 use App\Models\Processo;
+use App\Services\DistribuicaoService;
+use App\Services\FluxoProcessual;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class ProcessoController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): JsonResponse
     {
-        return view('processos.index', [
-            'processos' => Processo::query()->latest()->get(),
-        ]);
+        $query = Processo::query()
+            ->with(['administrador', 'relator', 'etapas']);
+
+        if ($status = $request->query('status')) {
+            $query->where('status', $status);
+        }
+
+        return response()->json($query->paginate(15));
     }
 
-    public function create(): View
+    public function show(Processo $processo): JsonResponse
     {
-        $this->authorizeAdmin();
+        $processo->load(['administrador', 'relator', 'etapas.rodadasVotacao.votos', 'etapas.documentos']);
 
-        return view('processos.create');
+        return response()->json($processo);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, DistribuicaoService $distribuicao): RedirectResponse
     {
-        $this->authorizeAdmin();
-
         $data = $request->validate([
-            'titulo' => ['required', 'string', 'max:255'],
-            'descricao' => ['required', 'string'],
-            'status' => ['nullable', 'in:ativa,encerrada,rascunho'],
-            'data_inicio' => ['nullable', 'date'],
-            'data_fim' => ['nullable', 'date', 'after_or_equal:data_inicio'],
+            'numero_sei' => ['required', 'string', 'max:255', 'unique:processos,numero_sei'],
+            'data_admissao' => ['nullable', 'date'],
+            'data_devolucao' => ['nullable', 'date', 'after_or_equal:data_admissao'],
+            'id_relator' => ['nullable', 'exists:users,id'],
         ]);
 
-        $processo = Processo::query()->create([
-            ...$data,
-            'status' => $data['status'] ?? 'ativa',
-            'created_by' => auth()->id(),
+        $idRelator = $data['id_relator'] ?? $distribuicao->distribuirRelator();
+
+        Processo::query()->create([
+            'numero_sei' => $data['numero_sei'],
+            'data_admissao' => $data['data_admissao'] ?? null,
+            'data_devolucao' => $data['data_devolucao'] ?? null,
+            'status' => ProcessoStatus::EmElaboracao,
+            'id_administrador' => $request->user()?->id,
+            'id_relator' => $idRelator,
         ]);
 
-        return redirect()->route('processos.show', $processo)->with('status', 'Processo criado.');
-    }
-
-    public function show(Processo $processo): View
-    {
-        return view('processos.show', [
-            'processo' => $processo,
-        ]);
+        return redirect()->route('processos.create');
     }
 
     public function update(Request $request, Processo $processo): RedirectResponse
     {
-        $this->authorizeAdmin();
-
         $data = $request->validate([
-            'titulo' => ['required', 'string', 'max:255'],
-            'descricao' => ['required', 'string'],
-            'status' => ['required', 'in:ativa,encerrada,rascunho'],
-            'data_inicio' => ['nullable', 'date'],
-            'data_fim' => ['nullable', 'date', 'after_or_equal:data_inicio'],
+            'numero_sei' => ['sometimes', 'string', 'max:255', 'unique:processos,numero_sei,' . $processo->id],
+            'data_admissao' => ['sometimes', 'nullable', 'date'],
+            'data_devolucao' => ['sometimes', 'nullable', 'date', 'after_or_equal:data_admissao'],
+            'id_relator' => ['sometimes', 'nullable', 'exists:users,id'],
         ]);
 
         $processo->update($data);
 
-        return redirect()->route('processos.show', $processo)->with('status', 'Processo atualizado.');
+        return redirect()->back();
     }
 
     public function destroy(Processo $processo): RedirectResponse
     {
-        $this->authorizeAdmin();
-
         $processo->delete();
 
-        return redirect()->route('processos.index')->with('status', 'Processo excluido.');
+        return redirect()->back();
     }
 
-    private function authorizeAdmin(): void
+    public function arquivar(Processo $processo, FluxoProcessual $fluxo): RedirectResponse
     {
-        abort_unless(auth()->check() && auth()->user()->isAdmin(), 403);
+        $fluxo->arquivar($processo);
+
+        return redirect()->back();
+    }
+
+    public function abrirVotacao(Processo $processo, FluxoProcessual $fluxo): RedirectResponse
+    {
+        $fluxo->abrirVotacao($processo);
+
+        return redirect()->back();
     }
 }

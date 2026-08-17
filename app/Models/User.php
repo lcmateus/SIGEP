@@ -3,7 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserStatus;
+use App\Enums\UserTipo;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -15,13 +18,13 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
+        'siape',
+        'nome',
         'name',
         'email',
-        'siape',
         'password',
-        'role',
+        'tipo',
         'status',
-        'tipo_membro',
     ];
 
     protected $hidden = [
@@ -29,24 +32,57 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function processosCriados(): HasMany
+    public function processosAdministrados(): HasMany
     {
-        return $this->hasMany(Processo::class, 'created_by');
+        return $this->hasMany(Processo::class, 'id_administrador');
+    }
+
+    public function processosRelatados(): HasMany
+    {
+        return $this->hasMany(Processo::class, 'id_relator');
     }
 
     public function votos(): HasMany
     {
-        return $this->hasMany(Voto::class, 'usuario_id');
+        return $this->hasMany(Voto::class, 'membro_id');
+    }
+
+    public function rodadasPresididas(): HasMany
+    {
+        return $this->hasMany(RodadaVotacao::class, 'presidente_id');
+    }
+
+    public function notificacoes(): HasMany
+    {
+        return $this->hasMany(Notificacao::class);
+    }
+
+    public function relatoriosSistema(): HasMany
+    {
+        return $this->hasMany(RelatorioSistema::class);
     }
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->tipo === UserTipo::Admin;
+    }
+
+    public function isMembro(): bool
+    {
+        return $this->tipo === UserTipo::Membro;
     }
 
     public function isAtivo(): bool
     {
-        return $this->status === 'ativo';
+        return $this->status === UserStatus::Ativo;
+    }
+
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => $attributes['nome'] ?? null,
+            set: fn (string $value) => ['nome' => $value],
+        );
     }
 
     /**
@@ -59,6 +95,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'tipo' => UserTipo::class,
+            'status' => UserStatus::class,
         ];
     }
 }
