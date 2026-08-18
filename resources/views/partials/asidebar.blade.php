@@ -1,8 +1,9 @@
 <aside class="w-64 bg-emerald-700 border-r border-slate-200 flex flex-col space-y-8">
     <div class="bg-emerald-500 p-6 h-32 flex items-center">
         <div>
-            <h1 class="font-bold text-xl leading-none text-white">SIGEP</h1>
-            <p class="text-[10px] text-emerald-950 uppercase">Gestao da Etica Publica</p>
+            <img src = "images/logo-ifpr.png" alt = "Imagem não encontrada">
+            <h1 class="font-bold text-xl leading-none text-white p-0.5">SIGEP</h1>
+            <p class="text-[10px] text-emerald-950 uppercase">Sistema de Gestao da Ética Publica</p>
         </div>
     </div>
 

@@ -20,7 +20,7 @@ class DashboardController extends Controller
             'votacoesEncerradas' => Processo::query()->where('status', 'encerrada')->count(),
             'totalVotos' => Voto::query()->count(),
             'votacoesDisponiveis' => Processo::query()->where('status', 'ativa')->count(),
-            'votacoesRealizadas' => $user ? Voto::query()->where('usuario_id', $user->id)->count() : 0,
+            'votacoesRealizadas' => $user ? Voto::query()->where('id', $user->id)->count() : 0,
             'processosRecentes' => Processo::query()->latest()->limit(5)->get(),
         ]);
     }
