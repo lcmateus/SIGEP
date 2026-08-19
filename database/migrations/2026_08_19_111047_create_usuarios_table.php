@@ -6,17 +6,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    
     public function up(): void
     {
-        Schema::create('usuario_membro', function (Blueprint $table) {
-            $table->id();
+        Schema::create('usuario', function (Blueprint $table) {
+            $table->string('siape', 7)->primary();
             $table->string('nome');
             $table->string('email')->unique();
-            $table->string('siape')->unique();
             $table->string('password');
-            $table->timestamp('data_ativacao')->nullable();
-            $table->foreignId('ativado_por')->nullable()->constrained('usuario_administradors')->onDelete('set null');
-            $table->boolean('is_presidente')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
@@ -25,6 +22,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('usuario_membro');
+        Schema::dropIfExists('usuario');
     }
 };

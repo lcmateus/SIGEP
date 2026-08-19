@@ -12,12 +12,17 @@ class Processo extends Model
     use HasFactory;
 
     protected $fillable = [
+        'numero_SEI',
         'titulo',
         'descricao',
         'status',
         'data_inicio',
         'data_fim',
-        'created_by',
+        'desfecho',
+        'siape_relator',
+        'insert_by',
+        'pdf_SEI',
+        'etapa_atual'
     ];
 
     protected function casts(): array
@@ -30,11 +35,32 @@ class Processo extends Model
 
     public function criador(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(UsuarioAdministrador::class, 'insert_by', 'siape');
     }
 
-    public function votos(): HasMany
+    public function relator(): BelongsTo
     {
-        return $this->hasMany(Voto::class);
+        return $this->belongsTo(UsuarioMembro::class, 'siape_relator', 'siape');
+    }
+
+    public function etapas(): HasMany{
+        return $this->hasMany(Etapa::class);
+    }
+
+    public function etapaAtual()
+    {
+        return $this->belongsTo(Etapa::class, 'etapa_atual_id');
+    }
+
+    
+
+    public function getStatusDisplay()
+    {
+        return $this->etapaAtual?->status_display ?? 'Sem etapa';
+    }
+
+    public function getEtapaTipoDisplay()
+    {
+        return $this->etapaAtual?->tipo_display ?? 'Nenhuma';
     }
 }

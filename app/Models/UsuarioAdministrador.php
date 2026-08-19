@@ -21,6 +21,19 @@ class UsuarioAdministrador extends Authenticatable
         'password'
     ];
 
+    protected $hidden = [
+        'password'
+    ];
+
+    //Relacionamentos
+
+    public function ativacao(){
+        return $this->hasMany(UsuarioMembro::class, 'siape', 'siape');
+    }
+
+    public function inserirProcesso(){
+        return $this->hasMany(Processo::class, 'insert_by', 'siape');
+    }
 
 
     /**
