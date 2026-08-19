@@ -8,10 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
+
 <body class="bg-slate-100 text-slate-800">
     
-    <div class="min-h-screen flex items-center justify-center bg-slate-100"
-        class="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
+    <div class="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
         style="background-image: url('{{ asset('images/bg-login.jpg') }}');"
     >
         <form method="POST" action="{{ route('login') }}" class="bg-white p-8 rounded-2xl shadow w-96 space-y-4">
@@ -42,6 +42,10 @@
                 @error('password') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
             </div>
 
+            <div>
+                <a class = "text-center text-sm text-green-700 hover:underline" href="{{ route('forgot-password') }}">Esqueci minha senha</a>
+            </div>
+            
             <button type="submit" class="w-full bg-green-700 text-white p-2 rounded font-bold hover:bg-green-800 transition-colors">ENTRAR</button>
             <p class="text-center text-sm">Não tem uma conta? <a href="{{ route('cadastro') }}" class="text-green-700 font-bold hover:underline">Cadastre-se</a></p>
         </form>
@@ -55,6 +59,7 @@
             });
         });
     </script>
+
 </body>
 
 </html>

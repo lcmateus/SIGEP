@@ -31,10 +31,59 @@ class UsuarioMembro extends Authenticatable
         'is_presidente'
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    //Casts
+
+    protected $casts = [
+        'data_ativacao' => 'datetime'
+    ];
+
+    //Relacionamentos
+
+    public function ativadoPor(){
+        return $this->belongsTo(UsuarioAdministrador::class, 'siape');
+    }
+    
+    public function processosComoRelator()
+    {
+        return $this->hasMany(Processo::class, 'relator_id', 'siape');
+    }
+
+    public function votos()
+    {
+        return $this->hasMany(Voto::class, 'usuario_id', 'siape');
+    }
+
+    public function rodadasVotacao()
+    {
+        return $this->belongsToMany(RodadaVotacao::class, 'rodada_votacao_membros', 'membro_id', 'rodada_id');
+    }
+
+    // Escopos locais
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isTitular()
+    {
+        return $this->tipo_membro === 'titular' || $this->tipo_membro === 'presidente';
+    }
+
+    public function isPresidente()
+    {
+        return $this->tipo_membro === 'presidente';
+    }
+
+    public function isAtivo()
+    {
+        return $this->status === 'ativo';
+    }
+
 
 }

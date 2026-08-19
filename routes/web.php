@@ -7,9 +7,14 @@ use App\Http\Controllers\UsuarioMembroController;
 use App\Http\Controllers\VotacaoController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/cadastro', 'auth.register')->name('register');
+/*
+Route::view('/', 'auth.login')->name('login');
 
-Route::view('/recuperar-senha', 'auth.forgot-password')->name('forgot-password');
+Route::view('/cadastro', 'auth.register')->name('register');
+*/
+
+Route::view('/recuperar-senha', 'home.forgot-password')->name('forgot-password');
+
 Route::get('/', [AuthController::class, 'showLogin'])->name('home');
 Route::post('/', [AuthController::class, 'login'])->name('login');
 

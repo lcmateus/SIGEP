@@ -27,7 +27,11 @@ class DashboardController extends Controller
             'votacoesEncerradas' => Processo::query()->where('status', 'encerrada')->count(),
             'totalVotos' => Voto::query()->count(),
             'votacoesDisponiveis' => Processo::query()->where('status', 'ativa')->count(),
+<<<<<<< HEAD
             'votacoesRealizadas' => $user ? Voto::query()->where('usuario_id', $user->siape)->count() : 0,
+=======
+            'votacoesRealizadas' => $user ? Voto::query()->where('id', $user->id)->count() : 0,
+>>>>>>> votacoes_e_etapas
             'processosRecentes' => Processo::query()->latest()->limit(5)->get(),
         ]);
     }

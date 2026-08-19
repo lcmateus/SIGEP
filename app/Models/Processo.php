@@ -16,11 +16,17 @@ class Processo extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'numero_sei',
+        'numero_SEI',
+        'titulo',
+        'descricao',
+        'status',
         'data_admissao',
         'data_devolucao',
-        'id_administrador',
-        'id_relator',
+        'desfecho',
+        'siape_relator',
+        'siape_administrador',
+        'pdf_SEI',
+        'etapa_atual'
     ];
 
     protected $casts = [
@@ -30,11 +36,34 @@ class Processo extends Model
 
     public function administrador(): BelongsTo
     {
-        return $this->belongsTo(UsuarioAdministrador::class, 'id_administrador', 'siape');
+
+        return $this->belongsTo(UsuarioAdministrador::class, 'siape_administrador', 'siape');
     }
 
     public function relator(): BelongsTo
     {
-        return $this->belongsTo(UsuarioMembro::class, 'id_relator', 'siape');
+        return $this->belongsTo(UsuarioMembro::class, 'siape_relator', 'siape');
+    }
+
+    public function etapas(): HasMany{
+        return $this->hasMany(Etapa::class);
+    }
+
+    public function etapaAtual()
+    {
+        return $this->belongsTo(Etapa::class, 'etapa_atual_id');
+    }
+
+    
+
+    public function getStatusDisplay()
+    {
+        return $this->etapaAtual?->status_display ?? 'Sem etapa';
+    }
+
+    public function getEtapaTipoDisplay()
+    {
+        return $this->etapaAtual?->tipo_display ?? 'Nenhuma';
     }
 }
+
