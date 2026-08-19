@@ -2,7 +2,7 @@
     <div class="bg-emerald-500 p-6 h-32 flex items-center">
         <div>
             <h1 class="font-bold text-xl leading-none text-white">SIGEP</h1>
-            <p class="text-[10px] text-emerald-950 uppercase">Gestao da Etica Publica</p>
+            <p class="text-[10px] text-emerald-950 uppercase">Sistema de Gestao da Etica Publica</p>
         </div>
     </div>
 

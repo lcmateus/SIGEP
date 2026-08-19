@@ -17,15 +17,21 @@
 </head>
 
 <body class="bg-slate-100 font-sans">
+    @php
+        $authUser = auth()->user();
+        $role = $authUser instanceof \App\Models\UsuarioAdministrador
+            ? 'admin'
+            : ($authUser instanceof \App\Models\UsuarioMembro ? 'membro' : 'guest');
+    @endphp
     <div class="flex min-h-screen bg-slate-100">
 
-        @include('partials.asidebar', ['usuario' => auth()->user()?->role ?? 'guest'])
+        @include('partials.asidebar', ['usuario' => $role])
 
         <main class="flex-1 bg-gray-200">
 
             @include('partials.header', [
                 'titulo' => $titulo ?? 'Dashboard',
-                'usuario' => auth()->user()?->name ?? 'Usuário',
+                'usuario' => $authUser?->nome ?? 'Usuário',
             ])
 
             <div class="p-8">

@@ -9,8 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('usuario_administrador', function (Blueprint $table) {
-            $table->id();
-            $table->string('siape')->unique();
+            $table->string('siape')->primary();
             $table->string('nome');
             $table->string('email')->unique();
             $table->string('password');

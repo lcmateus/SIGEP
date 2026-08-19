@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('votos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('usuario_id')->constrained('users')->cascadeOnDelete();
+            $table->string('usuario_id');
+            $table->foreign('usuario_id')->references('siape')->on('usuario_membro')->cascadeOnDelete();
             $table->foreignId('processo_id')->constrained('processos')->cascadeOnDelete();
             $table->string('tipo');
             $table->text('justificativa')->nullable();

@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Processo;
-use App\Models\User;
+use App\Models\UsuarioAdministrador;
+use App\Models\UsuarioMembro;
 use App\Models\Voto;
 use Illuminate\View\View;
 
@@ -13,14 +14,20 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
+        $role = match (true) {
+            $user instanceof UsuarioAdministrador => 'admin',
+            $user instanceof UsuarioMembro => 'membro',
+            default => 'guest',
+        };
+
         return view('dashboard', [
-            'usuario' => $user?->role ?? 'guest',
-            'totalUsuarios' => User::query()->count(),
+            'usuario' => $role,
+            'totalUsuarios' => UsuarioMembro::query()->count() + UsuarioAdministrador::query()->count(),
             'votacoesAtivas' => Processo::query()->where('status', 'ativa')->count(),
             'votacoesEncerradas' => Processo::query()->where('status', 'encerrada')->count(),
             'totalVotos' => Voto::query()->count(),
             'votacoesDisponiveis' => Processo::query()->where('status', 'ativa')->count(),
-            'votacoesRealizadas' => $user ? Voto::query()->where('usuario_id', $user->id)->count() : 0,
+            'votacoesRealizadas' => $user ? Voto::query()->where('usuario_id', $user->siape)->count() : 0,
             'processosRecentes' => Processo::query()->latest()->limit(5)->get(),
         ]);
     }

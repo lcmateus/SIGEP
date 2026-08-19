@@ -31,7 +31,7 @@ class VotacaoController extends Controller
 
         abort_if(
             Voto::query()
-                ->where('usuario_id', auth()->id())
+                ->where('usuario_id', auth()->user()->siape)
                 ->where('processo_id', $processo->id)
                 ->exists(),
             422,
@@ -39,7 +39,7 @@ class VotacaoController extends Controller
         );
 
         Voto::query()->create([
-            'usuario_id' => auth()->id(),
+            'usuario_id' => auth()->user()->siape,
             'processo_id' => $processo->id,
             'tipo' => $data['tipo'],
             'justificativa' => $data['justificativa'] ?? null,

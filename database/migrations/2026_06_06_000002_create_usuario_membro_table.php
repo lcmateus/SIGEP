@@ -9,13 +9,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('usuario_membro', function (Blueprint $table) {
-            $table->id();
             $table->string('nome');
             $table->string('email')->unique();
-            $table->string('siape')->unique();
+            $table->string('siape')->primary();
             $table->string('password');
             $table->timestamp('data_ativacao')->nullable();
-            $table->foreignId('ativado_por')->nullable()->constrained('usuario_administradors')->onDelete('set null');
+            $table->string('ativado_por')->nullable();
+            $table->foreign('ativado_por')->references('siape')->on('usuario_administrador')->onDelete('set null');
             $table->boolean('is_presidente')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

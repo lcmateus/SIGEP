@@ -9,13 +9,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('processos', function (Blueprint $table) {
-            $table->id();
-            $table->string('titulo');
-            $table->text('descricao');
-            $table->string('status')->default('ativa');
-            $table->dateTime('data_inicio')->nullable();
-            $table->dateTime('data_fim')->nullable();
-            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('numero_sei')->primary();
+            $table->date('data_admissao')->nullable();
+            $table->date('data_devolucao')->nullable();
+            $table->string('id_administrador')->nullable();
+            $table->foreign('id_administrador')->references('siape')->on('usuario_administrador')->onDelete('set null');
+            $table->string('id_relator')->nullable();
+            $table->foreign('id_relator')->references('siape')->on('usuario_membro')->onDelete('set null');
             $table->timestamps();
         });
     }

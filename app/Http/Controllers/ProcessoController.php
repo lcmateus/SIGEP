@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Processo;
+use App\Models\UsuarioAdministrador;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -28,20 +29,16 @@ class ProcessoController extends Controller
         $this->authorizeAdmin();
 
         $data = $request->validate([
-            'titulo' => ['required', 'string', 'max:255'],
-            'descricao' => ['required', 'string'],
-            'status' => ['nullable', 'in:ativa,encerrada,rascunho'],
-            'data_inicio' => ['nullable', 'date'],
-            'data_fim' => ['nullable', 'date', 'after_or_equal:data_inicio'],
+            'numero_sei' => ['required', 'string', 'max:255', 'unique:processos,numero_sei'],
+            'data_admissao' => ['nullable', 'date'],
+            'data_devolucao' => ['nullable', 'date', 'after_or_equal:data_admissao'],
+            'id_administrador' => ['nullable', 'exists:usuario_administrador,siape'],
+            'id_relator' => ['nullable', 'exists:usuario_membro,siape'],
         ]);
 
-        $processo = Processo::query()->create([
-            ...$data,
-            'status' => $data['status'] ?? 'ativa',
-            'created_by' => auth()->id(),
-        ]);
+        Processo::query()->create($data);
 
-        return redirect()->route('processos.show', $processo)->with('status', 'Processo criado.');
+        return redirect()->route('processos.index')->with('status', 'Processo criado.');
     }
 
     public function show(Processo $processo): View
@@ -56,11 +53,11 @@ class ProcessoController extends Controller
         $this->authorizeAdmin();
 
         $data = $request->validate([
-            'titulo' => ['required', 'string', 'max:255'],
-            'descricao' => ['required', 'string'],
-            'status' => ['required', 'in:ativa,encerrada,rascunho'],
-            'data_inicio' => ['nullable', 'date'],
-            'data_fim' => ['nullable', 'date', 'after_or_equal:data_inicio'],
+            'numero_sei' => ['required', 'string', 'max:255', 'unique:processos,numero_sei,'.$processo->numero_sei],
+            'data_admissao' => ['nullable', 'date'],
+            'data_devolucao' => ['nullable', 'date', 'after_or_equal:data_admissao'],
+            'id_administrador' => ['nullable', 'exists:usuario_administrador,siape'],
+            'id_relator' => ['nullable', 'exists:usuario_membro,siape'],
         ]);
 
         $processo->update($data);
@@ -79,6 +76,6 @@ class ProcessoController extends Controller
 
     private function authorizeAdmin(): void
     {
-        abort_unless(auth()->check() && auth()->user()->isAdmin(), 403);
+        abort_unless(auth()->check() && auth()->user() instanceof UsuarioAdministrador, 403);
     }
 }

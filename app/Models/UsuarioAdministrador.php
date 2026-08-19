@@ -14,6 +14,12 @@ class UsuarioAdministrador extends Authenticatable
 
     protected $table = 'usuario_administrador';
 
+    protected $primaryKey = 'siape';
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
     protected $fillable = [
         'siape',
         'nome',

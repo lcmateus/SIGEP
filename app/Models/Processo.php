@@ -2,39 +2,39 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Processo extends Model
 {
-    use HasFactory;
+    protected $table = 'processos';
+
+    protected $primaryKey = 'numero_sei';
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
-        'titulo',
-        'descricao',
-        'status',
-        'data_inicio',
-        'data_fim',
-        'created_by',
+        'numero_sei',
+        'data_admissao',
+        'data_devolucao',
+        'id_administrador',
+        'id_relator',
     ];
 
-    protected function casts(): array
+    protected $casts = [
+        'data_admissao' => 'date',
+        'data_devolucao' => 'date',
+    ];
+
+    public function administrador(): BelongsTo
     {
-        return [
-            'data_inicio' => 'datetime',
-            'data_fim' => 'datetime',
-        ];
+        return $this->belongsTo(UsuarioAdministrador::class, 'id_administrador', 'siape');
     }
 
-    public function criador(): BelongsTo
+    public function relator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    public function votos(): HasMany
-    {
-        return $this->hasMany(Voto::class);
+        return $this->belongsTo(UsuarioMembro::class, 'id_relator', 'siape');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UsuarioAdministrador;
 use App\Models\UsuarioMembro;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,10 +25,10 @@ class UsuarioMembroController extends Controller
 
         $data = $request->validate([
             'nome' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:usuario_membros,email,'.$usuario->id],
-            'siape' => ['required', 'string', 'max:20', 'unique:usuario_membros,siape,'.$usuario->id],
+            'email' => ['required', 'email', 'max:255', 'unique:usuario_membro,email,'.$usuario->siape],
+            'siape' => ['required', 'string', 'max:20', 'unique:usuario_membro,siape,'.$usuario->siape],
             'data_ativacao' => ['nullable', 'date'],
-            'ativado_por' => ['nullable', 'exists:usuario_administradors,id'],
+            'ativado_por' => ['nullable', 'exists:usuario_administrador,siape'],
             'is_presidente' => ['boolean'],
         ]);
 
@@ -40,7 +41,7 @@ class UsuarioMembroController extends Controller
     {
         $this->authorizeAdmin();
 
-        $usuario->update(['data_ativacao' => now(), 'ativado_por' => auth()->id()]);
+        $usuario->update(['data_ativacao' => now(), 'ativado_por' => auth()->user()->siape]);
 
         return redirect()->route('usuarios.list')->with('status', 'Usuario aprovado.');
     }
@@ -58,6 +59,6 @@ class UsuarioMembroController extends Controller
 
     private function authorizeAdmin(): void
     {
-        abort_unless(auth()->check() && auth()->user()->isAdmin(), 403);
+        abort_unless(auth()->check() && auth()->user() instanceof UsuarioAdministrador, 403);
     }
 }

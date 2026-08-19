@@ -15,6 +15,12 @@ class UsuarioMembro extends Authenticatable
 
     protected $table = 'usuario_membro';
 
+    protected $primaryKey = 'siape';
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
     protected $fillable = [
         'nome',
         'email',
