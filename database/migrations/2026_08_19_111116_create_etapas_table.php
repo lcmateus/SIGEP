@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('etapa', function (Blueprint $table) {
-            $table->id();
+            $table->integer('id')->primary();
             $table->integer('processo_id')->nullable();
             $table->integer('ordem')->default(1);
             $table->enum('tipo', [

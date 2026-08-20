@@ -8,10 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('votos', function (Blueprint $table) {
+        Schema::create('voto', function (Blueprint $table) {
             $table->integer('id');
             $table->string('usuario_id',7)->nullable();
-            $table->integer('processo_id')->nullable();
+            $table->integer('rodada_votacao_id')->nullable();
             $table->string('tipo');
             $table->text('justificativa')->nullable();
             $table->timestamps();
@@ -21,19 +21,19 @@ return new class extends Migration
                   ->on('membro')
                   ->cascadeOnDelete();
 
-            $table->foreign('processo_id')
-                  ->references('numero_SEI')
-                  ->on('processo')
+            $table->foreign('rodada_votacao_id')
+                  ->references('id')
+                  ->on('rodada_votacao')
                   ->cascadeOnDelete();
 
             
 
-            $table->unique(['usuario_id', 'processo_id']);
+            $table->unique(['usuario_id', 'rodada_votacao_id']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('votos');
+        Schema::dropIfExists('voto');
     }
 };

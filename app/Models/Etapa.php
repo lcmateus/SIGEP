@@ -6,8 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Etapa extends Model
 {
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, Notifiable;
+
+    protected $table = 'etapa';
+
+    protected $primaryKey = 'id';
+
+    public $incrementing = true;
+
+    protected $keyType = 'integer';
+
     protected $fillable = [
-        'processo_id',
         'ordem',
         'tipo',
         'status',

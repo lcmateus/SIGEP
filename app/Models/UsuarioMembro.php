@@ -24,7 +24,6 @@ class UsuarioMembro extends Authenticatable
     protected $fillable = [
         'nome',
         'email',
-        'siape',
         'password',
         'data_ativacao',
         'ativado_por',

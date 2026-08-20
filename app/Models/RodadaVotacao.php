@@ -6,7 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class RodadaVotacao extends Model
 {
-    protected $table = 'rodadas_votacao';
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, Notifiable;
+
+    protected $table = 'rodada_votacao';
+
+    protected $primaryKey = 'id';
+
+    public $incrementing = true;
+
+    protected $keyType = 'integer';
 
     protected $fillable = [
         'id_etapa',

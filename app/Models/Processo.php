@@ -7,16 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Processo extends Model
 {
-    protected $table = 'processos';
+    protected $table = 'processo';
 
-    protected $primaryKey = 'numero_sei';
+    protected $primaryKey = 'id';
 
     public $incrementing = false;
 
-    protected $keyType = 'string';
+    protected $keyType = 'integer';
 
     protected $fillable = [
-        'numero_SEI',
         'titulo',
         'descricao',
         'status',

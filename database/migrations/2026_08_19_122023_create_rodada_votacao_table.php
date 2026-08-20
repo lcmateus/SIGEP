@@ -11,8 +11,8 @@ return new class extends Migration
     {
         Schema::create('rodada_votacao', function (Blueprint $table) {
             $table->integer('id')->primary();
-            $table->timestamps('data_abertura')->useCurrent();
-            $table->timestamps('data_encerramento')->nullable();
+            $table->timestamp('data_abertura')->useCurrent();
+            $table->timestamp('data_encerramento')->nullable();
             $table->integer('id_etapa')->nullable();
             
             $table->enum('status', [
