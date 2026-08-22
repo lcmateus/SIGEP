@@ -22,13 +22,13 @@ return new class extends Migration
 
             $table->foreign('siape_relator')
                   ->references('siape')
-                  ->on('membro')
+                  ->on('usuario_membro')
                   ->cascadeOnUpdate()
                   ->cascadeOnDelete();
             
             $table->foreign('insert_by')
                   ->references('siape')
-                  ->on('administrador')
+                  ->on('usuario_administrador')
                   ->cascadeOnUpdate()
                   ->cascadeOnDelete();
         });

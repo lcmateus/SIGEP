@@ -18,7 +18,7 @@ return new class extends Migration
 
             $table->foreign('usuario_id')
                   ->references('siape')
-                  ->on('membro')
+                  ->on('usuario_membro')
                   ->cascadeOnDelete();
 
             $table->foreign('rodada_votacao_id')

@@ -46,12 +46,12 @@ return new class extends Migration
             // Índices
             $table->index(['referencia_tipo', 'referencia_id']);
             $table->index('tipo');
-            $table->index('uploaded_by');
+            $table->index('upload_feito_por');
 
             // Chave estrangeira
             $table->foreign('upload_feito_por')
                   ->references('siape')
-                  ->on('administrador')
+                  ->on('usuario_administrador')
                   ->cascadeOnDelete();
         });
     }
