@@ -16,6 +16,8 @@ class UsuarioMembroController extends Controller
 
         return view('usuarios.list', [
             'usuarios' => UsuarioMembro::query()->latest()->get(),
+            'totalAdmins' => UsuarioAdministrador::query()->count(),
+            'totalPendentes' => UsuarioMembro::query()->whereNull('data_ativacao')->count(),
         ]);
     }
 

@@ -22,6 +22,7 @@ class UsuarioMembro extends Authenticatable
     protected $keyType = 'string';
 
     protected $fillable = [
+        'siape',
         'nome',
         'email',
         'password',
@@ -49,7 +50,7 @@ class UsuarioMembro extends Authenticatable
     
     public function processosComoRelator()
     {
-        return $this->hasMany(Processo::class, 'relator_id', 'siape');
+        return $this->hasMany(Processo::class, 'id_relator', 'siape');
     }
 
     public function votos()

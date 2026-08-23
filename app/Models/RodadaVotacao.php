@@ -6,10 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class RodadaVotacao extends Model
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
-
     protected $table = 'rodada_votacao';
+
+    public $timestamps = false;
 
     protected $primaryKey = 'id';
 
@@ -37,12 +36,12 @@ class RodadaVotacao extends Model
     // Relacionamentos
     public function etapa()
     {
-        return $this->belongsTo(Etapa::class);
+        return $this->belongsTo(Etapa::class, 'id_etapa', 'id');
     }
 
     public function votos()
     {
-        return $this->hasMany(Voto::class, 'rodada_id');
+        return $this->hasMany(Voto::class, 'rodada_votacao_id');
     }
 
     // Métodos auxiliares
@@ -76,14 +75,14 @@ class RodadaVotacao extends Model
         return $this->getVotosComRelator() == $this->getVotosDesaprova();
     }
 
-    public function podeVotar(User $user)
+    public function podeVotar($siape)
     {
         $snapshot = $this->snapshot_votantes ?? [];
-        return in_array($user->siape, $snapshot);
+        return in_array($siape, $snapshot);
     }
 
-    public function jaVotou(User $user)
+    public function jaVotou($siape)
     {
-        return $this->votos()->where('usuario_id', $user->siape)->exists();
+        return $this->votos()->where('usuario_id', $siape)->exists();
     }
 }

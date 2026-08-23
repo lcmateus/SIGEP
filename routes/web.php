@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\ProcessoController;
 use App\Http\Controllers\UsuarioMembroController;
 use App\Http\Controllers\VotacaoController;
@@ -28,6 +29,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/processos', [ProcessoController::class, 'index'])->name('processos.index');
 
+    Route::get('/processos/publicos', [ProcessoController::class, 'publicos'])->name('processos.publicos');
+
     Route::get('/usuarios', [UsuarioMembroController::class, 'index'])->name('usuarios.list');
     Route::put('/usuarios/{usuario}', [UsuarioMembroController::class, 'update'])->name('usuarios.update');
     Route::patch('/usuarios/{usuario}/aprovar', [UsuarioMembroController::class, 'approve'])->name('usuarios.approve');
@@ -43,9 +46,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/processos/{processo}/votar', [VotacaoController::class, 'create'])->name('processos.votar');
     Route::post('/processos/{processo}/votar', [VotacaoController::class, 'store'])->name('processos.votar.store');
 
-    Route::get('/perfil', function () {
-        return view('perfil.edit');
-    })->name('perfil');
+    Route::get('/perfil', [PerfilController::class, 'edit'])->name('perfil');
+    Route::put('/perfil', [PerfilController::class, 'update'])->name('perfil.update');
 
     Route::get('/resultados', function () {
         return view('resultados.results');

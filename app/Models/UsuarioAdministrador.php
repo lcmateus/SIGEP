@@ -38,7 +38,7 @@ class UsuarioAdministrador extends Authenticatable
     }
 
     public function inserirProcesso(){
-        return $this->hasMany(Processo::class, 'insert_by', 'siape');
+        return $this->hasMany(Processo::class, 'id_administrador', 'siape');
     }
 
 

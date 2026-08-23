@@ -7,9 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Documento extends Model
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
-
     protected $table = 'documento';
 
     protected $primaryKey = 'id';

@@ -33,14 +33,14 @@
                 <tbody class="divide-y divide-slate-200 text-sm">
                     @forelse($usuarios as $usuario)
                         <tr>
-                            <td class="p-4">{{ $usuario->name }}</td>
+                            <td class="p-4">{{ $usuario->nome }}</td>
                             <td class="p-4">{{ $usuario->email }}</td>
                             <td class="p-4">{{ $usuario->siape }}</td>
-                            <td class="p-4">{{ $usuario->tipo_membro ?? $usuario->role }}</td>
-                            <td class="p-4">{{ ucfirst($usuario->status) }}</td>
+                            <td class="p-4">{{ $usuario->is_presidente ? 'Presidente' : 'Membro' }}</td>
+                            <td class="p-4">{{ $usuario->data_ativacao ? 'Ativo' : 'Pendente' }}</td>
                             <td class="p-4">
                                 <div class="flex justify-center gap-2">
-                                    @if($usuario->status === 'pendente')
+                                    @if(! $usuario->data_ativacao)
                                         <form method="POST" action="{{ route('usuarios.approve', $usuario) }}">
                                             @csrf
                                             @method('PATCH')
@@ -49,7 +49,7 @@
                                             </button>
                                         </form>
                                     @endif
-                                    @if(! $usuario->isAdmin())
+                                    @if(! $usuario->is_presidente)
                                         <form method="POST" action="{{ route('usuarios.destroy', $usuario) }}">
                                             @csrf
                                             @method('DELETE')

@@ -53,7 +53,7 @@ class AuthController extends Controller
 
     public function showRegister(): View
     {
-        return view('home.cadastro', [
+        return view('home.register', [
             'hasAdmin' => UsuarioAdministrador::exists(),
         ]);
     }

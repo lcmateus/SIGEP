@@ -4,28 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Processo extends Model
 {
     protected $table = 'processo';
 
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'numero_sei';
 
     public $incrementing = false;
 
-    protected $keyType = 'integer';
+    protected $keyType = 'string';
 
     protected $fillable = [
-        'titulo',
-        'descricao',
-        'status',
+        'numero_sei',
         'data_admissao',
         'data_devolucao',
-        'desfecho',
-        'siape_relator',
-        'siape_administrador',
-        'pdf_SEI',
-        'etapa_atual'
+        'id_administrador',
+        'id_relator',
     ];
 
     protected $casts = [
@@ -35,34 +31,24 @@ class Processo extends Model
 
     public function administrador(): BelongsTo
     {
-
-        return $this->belongsTo(UsuarioAdministrador::class, 'siape_administrador', 'siape');
+        return $this->belongsTo(UsuarioAdministrador::class, 'id_administrador', 'siape');
     }
 
     public function relator(): BelongsTo
     {
-        return $this->belongsTo(UsuarioMembro::class, 'siape_relator', 'siape');
+        return $this->belongsTo(UsuarioMembro::class, 'id_relator', 'siape');
     }
 
-    public function etapas(): HasMany{
-        return $this->hasMany(Etapa::class);
-    }
-
-    public function etapaAtual()
+    public function etapas(): HasMany
     {
-        return $this->belongsTo(Etapa::class, 'etapa_atual_id');
+        return $this->hasMany(Etapa::class, 'numero_sei_processo', 'numero_sei');
     }
 
-    
-
-    public function getStatusDisplay()
+    public function getEtapaAtualAttribute()
     {
-        return $this->etapaAtual?->status_display ?? 'Sem etapa';
-    }
-
-    public function getEtapaTipoDisplay()
-    {
-        return $this->etapaAtual?->tipo_display ?? 'Nenhuma';
+        return $this->etapas
+            ->sortByDesc('ordem')
+            ->first(fn ($etapa) => $etapa->status !== Etapa::STATUS_FINALIZADO)
+            ?? $this->etapas->sortByDesc('ordem')->first();
     }
 }
-

@@ -6,8 +6,29 @@ use Illuminate\Database\Eloquent\Model;
 
 class Etapa extends Model
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    public const TIPO_JUIZO = 'Juízo de Admissibilidade';
+    public const TIPO_PROCEDIMENTO_PRELIMINAR = 'Processo Preliminar';
+    public const TIPO_ACPP = 'Acordo de Conduta';
+    public const TIPO_PAE = 'Processo de Apuração';
+
+    public const TIPOS = [
+        self::TIPO_JUIZO,
+        self::TIPO_PROCEDIMENTO_PRELIMINAR,
+        self::TIPO_ACPP,
+        self::TIPO_PAE,
+    ];
+
+    public const STATUS_EM_ELABORACAO = 'Em Elaboração';
+    public const STATUS_EM_VOTACAO = 'Em Votação';
+    public const STATUS_AGUARDANDO_MINERVA = 'Aguardando Minerva';
+    public const STATUS_FINALIZADO = 'Finalizado';
+
+    public const STATUSES = [
+        self::STATUS_EM_ELABORACAO,
+        self::STATUS_EM_VOTACAO,
+        self::STATUS_AGUARDANDO_MINERVA,
+        self::STATUS_FINALIZADO,
+    ];
 
     protected $table = 'etapa';
 
@@ -18,10 +39,10 @@ class Etapa extends Model
     protected $keyType = 'integer';
 
     protected $fillable = [
+        'numero_sei_processo',
         'ordem',
         'tipo',
         'status',
-        'resultado',
         'relatorio_texto',
         'data_inicio',
         'data_envio_votacao',
@@ -37,68 +58,37 @@ class Etapa extends Model
     // Relacionamentos
     public function processo()
     {
-        return $this->belongsTo(Processo::class);
+        return $this->belongsTo(Processo::class, 'numero_sei_processo', 'numero_sei');
     }
-
-    /*
-    public function rodadaVotacao()
-    {
-        return $this->hasOne(RodadaVotacao::class);
-    }
-    */
 
     // Métodos auxiliares
     public function isEmElaboracao()
     {
-        return $this->status === 'em_elaboracao';
+        return $this->status === self::STATUS_EM_ELABORACAO;
     }
 
     public function isEmVotacao()
     {
-        return $this->status === 'em_votacao';
+        return $this->status === self::STATUS_EM_VOTACAO;
     }
 
     public function isAguardandoMinerva()
     {
-        return $this->status === 'aguardando_minerva';
+        return $this->status === self::STATUS_AGUARDANDO_MINERVA;
     }
 
     public function isFinalizada()
     {
-        return $this->status === 'finalizada';
+        return $this->status === self::STATUS_FINALIZADO;
     }
 
     public function getTipoDisplayAttribute()
     {
-        return match($this->tipo) {
-            'juizo' => 'Juízo de Admissibilidade',
-            'procedimento_preliminar' => 'Procedimento Preliminar',
-            'acpp' => 'ACPP',
-            'pae' => 'PAE',
-            default => $this->tipo
-        };
+        return $this->tipo;
     }
 
     public function getStatusDisplayAttribute()
     {
-        return match($this->status) {
-            'em_elaboracao' => 'Em elaboração',
-            'em_votacao' => 'Em votação',
-            'aguardando_minerva' => 'Aguardando Minerva',
-            'finalizada' => 'Finalizada',
-            default => $this->status
-        };
-    }
-
-    public function getResultadoDisplayAttribute()
-    {
-        $map = [
-            'aprovado' => 'Aprovado',
-            'reprovado' => 'Reprovado',
-            'propor_acpp' => 'Propor ACPP',
-            'instaurar_pae' => 'Instaurar PAE',
-            'arquivar' => 'Arquivar',
-        ];
-        return $map[$this->resultado] ?? $this->resultado;
+        return $this->status ?? 'Sem status';
     }
 }
