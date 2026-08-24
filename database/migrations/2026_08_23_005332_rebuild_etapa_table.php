@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::enableForeignKeyConstraints();
 
         Schema::create('etapa', function (Blueprint $table) {
-            $table->integer('id', true)->primary();
+            $table->id();
             $table->string('numero_sei_processo')->nullable();
             $table->integer('ordem')->default(1);
             $table->string('tipo');

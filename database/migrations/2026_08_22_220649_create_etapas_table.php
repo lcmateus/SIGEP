@@ -22,7 +22,8 @@ return new class extends Migration
                 'em_elaboracao',
                 'em_votacao',
                 'aguardando_minerva',
-                'finalizada'
+                'devolvido',
+                'arquivado'
             ])->default('em_elaboracao');
             
             $table->longText('relatorio_texto')->nullable();

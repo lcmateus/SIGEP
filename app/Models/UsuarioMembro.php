@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Concerns\EncryptsRouteKey;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Notifications\Notifiable;
 class UsuarioMembro extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, EncryptsRouteKey, Notifiable;
 
     protected $table = 'usuario_membro';
 

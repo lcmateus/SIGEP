@@ -1,6 +1,7 @@
 <aside class="w-64 bg-emerald-700 border-r border-slate-200 flex flex-col space-y-8">
     <div class="bg-emerald-500 p-6 h-32 flex items-center">
         <div>
+            <img src="{{ asset('images/logo-ifpr.png') }}"
             <h1 class="font-bold text-xl leading-none text-white">SIGEP</h1>
             <p class="text-[10px] text-emerald-950 uppercase">Sistema de Gestao da Etica Publica</p>
         </div>
@@ -22,7 +23,7 @@
                 </button>
                 <div id="processos-dropdown" class="hidden mt-1 ml-4 space-y-1 border-l-2 border-emerald-400 pl-3" role="menu">
                     <a href="{{ route('processos.create') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Criar Processo</a>
-                    <a href="{{ route('processos.index') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Meus Processos</a>
+                    <a href="{{ route('processos.index') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Devolvidos</a>
                     <a href="{{ route('processos.publicos') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Processos Públicos</a>
                 </div>
             </div>
@@ -41,7 +42,6 @@
                     </svg>
                 </button>
                 <div id="processos-dropdown-membro" class="hidden mt-1 ml-4 space-y-1 border-l-2 border-emerald-400 pl-3" role="menu">
-                    <a href="#" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Criar Processo</a>
                     <a href="#" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Meus Processos</a>
                     <a href="#" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Processos Públicos</a>
                 </div>
