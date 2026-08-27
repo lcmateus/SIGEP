@@ -22,12 +22,16 @@ class Etapa extends Model
     public const STATUS_EM_VOTACAO = 'Em Votação';
     public const STATUS_AGUARDANDO_MINERVA = 'Aguardando Minerva';
     public const STATUS_FINALIZADO = 'Finalizado';
+    public const STATUS_DEVOLVIDO = 'Devolvido';
+    public const STATUS_ARQUIVADO = 'Arquivado';
 
     public const STATUSES = [
         self::STATUS_EM_ELABORACAO,
         self::STATUS_EM_VOTACAO,
         self::STATUS_AGUARDANDO_MINERVA,
         self::STATUS_FINALIZADO,
+        self::STATUS_DEVOLVIDO,
+        self::STATUS_ARQUIVADO,
     ];
 
     protected $table = 'etapa';
@@ -80,6 +84,16 @@ class Etapa extends Model
     public function isFinalizada()
     {
         return $this->status === self::STATUS_FINALIZADO;
+    }
+
+    public function isDevolvido()
+    {
+        return $this->status === self::STATUS_DEVOLVIDO;
+    }
+
+    public function isArquivado()
+    {
+        return $this->status === self::STATUS_ARQUIVADO;
     }
 
     public function getTipoDisplayAttribute()

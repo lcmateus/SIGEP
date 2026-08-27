@@ -49,7 +49,7 @@ return new class extends Migration
             $table->string('numero_sei_processo')->nullable();
             $table->integer('ordem')->default(1);
             $table->enum('tipo', ['juizo', 'procedimento_preliminar', 'acpp', 'pae'])->default('juizo');
-            $table->enum('status', ['em_elaboracao', 'em_votacao', 'aguardando_minerva', 'finalizada'])->default('em_elaboracao');
+            $table->enum('status', ['em_elaboracao', 'em_votacao', 'aguardando_minerva', 'devolvido', 'arquivado'])->default('em_elaboracao');
             $table->longText('relatorio_texto')->nullable();
             $table->timestamp('data_inicio')->useCurrent();
             $table->timestamp('data_envio_votacao')->nullable();

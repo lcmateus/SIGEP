@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PerfilController;
+use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\ProcessoController;
 use App\Http\Controllers\UsuarioMembroController;
 use App\Http\Controllers\VotacaoController;
@@ -29,6 +30,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/processos', [ProcessoController::class, 'index'])->name('processos.index');
 
+    Route::get('/processos/devolvidos', [ProcessoController::class, 'devolvidos'])->name('processos.devolvidos');
+
+    Route::get('/processos/arquivados', [ProcessoController::class, 'arquivados'])->name('processos.arquivados');
+
+    Route::get('/processos/meus', [ProcessoController::class, 'meus'])->name('processos.meus');
+
     Route::get('/processos/publicos', [ProcessoController::class, 'publicos'])->name('processos.publicos');
 
     Route::get('/usuarios', [UsuarioMembroController::class, 'index'])->name('usuarios.list');
@@ -43,8 +50,19 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/processos/{processo}', [ProcessoController::class, 'show'])->name('processos.show');
 
+    Route::get('/processos/{processo}/aceitar', [ProcessoController::class, 'aceitar'])->name('processos.aceitar');
+    Route::put('/processos/{processo}/aceitar', [ProcessoController::class, 'processarAceitar'])->name('processos.aceitar.processar');
+
+    Route::put('/processos/{processo}/proximo-passo', [ProcessoController::class, 'proximoPasso'])->name('processos.proximo-passo');
+
+    Route::put('/processos/{processo}/admin-acao', [ProcessoController::class, 'acaoAdmin'])->name('processos.admin-acao');
+
     Route::get('/processos/{processo}/votar', [VotacaoController::class, 'create'])->name('processos.votar');
     Route::post('/processos/{processo}/votar', [VotacaoController::class, 'store'])->name('processos.votar.store');
+
+    Route::post('/documentos', [DocumentoController::class, 'store'])->name('documentos.store');
+    Route::get('/documentos/{documento}/download', [DocumentoController::class, 'download'])->name('documentos.download');
+    Route::delete('/documentos/{documento}', [DocumentoController::class, 'destroy'])->name('documentos.destroy');
 
     Route::get('/perfil', [PerfilController::class, 'edit'])->name('perfil');
     Route::put('/perfil', [PerfilController::class, 'update'])->name('perfil.update');

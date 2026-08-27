@@ -13,7 +13,7 @@ return new class extends Migration
             $table->integer('id')->primary();
             $table->timestamp('data_abertura')->useCurrent();
             $table->timestamp('data_encerramento')->nullable();
-            $table->integer('id_etapa')->nullable();
+            $table->unsignedBigInteger('id_etapa')->nullable();
             
             $table->enum('status', [
                 'aberta',

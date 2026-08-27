@@ -12,7 +12,7 @@
                         <span class="font-bold text-emerald-900">Relator:</span>
                         {{ $processo->relator?->nome ?? 'Nao designado' }}
                         ·
-                        <span class="font-bold text-emerald-900">Administrador responsavel:</span>
+                        <span class="font-bold text-emerald-900">Secretário(a):</span>
                         {{ $processo->administrador?->nome ?? 'Nao informado' }}
                     </p>
                     <p class="text-sm text-slate-500 mt-1">
@@ -48,6 +48,96 @@
                 'documentosPorEtapa' => $documentosPorEtapa,
                 'rodadas' => $rodadas,
             ])
+
+            @php
+                $etapaAtual = $processo->etapa_atual;
+                $isAdmin = auth()->user() instanceof \App\Models\UsuarioAdministrador;
+                $mostrarProximoPasso = $etapaAtual
+                    && $etapaAtual->tipo !== \App\Models\Etapa::TIPO_JUIZO
+                    && $etapaAtual->status !== \App\Models\Etapa::STATUS_ARQUIVADO
+                    && $etapaAtual->status !== \App\Models\Etapa::STATUS_DEVOLVIDO;
+            @endphp
+
+            @if($mostrarProximoPasso)
+                <div class="mt-6 pt-6 border-t border-slate-200">
+                    <h3 class="font-bold text-emerald-900 text-lg mb-4">Qual o proximo passo?</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <form action="{{ route('processos.proximo-passo', $processo) }}" method="POST"
+                            onsubmit="return confirm('Tem certeza que deseja devolver este processo ao Secretario Geral?')">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="decisao" value="devolver">
+                            <button type="submit"
+                                class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold px-4 py-2 rounded-lg">
+                                Devolver ao Secretario Geral
+                            </button>
+                        </form>
+
+                        <form action="{{ route('processos.proximo-passo', $processo) }}" method="POST"
+                            onsubmit="return confirm('Prosseguir para Processo de Apuracao (PAE)?')">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="decisao" value="pae">
+                            <button type="submit"
+                                class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-4 py-2 rounded-lg">
+                                Prosseguir para PAE
+                            </button>
+                        </form>
+
+                        <form action="{{ route('processos.proximo-passo', $processo) }}" method="POST"
+                            onsubmit="return confirm('Prosseguir para Acordo de Conduta (ACPP)?')">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="decisao" value="acpp">
+                            <button type="submit"
+                                class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold px-4 py-2 rounded-lg">
+                                ACPP
+                            </button>
+                        </form>
+
+                        <button type="button" disabled
+                            class="bg-slate-300 text-slate-500 text-sm font-bold px-4 py-2 rounded-lg cursor-not-allowed"
+                            title="Em breve">
+                            Iniciar Votacao
+                        </button>
+                    </div>
+                </div>
+            @endif
+
+            @php
+                $mostrarAcoesAdmin = $isAdmin
+                    && $etapaAtual
+                    && $etapaAtual->status === \App\Models\Etapa::STATUS_DEVOLVIDO;
+            @endphp
+
+            @if($mostrarAcoesAdmin)
+                <div class="mt-6 pt-6 border-t border-slate-200">
+                    <h3 class="font-bold text-emerald-900 text-lg mb-4">Acoes do Administrador</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <form action="{{ route('processos.admin-acao', $processo) }}" method="POST"
+                            onsubmit="return confirm('Devolver este processo ao relator? O status voltara para Em Elaboracao.')">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="decisao" value="reativar">
+                            <button type="submit"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-4 py-2 rounded-lg">
+                                Devolver Ao Relator
+                            </button>
+                        </form>
+
+                        <form action="{{ route('processos.admin-acao', $processo) }}" method="POST"
+                            onsubmit="return confirm('Arquivar este processo?')">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="decisao" value="arquivar">
+                            <button type="submit"
+                                class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-4 py-2 rounded-lg">
+                                Arquivar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 @endsection

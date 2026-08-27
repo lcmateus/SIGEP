@@ -23,8 +23,9 @@
                 </button>
                 <div id="processos-dropdown" class="hidden mt-1 ml-4 space-y-1 border-l-2 border-emerald-400 pl-3" role="menu">
                     <a href="{{ route('processos.create') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Criar Processo</a>
-                    <a href="{{ route('processos.index') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Devolvidos</a>
+                    <a href="{{ route('processos.devolvidos') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Devolvidos</a>
                     <a href="{{ route('processos.publicos') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Processos Públicos</a>
+                    <a href="{{ route('processos.arquivados') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Arquivados</a>
                 </div>
             </div>
 
@@ -42,8 +43,9 @@
                     </svg>
                 </button>
                 <div id="processos-dropdown-membro" class="hidden mt-1 ml-4 space-y-1 border-l-2 border-emerald-400 pl-3" role="menu">
-                    <a href="#" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Meus Processos</a>
-                    <a href="#" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Processos Públicos</a>
+                    <a href="{{ route('processos.meus') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Meus Processos</a>
+                    <a href="{{ route('processos.arquivados') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Arquivados</a>
+                    <a href="{{ route('processos.publicos') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Processos Públicos</a>
                 </div>
             </div>
 

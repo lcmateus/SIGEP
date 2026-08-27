@@ -1,11 +1,11 @@
 @extends('layouts.main_layout', [
-    'titulo' => 'Processos',
+    'titulo' => 'Processos Arquivados',
 ])
 
 @section('content')
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
         <div class="flex items-center justify-between mb-5">
-            <h3 class="text-sm font-bold text-emerald-700 uppercase">Lista de Processos</h3>
+            <h3 class="text-sm font-bold text-emerald-700 uppercase">Processos Arquivados</h3>
             @if(auth()->user() instanceof \App\Models\UsuarioAdministrador)
                 <a href="{{ route('processos.create') }}" class="bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg">Novo processo</a>
             @endif
@@ -18,23 +18,28 @@
                     <th class="p-4">Admissão</th>
                     <th class="p-4">Devolução</th>
                     <th class="p-4">Relator</th>
+                    <th class="p-4">Etapa Arquivada</th>
                     <th class="p-4">Ações</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-200 text-sm">
                 @forelse($processos as $processo)
+                    @php
+                        $etapaArquivada = $processo->etapas->firstWhere('status', \App\Models\Etapa::STATUS_ARQUIVADO);
+                    @endphp
                     <tr>
                         <td class="p-4 font-medium text-emerald-900">{{ $processo->numero_sei }}</td>
                         <td class="p-4">{{ $processo->data_admissao?->format('d/m/Y') ?? '-' }}</td>
                         <td class="p-4">{{ $processo->data_devolucao?->format('d/m/Y') ?? '-' }}</td>
                         <td class="p-4">{{ $processo->relator?->nome ?? '-' }}</td>
+                        <td class="p-4">{{ $etapaArquivada?->tipo_display ?? '-' }}</td>
                         <td class="p-4">
                             <a class="text-white bg-blue-600 px-4 py-1 rounded-xl font-bold" href="{{ route('processos.show', $processo) }}">Detalhes</a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td class="p-4 text-slate-500" colspan="5">Nenhum processo cadastrado.</td>
+                        <td class="p-4 text-slate-500" colspan="6">Nenhum processo arquivado.</td>
                     </tr>
                 @endforelse
             </tbody>

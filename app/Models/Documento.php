@@ -1,9 +1,9 @@
 <?php
-// app/Models/Documento.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Documento extends Model
 {
@@ -19,82 +19,42 @@ class Documento extends Model
         'titulo',
         'descricao',
         'caminho',
-        'referencia_tipo',
-        'referencia_id',
-        'tipo',
         'upload_feito_por',
         'data_upload',
+        'etapa_id',
+        'tipo',
     ];
 
     protected $casts = [
         'data_upload' => 'datetime',
     ];
 
-    // Relacionamento polimórfico (documento pertence a um processo ou uma etapa)
-    public function referencia()
+    public function etapa(): BelongsTo
     {
-        return $this->morphTo('referencia', 'referencia_tipo', 'referencia_id');
+        return $this->belongsTo(Etapa::class, 'etapa_id', 'id');
     }
 
-    // Relacionamento com o usuário que fez o upload
-    public function usuario()
+    public function getUrlAttribute(): string
     {
-        return $this->belongsTo(User::class, 'upload_feito_por', 'siape');
+        return asset($this->caminho);
     }
 
-    // Métodos auxiliares para verificar o tipo
-    public function isMinuta()
+    public function arquivoExiste(): bool
     {
-        return $this->tipo === 'minuta_acpp';
+        return file_exists(public_path($this->caminho));
     }
 
-    public function isVersaoFinal()
+    public function getNomeOriginalAttribute(): string
     {
-        return $this->tipo === 'versao_final_acpp';
+        return $this->titulo . ($this->descricao ? '.' . $this->descricao : '');
     }
 
-    public function isVersaoAssinada()
+    public function getTipoDisplayAttribute(): string
     {
-        return $this->tipo === 'versao_assinada_acpp';
-    }
-
-    public function isDiligencia()
-    {
-        return $this->tipo === 'diligencia';
-    }
-
-    public function isProva()
-    {
-        return in_array($this->tipo, ['prova_documental', 'prova_testemunhal', 'prova_pericial']);
-    }
-
-    public function isRelatorioParcial()
-    {
-        return $this->tipo === 'relatorio_parcial_pae';
-    }
-
-    public function isDefesa()
-    {
-        return $this->tipo === 'defesa_investigado';
-    }
-
-    public function isAlegoesFinais()
-    {
-        return $this->tipo === 'alegacoes_finais';
-    }
-
-    public function isReconsideracao()
-    {
-        return $this->tipo === 'reconsideracao';
-    }
-
-    // Retorna o nome legível do tipo (para exibir na view)
-    public function getTipoDisplayAttribute()
-    {
-        return match($this->tipo) {
+        return match ($this->tipo) {
             'pdf_sei' => 'PDF do SEI',
-            'relatorio_juizo' => 'Relatório do Juízo de Admissibilidade',
-            'relatorio_pp' => 'Relatório do Procedimento Preliminar',
+            'relatorio_juizo' => 'Relatório do Juízo',
+            'relatorio_pp' => 'Relatório do PP',
             'minuta_acpp' => 'Minuta do ACPP',
             'versao_final_acpp' => 'Versão Final do ACPP',
             'versao_assinada_acpp' => 'Versão Assinada do ACPP',
@@ -105,21 +65,9 @@ class Documento extends Model
             'relatorio_parcial_pae' => 'Relatório Parcial do PAE',
             'defesa_investigado' => 'Defesa do Investigado',
             'alegacoes_finais' => 'Alegações Finais',
-            'reconsideracao' => 'Pedido de Reconsideração',
-            'outro' => 'Outro Documento',
-            default => $this->tipo
+            'reconsideracao' => 'Reconsideração',
+            'outro' => 'Outro',
+            default => $this->tipo ?? 'Desconhecido',
         };
-    }
-
-    // URL para acessar o arquivo
-    public function getUrlAttribute()
-    {
-        return asset('storage/' . $this->caminho);
-    }
-
-    // Verifica se o arquivo existe
-    public function arquivoExiste()
-    {
-        return \Storage::disk('public')->exists($this->caminho);
     }
 }

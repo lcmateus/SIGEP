@@ -22,16 +22,69 @@ class ProcessoController extends Controller
         ]);
     }
 
+    public function devolvidos(): View
+    {
+        $processos = Processo::query()
+            ->whereHas('etapas', fn ($query) => $query->where('status', Etapa::STATUS_DEVOLVIDO))
+            ->with('relator')
+            ->latest()
+            ->get();
+
+        return view('processos.devolvidos', [
+            'processos' => $processos,
+        ]);
+    }
+
+    public function arquivados(): View
+    {
+        $query = Processo::query()
+            ->whereHas('etapas', fn ($q) => $q->where('status', Etapa::STATUS_ARQUIVADO))
+            ->with('relator');
+
+        if (auth()->user() instanceof UsuarioMembro) {
+            $query->where('id_relator', auth()->user()->siape);
+        }
+
+        $processos = $query->latest()->get();
+
+        return view('processos.arquivados', [
+            'processos' => $processos,
+        ]);
+    }
+
+    public function meus(): View
+    {
+        $processos = Processo::query()
+            ->where('id_relator', auth()->user()->siape)
+            ->whereDoesntHave('etapas', fn ($q) => $q->whereIn('status', [
+                Etapa::STATUS_DEVOLVIDO,
+                Etapa::STATUS_ARQUIVADO,
+            ]))
+            ->with('relator')
+            ->latest()
+            ->get();
+
+        return view('processos.meus', [
+            'processos' => $processos,
+        ]);
+    }
+
     public function publicos(): View
     {
-        $processos = Processo::query()->with(['relator', 'etapas'])->latest()->get();
+        $processos = Processo::query()
+            ->whereDoesntHave('etapas', fn ($q) => $q->whereIn('status', [
+                Etapa::STATUS_DEVOLVIDO,
+                Etapa::STATUS_ARQUIVADO,
+            ]))
+            ->with(['relator', 'etapas'])
+            ->latest()
+            ->get();
 
         $documentosPorEtapa = Documento::query()
-            ->where('referencia_tipo', 'etapa')
-            ->whereIn('referencia_id', $processos->flatMap->etapas->pluck('id')->unique())
+            ->whereIn('etapa_id', $processos->flatMap->etapas->pluck('id')->unique())
             ->orderBy('data_upload')
             ->get()
-            ->groupBy('referencia_id');
+            ->groupBy('etapa_id');
 
         $rodadasPorProcesso = RodadaVotacao::query()
             ->whereHas('etapa', fn ($query) => $query->whereIn('numero_sei_processo', $processos->pluck('numero_sei')))
@@ -92,11 +145,10 @@ class ProcessoController extends Controller
         $processo->load(['relator', 'administrador', 'etapas']);
 
         $documentos = Documento::query()
-            ->where('referencia_tipo', 'etapa')
-            ->whereIn('referencia_id', $processo->etapas->pluck('id'))
+            ->whereIn('etapa_id', $processo->etapas->pluck('id'))
             ->orderBy('data_upload')
             ->get()
-            ->groupBy('referencia_id');
+            ->groupBy('etapa_id');
 
         $rodadas = RodadaVotacao::query()
             ->whereHas('etapa', fn ($query) => $query->where('numero_sei_processo', $processo->numero_sei))
@@ -109,6 +161,62 @@ class ProcessoController extends Controller
             'documentosPorEtapa' => $documentos,
             'rodadas' => $rodadas,
         ]);
+    }
+
+    public function aceitar(Processo $processo): View
+    {
+        $processo->load(['relator', 'administrador', 'etapas']);
+
+        $documentos = Documento::query()
+            ->whereIn('etapa_id', $processo->etapas->pluck('id'))
+            ->orderBy('data_upload')
+            ->get()
+            ->groupBy('etapa_id');
+
+        $rodadas = RodadaVotacao::query()
+            ->whereHas('etapa', fn ($query) => $query->where('numero_sei_processo', $processo->numero_sei))
+            ->with('etapa')
+            ->orderBy('data_abertura')
+            ->get();
+
+        return view('processos.aceitar', [
+            'processo' => $processo,
+            'documentosPorEtapa' => $documentos,
+            'rodadas' => $rodadas,
+        ]);
+    }
+
+    public function processarAceitar(Request $request, Processo $processo): RedirectResponse
+    {
+        abort_unless(
+            auth()->check() && auth()->user()->siape === $processo->id_relator,
+            403
+        );
+
+        $data = $request->validate([
+            'decisao' => ['required', 'in:sim,nao'],
+        ]);
+
+        $etapaAtual = $processo->etapas
+            ->sortByDesc('ordem')
+            ->first(fn ($etapa) => $etapa->status !== Etapa::STATUS_FINALIZADO);
+
+        if (!$etapaAtual || $etapaAtual->tipo !== Etapa::TIPO_JUIZO) {
+            return back()->withErrors(['decisao' => 'Etapa invalida para esta operacao.']);
+        }
+
+        if ($data['decisao'] === 'nao') {
+            $etapaAtual->update(['status' => Etapa::STATUS_DEVOLVIDO]);
+            $processo->update(['data_devolucao' => now()]);
+
+            return redirect()->route('processos.meus')
+                ->with('status', 'Processo devolvido ao Secretario Geral.');
+        }
+
+        $etapaAtual->update(['tipo' => Etapa::TIPO_PROCEDIMENTO_PRELIMINAR]);
+
+        return redirect()->route('processos.aceitar', $processo)
+            ->with('status', 'Processo encaminhado para Procedimento Preliminar.');
     }
 
     public function update(Request $request, Processo $processo): RedirectResponse
@@ -134,6 +242,60 @@ class ProcessoController extends Controller
         $processo->delete();
 
         return redirect()->route('processos.index')->with('status', 'Processo excluido.');
+    }
+
+    public function proximoPasso(Request $request, Processo $processo): RedirectResponse
+    {
+        $etapaAtual = $processo->etapa_atual;
+
+        if (
+            !$etapaAtual
+            || $etapaAtual->tipo === Etapa::TIPO_JUIZO
+            || $etapaAtual->status === Etapa::STATUS_ARQUIVADO
+            || $etapaAtual->status === Etapa::STATUS_DEVOLVIDO
+        ) {
+            return back()->with('error', 'Etapa invalida para esta operacao.');
+        }
+
+        $data = $request->validate([
+            'decisao' => ['required', 'in:devolver,pae,acpp,votacao'],
+        ]);
+
+        if ($data['decisao'] === 'devolver') {
+            $etapaAtual->update(['status' => Etapa::STATUS_DEVOLVIDO]);
+            $processo->update(['data_devolucao' => now()]);
+        } elseif ($data['decisao'] === 'pae') {
+            $etapaAtual->update(['tipo' => Etapa::TIPO_PAE]);
+        } elseif ($data['decisao'] === 'acpp') {
+            $etapaAtual->update(['tipo' => Etapa::TIPO_ACPP]);
+        }
+
+        return redirect()->route('processos.show', $processo)
+            ->with('status', 'Proximo passo registrado com sucesso.');
+    }
+
+    public function acaoAdmin(Request $request, Processo $processo): RedirectResponse
+    {
+        $this->authorizeAdmin();
+
+        $etapaAtual = $processo->etapa_atual;
+
+        if (!$etapaAtual || $etapaAtual->status !== Etapa::STATUS_DEVOLVIDO) {
+            return back()->with('error', 'Etapa invalida para esta operacao.');
+        }
+
+        $data = $request->validate([
+            'decisao' => ['required', 'in:reativar,arquivar'],
+        ]);
+
+        if ($data['decisao'] === 'reativar') {
+            $etapaAtual->update(['status' => Etapa::STATUS_EM_ELABORACAO]);
+        } elseif ($data['decisao'] === 'arquivar') {
+            $etapaAtual->update(['status' => Etapa::STATUS_ARQUIVADO]);
+        }
+
+        return redirect()->route('processos.show', $processo)
+            ->with('status', 'Acao executada com sucesso.');
     }
 
     private function proximoRelator(): ?UsuarioMembro
