@@ -68,22 +68,22 @@ class UsuarioMembro extends Authenticatable
 
     public function isAdmin()
     {
-        return $this->role === 'admin';
+        return $this instanceof UsuarioAdministrador;
     }
 
     public function isTitular()
     {
-        return $this->tipo_membro === 'titular' || $this->tipo_membro === 'presidente';
+        return true;
     }
 
     public function isPresidente()
     {
-        return $this->tipo_membro === 'presidente';
+        return (bool) $this->is_presidente;
     }
 
     public function isAtivo()
     {
-        return $this->status === 'ativo';
+        return $this->data_ativacao !== null;
     }
 
 

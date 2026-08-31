@@ -75,7 +75,26 @@
                     && $juizoFinalizada
                     && $etapaAtual
                     && $etapaAtual->status === \App\Models\Etapa::STATUS_EM_ELABORACAO;
+
+                $ultimaEtapa = $processo->etapas->sortByDesc('ordem')->first();
+                $precisaEscolherProxima = $podeEscrever
+                    && $ultimaEtapa
+                    && $ultimaEtapa->status === \App\Models\Etapa::STATUS_FINALIZADO
+                    && !$processo->etapas->contains(fn ($e) => $e->status === \App\Models\Etapa::STATUS_EM_ELABORACAO);
             @endphp
+
+            @if($precisaEscolherProxima)
+                <div class="mt-6 p-4 bg-amber-50 border border-amber-300 rounded-lg">
+                    <h3 class="text-lg font-bold text-emerald-900 mb-2">Escolher próxima etapa</h3>
+                    <p class="text-sm text-slate-600 mb-4">
+                        A votação deste processo foi concluída. Defina como o processo deve prosseguir.
+                    </p>
+                    <a href="{{ route('processos.proxima-etapa', $processo) }}"
+                        class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                        Definir próxima etapa
+                    </a>
+                </div>
+            @endif
 
             @if($mostrarAceitar)
                 <div class="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">

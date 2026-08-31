@@ -8,6 +8,7 @@ use App\Models\Processo;
 use App\Models\RodadaVotacao;
 use App\Models\UsuarioAdministrador;
 use App\Models\UsuarioMembro;
+use App\Services\VotacaoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -340,6 +341,43 @@ class ProcessoController extends Controller
 
         return redirect()->route('dashboard')
             ->with('status', 'Votacao iniciada com sucesso.');
+    }
+
+    public function proximaEtapa(Processo $processo, VotacaoService $service): View
+    {
+        abort_unless(
+            auth()->check()
+                && auth()->user() instanceof UsuarioMembro
+                && auth()->user()->siape === $processo->id_relator,
+            403
+        );
+
+        abort_unless($service->precisaEscolherProximaEtapa($processo), 404, 'Nao ha decisao de proxima etapa pendente.');
+
+        $processo->load(['relator', 'administrador', 'etapas']);
+
+        return view('processos.proxima-etapa', [
+            'processo' => $processo,
+        ]);
+    }
+
+    public function definirProximaEtapa(Request $request, Processo $processo, VotacaoService $service): RedirectResponse
+    {
+        abort_unless(
+            auth()->check()
+                && auth()->user() instanceof UsuarioMembro
+                && auth()->user()->siape === $processo->id_relator,
+            403
+        );
+
+        $data = $request->validate([
+            'tipo' => ['required', 'in:' . Etapa::TIPO_ACPP . ',' . Etapa::TIPO_PAE],
+        ]);
+
+        $service->criarProximaEtapa($processo, $data['tipo']);
+
+        return redirect()->route('processos.show', $processo)
+            ->with('status', 'Proxima etapa definida.');
     }
 
     private function proximoRelator(): ?UsuarioMembro

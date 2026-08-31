@@ -59,10 +59,15 @@ Route::middleware(['auth'])->group(function () {
 
     Route::put('/processos/{processo}/iniciar-votacao', [ProcessoController::class, 'iniciarVotacao'])->name('processos.iniciar-votacao');
 
+    Route::get('/processos/{processo}/proxima-etapa', [ProcessoController::class, 'proximaEtapa'])->name('processos.proxima-etapa');
+    Route::post('/processos/{processo}/proxima-etapa', [ProcessoController::class, 'definirProximaEtapa'])->name('processos.proxima-etapa.store');
+
     Route::get('/processos/{processo}/votar', [VotacaoController::class, 'create'])->name('processos.votar');
     Route::post('/processos/{processo}/votar', [VotacaoController::class, 'store'])->name('processos.votar.store');
 
     Route::get('/votacoes/disponiveis', [VotacaoController::class, 'disponiveis'])->name('votacoes.disponiveis');
+    Route::get('/votacoes/minerva', [VotacaoController::class, 'minerva'])->name('votacoes.minerva');
+    Route::post('/votacoes/minerva/{rodada}', [VotacaoController::class, 'votarMinerva'])->name('votacoes.minerva.votar');
     Route::get('/votacoes/abertas', [VotacaoController::class, 'abertas'])->name('votacoes.abertas');
     Route::put('/votacoes/abertas/{rodada}/encerramento', [VotacaoController::class, 'atualizarEncerramento'])->name('votacoes.atualizar-encerramento');
     Route::get('/votacoes/disponiveis/{rodada}/votar', [VotacaoController::class, 'votar'])->name('votacoes.votar');

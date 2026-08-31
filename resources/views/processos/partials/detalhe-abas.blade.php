@@ -9,7 +9,7 @@
     ]);
     $somenteLeitura = $somenteLeitura ?? false;
     $podeExcluir = !$somenteLeitura && ($isRelator || $isAdmin) && !$etapaBloqueada;
-    $podeAnexar = !$somenteLeitura && !$etapaBloqueada;
+    $podeAnexar = !$somenteLeitura && ($isRelator || $isAdmin) && !$etapaBloqueada;
 @endphp
 
 <div data-tabs-container="{{ $uid }}">

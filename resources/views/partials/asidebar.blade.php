@@ -74,7 +74,7 @@
                 </button>
                 <div id="votacoes-dropdown-membro" class="hidden mt-1 ml-4 space-y-1 border-l-2 border-emerald-400 pl-3" role="menu">
                     <a href="{{ route('votacoes.disponiveis') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Votações Disponíveis</a>
-                    <a href="#" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Minerva</a>
+                    <a href="{{ route('votacoes.minerva') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Minerva</a>
                 </div>
             </div>
 

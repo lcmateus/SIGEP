@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Documento;
+use App\Models\Etapa;
 use App\Models\Processo;
 use App\Models\RodadaVotacao;
 use App\Models\Voto;
+use App\Services\VotacaoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -25,6 +27,18 @@ class VotacaoController extends Controller
             !$processo || $rodada->resultado !== null,
             404,
             'Votacao indisponivel.'
+        );
+
+        abort_if(
+            $rodada->data_encerramento !== null && now()->gt($rodada->data_encerramento),
+            404,
+            'Votacao encerrada.'
+        );
+
+        abort_if(
+            $rodada->etapa?->status === Etapa::STATUS_AGUARDANDO_MINERVA,
+            404,
+            'Votacao aguardando voto de Minerva.'
         );
 
         abort_if(
@@ -51,7 +65,7 @@ class VotacaoController extends Controller
         ]);
     }
 
-    public function registrarVoto(Request $request, RodadaVotacao $rodada): RedirectResponse
+    public function registrarVoto(Request $request, RodadaVotacao $rodada, VotacaoService $service): RedirectResponse
     {
         abort_unless(
             auth()->check() && auth()->user() instanceof \App\Models\UsuarioMembro,
@@ -62,6 +76,12 @@ class VotacaoController extends Controller
             $rodada->resultado !== null,
             422,
             'Votacao ja encerrada.'
+        );
+
+        abort_if(
+            $rodada->data_encerramento !== null && now()->gt($rodada->data_encerramento),
+            422,
+            'Votacao encerrada (prazo expirado).'
         );
 
         $data = $request->validate([
@@ -87,6 +107,11 @@ class VotacaoController extends Controller
             'id_membro' => $siape,
             'id_rodada' => $rodada->id,
         ]);
+
+        if ($service->apurarSeTodosVotaram($rodada)) {
+            return redirect()->route('votacoes.disponiveis')
+                ->with('status', 'Voto registrado. Todos votaram e a votacao foi apurada automaticamente.');
+        }
 
         return redirect()->route('votacoes.disponiveis')
             ->with('status', 'Voto registrado com sucesso.');
@@ -135,6 +160,7 @@ class VotacaoController extends Controller
 
         $rodadas = RodadaVotacao::query()
             ->whereNull('resultado')
+            ->whereDoesntHave('etapa', fn ($q) => $q->where('status', Etapa::STATUS_AGUARDANDO_MINERVA))
             ->whereDoesntHave('votos', fn ($q) => $q->where('id_membro', $siape))
             ->with(['etapa.processo.relator'])
             ->orderByDesc('data_abertura')
@@ -143,6 +169,79 @@ class VotacaoController extends Controller
         return view('votacoes.disponiveis', [
             'rodadas' => $rodadas,
         ]);
+    }
+
+    public function minerva(): View
+    {
+        abort_unless(auth()->check() && auth()->user() instanceof \App\Models\UsuarioMembro, 403);
+
+        $presidente = auth()->user();
+
+        $isPresidente = $presidente->isPresidente();
+
+        $rodadas = collect();
+
+        if ($isPresidente) {
+            $rodadas = RodadaVotacao::query()
+                ->whereHas('etapa', fn ($q) => $q->where('status', Etapa::STATUS_AGUARDANDO_MINERVA))
+                ->with(['etapa.processo.relator', 'etapa.processo.administrador'])
+                ->orderByDesc('data_abertura')
+                ->get();
+        }
+
+        return view('votacoes.minerva', [
+            'rodadas' => $rodadas,
+            'isPresidente' => $isPresidente,
+        ]);
+    }
+
+    public function votarMinerva(Request $request, RodadaVotacao $rodada, VotacaoService $service): RedirectResponse
+    {
+        abort_unless(auth()->check() && auth()->user() instanceof \App\Models\UsuarioMembro, 403);
+
+        $presidente = auth()->user();
+
+        abort_if(!$presidente->isPresidente(), 403, 'Apenas o presidente pode registrar voto de Minerva.');
+
+        abort_if(
+            $rodada->resultado !== null,
+            422,
+            'Votacao ja encerrada.'
+        );
+
+        $etapa = $rodada->etapa;
+
+        abort_if(
+            !$etapa || $etapa->status !== Etapa::STATUS_AGUARDANDO_MINERVA,
+            422,
+            'Etapa nao esta Aguardando Minerva.'
+        );
+
+        $data = $request->validate([
+            'opcao' => ['required', 'in:aprova,desaprova'],
+        ]);
+
+        $jaVotouMinerva = Voto::query()
+            ->where('id_rodada', $rodada->id)
+            ->where('is_minerva', true)
+            ->exists();
+
+        abort_if($jaVotouMinerva, 422, 'Voto de Minerva ja registrado nesta rodada.');
+
+        Voto::query()->create([
+            'opcao' => $data['opcao'],
+            'justificativa' => null,
+            'is_minerva' => true,
+            'id_membro' => $presidente->siape,
+            'id_rodada' => $rodada->id,
+        ]);
+
+        $service->aplicarVotoMinerva($rodada, $data['opcao']);
+
+        $presidente->update(['is_presidente' => false]);
+
+        return redirect()->route('votacoes.minerva')
+            ->with('status', 'Voto de Minerva registrado. Resultado apurado com sucesso.');
     }
 
     public function create(Processo $processo): View

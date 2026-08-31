@@ -33,7 +33,7 @@ return new class extends Migration
                   ->cascadeOnUpdate()
                   ->cascadeOnDelete();
 
-            $table->unique(['id_membro', 'id_rodada']);
+            $table->unique(['id_membro', 'id_rodada', 'is_minerva']);
         });
     }
 
