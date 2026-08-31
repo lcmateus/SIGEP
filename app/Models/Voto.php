@@ -2,16 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;   
-use Illuminate\Notifications\Notifiable;                  
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Voto extends Model
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
-
     protected $table = 'voto';
 
     protected $primaryKey = 'id';
@@ -20,20 +15,27 @@ class Voto extends Model
 
     protected $keyType = 'integer';
 
+    public $timestamps = false;
+
     protected $fillable = [
-        'usuario_id',
-        'processo_id',
-        'tipo',
+        'opcao',
         'justificativa',
+        'is_minerva',
+        'id_membro',
+        'id_rodada',
     ];
 
-    public function usuario(): BelongsTo
+    protected $casts = [
+        'is_minerva' => 'boolean',
+    ];
+
+    public function membro(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'usuario_id');
+        return $this->belongsTo(UsuarioMembro::class, 'id_membro', 'siape');
     }
 
-    public function processo(): BelongsTo
+    public function rodada(): BelongsTo
     {
-        return $this->belongsTo(Processo::class);
+        return $this->belongsTo(RodadaVotacao::class, 'id_rodada', 'id');
     }
 }

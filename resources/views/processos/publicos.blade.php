@@ -62,6 +62,7 @@
                     'processo' => $processo,
                     'documentosPorEtapa' => $documentosPorEtapa,
                     'rodadas' => $rodadasPorProcesso->get($processo->numero_sei, collect()),
+                    'somenteLeitura' => true,
                 ])
             </div>
         </div>

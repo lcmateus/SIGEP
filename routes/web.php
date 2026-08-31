@@ -53,12 +53,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/processos/{processo}/aceitar', [ProcessoController::class, 'aceitar'])->name('processos.aceitar');
     Route::put('/processos/{processo}/aceitar', [ProcessoController::class, 'processarAceitar'])->name('processos.aceitar.processar');
 
-    Route::put('/processos/{processo}/proximo-passo', [ProcessoController::class, 'proximoPasso'])->name('processos.proximo-passo');
-
     Route::put('/processos/{processo}/admin-acao', [ProcessoController::class, 'acaoAdmin'])->name('processos.admin-acao');
+
+    Route::put('/processos/{processo}/devolver-secretario', [ProcessoController::class, 'devolverSecretario'])->name('processos.devolver-secretario');
+
+    Route::put('/processos/{processo}/iniciar-votacao', [ProcessoController::class, 'iniciarVotacao'])->name('processos.iniciar-votacao');
 
     Route::get('/processos/{processo}/votar', [VotacaoController::class, 'create'])->name('processos.votar');
     Route::post('/processos/{processo}/votar', [VotacaoController::class, 'store'])->name('processos.votar.store');
+
+    Route::get('/votacoes/disponiveis', [VotacaoController::class, 'disponiveis'])->name('votacoes.disponiveis');
+    Route::get('/votacoes/abertas', [VotacaoController::class, 'abertas'])->name('votacoes.abertas');
+    Route::put('/votacoes/abertas/{rodada}/encerramento', [VotacaoController::class, 'atualizarEncerramento'])->name('votacoes.atualizar-encerramento');
+    Route::get('/votacoes/disponiveis/{rodada}/votar', [VotacaoController::class, 'votar'])->name('votacoes.votar');
+    Route::post('/votacoes/disponiveis/{rodada}/votar', [VotacaoController::class, 'registrarVoto'])->name('votacoes.votar.store');
 
     Route::post('/documentos', [DocumentoController::class, 'store'])->name('documentos.store');
     Route::get('/documentos/{documento}/download', [DocumentoController::class, 'download'])->name('documentos.download');

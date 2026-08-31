@@ -31,6 +31,20 @@
 
             <a href="{{ route('usuarios.list') }}" class="flex items-center p-3 {{ request()->routeIs('usuarios.*') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Usuarios</a>
             <a href="{{ route('resultados') }}" class="flex items-center p-3 {{ request()->routeIs('resultados') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Resultados</a>
+
+            <div class="px-3">
+                <button type="button" class="flex items-center justify-between w-full p-3 text-white hover:bg-emerald-900 rounded-lg transition-colors"
+                        data-dropdown-toggle="votacoes-dropdown-admin"
+                        aria-expanded="false" aria-controls="votacoes-dropdown-admin">
+                    <span>Votações</span>
+                    <svg class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div id="votacoes-dropdown-admin" class="hidden mt-1 ml-4 space-y-1 border-l-2 border-emerald-400 pl-3" role="menu">
+                    <a href="{{ route('votacoes.abertas') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Votações Abertas</a>
+                </div>
+            </div>
         @elseif($usuario === 'membro')
 
             <div class="px-3">
@@ -46,6 +60,21 @@
                     <a href="{{ route('processos.meus') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Meus Processos</a>
                     <a href="{{ route('processos.arquivados') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Arquivados</a>
                     <a href="{{ route('processos.publicos') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Processos Públicos</a>
+                </div>
+            </div>
+
+            <div class="px-3">
+                <button type="button" class="flex items-center justify-between w-full p-3 text-white hover:bg-emerald-900 rounded-lg transition-colors"
+                        data-dropdown-toggle="votacoes-dropdown-membro"
+                        aria-expanded="false" aria-controls="votacoes-dropdown-membro">
+                    <span>Votações</span>
+                    <svg class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div id="votacoes-dropdown-membro" class="hidden mt-1 ml-4 space-y-1 border-l-2 border-emerald-400 pl-3" role="menu">
+                    <a href="{{ route('votacoes.disponiveis') }}" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Votações Disponíveis</a>
+                    <a href="#" class="block px-3 py-2 text-sm text-white hover:bg-emerald-900 rounded-md" role="menuitem">Minerva</a>
                 </div>
             </div>
 

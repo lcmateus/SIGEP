@@ -19,6 +19,12 @@ class DashboardController extends Controller
             default => 'guest',
         };
 
+        $recentesQuery = Processo::query()->with('relator');
+
+        if ($user instanceof UsuarioMembro) {
+            $recentesQuery->where('id_relator', $user->siape);
+        }
+
         return view('dashboard', [
             'usuario' => $role,
             'totalProcessos' => Processo::query()->count(),
@@ -28,7 +34,7 @@ class DashboardController extends Controller
             'meusProcessos' => $user instanceof UsuarioMembro
                 ? Processo::query()->where('id_relator', $user->siape)->count()
                 : 0,
-            'processosRecentes' => Processo::query()->with('relator')->latest()->limit(5)->get(),
+            'processosRecentes' => $recentesQuery->latest()->limit(5)->get(),
         ]);
     }
 }

@@ -9,26 +9,31 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('voto', function (Blueprint $table) {
-            $table->integer('id');
-            $table->string('usuario_id',7)->nullable();
-            $table->integer('rodada_votacao_id')->nullable();
-            $table->string('tipo');
+            $table->id();
+            $table->enum('opcao', [
+                'aprova',
+                'desaprova',
+                'aprova com resalva',
+                'abstenho',
+            ]);
             $table->text('justificativa')->nullable();
-            $table->timestamps();
+            $table->boolean('is_minerva')->default(false);
+            $table->string('id_membro', 7)->nullable();
+            $table->unsignedBigInteger('id_rodada')->nullable();
 
-            $table->foreign('usuario_id')
+            $table->foreign('id_membro')
                   ->references('siape')
                   ->on('usuario_membro')
+                  ->cascadeOnUpdate()
                   ->cascadeOnDelete();
 
-            $table->foreign('rodada_votacao_id')
+            $table->foreign('id_rodada')
                   ->references('id')
                   ->on('rodada_votacao')
+                  ->cascadeOnUpdate()
                   ->cascadeOnDelete();
 
-            
-
-            $table->unique(['usuario_id', 'rodada_votacao_id']);
+            $table->unique(['id_membro', 'id_rodada']);
         });
     }
 

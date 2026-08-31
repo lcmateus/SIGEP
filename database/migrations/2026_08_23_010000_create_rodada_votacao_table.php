@@ -1,5 +1,4 @@
 <?php
-// database/migrations/YYYY_MM_DD_create_rodadas_votacao_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -10,45 +9,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('rodada_votacao', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->id();
             $table->timestamp('data_abertura')->useCurrent();
             $table->timestamp('data_encerramento')->nullable();
-            $table->unsignedBigInteger('id_etapa')->nullable();
-            
-            $table->enum('status', [
-                'aberta',
-                'encerrada',
-                'cancelada'
-            ])->default('aberta');
-            
-            $table->enum('resultado', [ //pensar em melhores possibilidades de resultado.
-                'aprovado',             // Acho que tem algumas aqui que não serão necessárias
+
+            $table->enum('resultado', [
+                'aprovado',
                 'reprovado',
-                'propor_acpp',
-                'instaurar_pae',
-                'arquivar',
-                'cumprido',
-                'descumprido',
-                'pune_censura',
-                'pune_suspensao',
-                'pune_demissao',
-                'absolvido'
             ])->nullable();
 
-            $table->json('snapshot_votantes')->nullable();
-            
+            $table->unsignedBigInteger('id_etapa')->nullable();
+
             $table->foreign('id_etapa')
                   ->references('id')
                   ->on('etapa')
                   ->cascadeOnUpdate()
                   ->cascadeOnDelete();
-            
-            $table->index('status');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('rodadas_votacao');
+        Schema::dropIfExists('rodada_votacao');
     }
 };

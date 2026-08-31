@@ -46,7 +46,7 @@ class UsuarioMembro extends Authenticatable
     //Relacionamentos
 
     public function ativadoPor(){
-        return $this->belongsTo(UsuarioAdministrador::class, 'siape');
+        return $this->belongsTo(UsuarioAdministrador::class, 'ativado_por', 'siape');
     }
     
     public function processosComoRelator()
@@ -56,7 +56,7 @@ class UsuarioMembro extends Authenticatable
 
     public function votos()
     {
-        return $this->hasMany(Voto::class, 'usuario_id', 'siape');
+        return $this->hasMany(Voto::class, 'id_membro', 'siape');
     }
 
     public function rodadasVotacao()

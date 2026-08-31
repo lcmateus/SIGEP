@@ -26,7 +26,7 @@
                         <td class="p-4">{{ $processo->data_devolucao?->format('d/m/Y') ?? '-' }}</td>
                         <td class="p-4">{{ $processo->etapa_atual?->tipo_display ?? 'Sem etapa' }}</td>
                         <td class="p-4">
-                            <a class="text-white bg-blue-600 px-4 py-1 rounded-xl font-bold" href="{{ route('processos.aceitar', $processo) }}">Detalhes</a>
+                            <a class="text-white bg-blue-600 px-4 py-1 rounded-xl font-bold" href="{{ route('processos.show', $processo) }}">Detalhes</a>
                         </td>
                     </tr>
                 @empty

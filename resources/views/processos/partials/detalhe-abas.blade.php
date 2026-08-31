@@ -7,8 +7,9 @@
         \App\Models\Etapa::STATUS_DEVOLVIDO,
         \App\Models\Etapa::STATUS_ARQUIVADO,
     ]);
-    $podeExcluir = ($isRelator || $isAdmin) && !$etapaBloqueada;
-    $podeAnexar = !$etapaBloqueada;
+    $somenteLeitura = $somenteLeitura ?? false;
+    $podeExcluir = !$somenteLeitura && ($isRelator || $isAdmin) && !$etapaBloqueada;
+    $podeAnexar = !$somenteLeitura && !$etapaBloqueada;
 @endphp
 
 <div data-tabs-container="{{ $uid }}">
@@ -128,9 +129,6 @@
                     </p>
                 </div>
                 <div class="text-right">
-                    <span class="inline-block px-3 py-1 rounded-md text-xs font-semibold text-white {{ ['aberta' => 'bg-green-600', 'encerrada' => 'bg-slate-500', 'cancelada' => 'bg-red-500'][$rodada->status] ?? 'bg-slate-400' }}">
-                        {{ ucfirst($rodada->status) }}
-                    </span>
                     <p class="text-xs text-slate-500 mt-1">
                         Resultado: {{ $rodada->resultado ? str_replace('_', ' ', ucfirst($rodada->resultado)) : 'Pendente' }}
                     </p>

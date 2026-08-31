@@ -213,9 +213,18 @@ class ProcessoController extends Controller
                 ->with('status', 'Processo devolvido ao Secretario Geral.');
         }
 
-        $etapaAtual->update(['tipo' => Etapa::TIPO_PROCEDIMENTO_PRELIMINAR]);
+        $etapaAtual->update(['status' => Etapa::STATUS_FINALIZADO]);
 
-        return redirect()->route('processos.aceitar', $processo)
+        $proximaOrdem = ($processo->etapas->max('ordem') ?? 0) + 1;
+
+        Etapa::query()->create([
+            'numero_sei_processo' => $processo->numero_sei,
+            'ordem' => $proximaOrdem,
+            'tipo' => Etapa::TIPO_PROCEDIMENTO_PRELIMINAR,
+            'status' => Etapa::STATUS_EM_ELABORACAO,
+        ]);
+
+        return redirect()->route('processos.show', $processo)
             ->with('status', 'Processo encaminhado para Procedimento Preliminar.');
     }
 
@@ -244,36 +253,6 @@ class ProcessoController extends Controller
         return redirect()->route('processos.index')->with('status', 'Processo excluido.');
     }
 
-    public function proximoPasso(Request $request, Processo $processo): RedirectResponse
-    {
-        $etapaAtual = $processo->etapa_atual;
-
-        if (
-            !$etapaAtual
-            || $etapaAtual->tipo === Etapa::TIPO_JUIZO
-            || $etapaAtual->status === Etapa::STATUS_ARQUIVADO
-            || $etapaAtual->status === Etapa::STATUS_DEVOLVIDO
-        ) {
-            return back()->with('error', 'Etapa invalida para esta operacao.');
-        }
-
-        $data = $request->validate([
-            'decisao' => ['required', 'in:devolver,pae,acpp,votacao'],
-        ]);
-
-        if ($data['decisao'] === 'devolver') {
-            $etapaAtual->update(['status' => Etapa::STATUS_DEVOLVIDO]);
-            $processo->update(['data_devolucao' => now()]);
-        } elseif ($data['decisao'] === 'pae') {
-            $etapaAtual->update(['tipo' => Etapa::TIPO_PAE]);
-        } elseif ($data['decisao'] === 'acpp') {
-            $etapaAtual->update(['tipo' => Etapa::TIPO_ACPP]);
-        }
-
-        return redirect()->route('processos.show', $processo)
-            ->with('status', 'Proximo passo registrado com sucesso.');
-    }
-
     public function acaoAdmin(Request $request, Processo $processo): RedirectResponse
     {
         $this->authorizeAdmin();
@@ -296,6 +275,71 @@ class ProcessoController extends Controller
 
         return redirect()->route('processos.show', $processo)
             ->with('status', 'Acao executada com sucesso.');
+    }
+
+    public function devolverSecretario(Processo $processo): RedirectResponse
+    {
+        abort_unless(
+            auth()->check()
+                && auth()->user() instanceof UsuarioMembro
+                && auth()->user()->siape === $processo->id_relator,
+            403
+        );
+
+        $etapaEmElaboracao = $processo->etapas
+            ->sortByDesc('ordem')
+            ->first(fn ($etapa) => $etapa->status === Etapa::STATUS_EM_ELABORACAO);
+
+        if (!$etapaEmElaboracao) {
+            return back()->with('error', 'Nenhuma etapa em elaboracao para devolver.');
+        }
+
+        $etapaEmElaboracao->update(['status' => Etapa::STATUS_DEVOLVIDO]);
+        $processo->update(['data_devolucao' => now()]);
+
+        return redirect()->route('processos.show', $processo)
+            ->with('status', 'Processo devolvido ao Secretario Geral.');
+    }
+
+    public function iniciarVotacao(Processo $processo): RedirectResponse
+    {
+        abort_unless(
+            auth()->check()
+                && auth()->user() instanceof UsuarioMembro
+                && auth()->user()->siape === $processo->id_relator,
+            403
+        );
+
+        $etapaEmElaboracao = $processo->etapas
+            ->sortByDesc('ordem')
+            ->first(fn ($etapa) => $etapa->status === Etapa::STATUS_EM_ELABORACAO);
+
+        if (!$etapaEmElaboracao) {
+            return back()->with('error', 'Nenhuma etapa em elaboracao para iniciar votacao.');
+        }
+
+        $etapaEmElaboracao->update(['status' => Etapa::STATUS_EM_VOTACAO]);
+
+        RodadaVotacao::query()->create([
+            'data_abertura' => now(),
+            'data_encerramento' => now()->addWeeks(2),
+            'resultado' => null,
+            'id_etapa' => $etapaEmElaboracao->id,
+        ]);
+
+        UsuarioMembro::query()->where('is_presidente', true)->update(['is_presidente' => false]);
+
+        $novoPresidente = UsuarioMembro::query()
+            ->whereNotNull('data_ativacao')
+            ->inRandomOrder()
+            ->first();
+
+        if ($novoPresidente) {
+            $novoPresidente->update(['is_presidente' => true]);
+        }
+
+        return redirect()->route('dashboard')
+            ->with('status', 'Votacao iniciada com sucesso.');
     }
 
     private function proximoRelator(): ?UsuarioMembro

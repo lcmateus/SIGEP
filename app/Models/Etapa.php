@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Etapa extends Model
 {
     public const TIPO_JUIZO = 'Juízo de Admissibilidade';
-    public const TIPO_PROCEDIMENTO_PRELIMINAR = 'Processo Preliminar';
+    public const TIPO_PROCEDIMENTO_PRELIMINAR = 'Procedimento Preliminar';
     public const TIPO_ACPP = 'Acordo de Conduta';
     public const TIPO_PAE = 'Processo de Apuração';
 
