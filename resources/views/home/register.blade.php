@@ -9,8 +9,7 @@
 </head>
 
 <body class="bg-slate-100 text-slate-800">
-    <div class="min-h-screen flex items-center justify-center"
-        class="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
+    <div class="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
         style="background-image: url('{{ asset('images/bg-login.jpg') }}');"
     >
         <form method="POST" action="{{ route('register') }}" class="bg-white p-6 rounded-2xl shadow w-96 space-y-3">
@@ -18,10 +17,10 @@
 
             @if (!$hasAdmin)
                 <h2 class="text-xl font-bold">Cadastro de Administrador</h2>
-                <p class="text-sm text-slate-500">Nenhum administrador cadastrado. O primeiro cadastro sera o administrador do sistema.</p>
+                <p class="text-sm text-slate-500">Nenhum administrador cadastrado. O primeiro cadastro será o administrador do sistema.</p>
             @else
                 <h2 class="text-xl font-bold">Cadastro de Membro</h2>
-                <p class="text-sm text-slate-500">Seu cadastro sera enviado para aprovacao.</p>
+                <p class="text-sm text-slate-500">Seu cadastro será enviado para aprovação.</p>
             @endif
 
             <div>
@@ -37,8 +36,8 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1">Email institucional</label>
-                <input type="email" name="email" class="w-full border border-slate-300 p-2 rounded outline-none focus:ring-2 focus:ring-green-600" placeholder="Digite seu email" value="{{ old('email') }}" required>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">E-mail institucional</label>
+                <input type="email" name="email" class="w-full border border-slate-300 p-2 rounded outline-none focus:ring-2 focus:ring-green-600" placeholder="Digite seu e-mail" value="{{ old('email') }}" required>
                 @error('email') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
             </div>
 

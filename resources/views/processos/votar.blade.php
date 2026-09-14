@@ -7,7 +7,7 @@
         <h2 class="text-3xl font-bold text-emerald-900">{{ $processo->titulo }}</h2>
         <p class="text-slate-600 font-semibold mb-8">{{ $processo->descricao }}</p>
 
-        <h3 class="text-3xl text-center font-bold text-emerald-900 mb-4">VOTACAO</h3>
+        <h3 class="text-3xl text-center font-bold text-emerald-900 mb-4">VOTAÇÃO</h3>
 
         <form method="POST" action="{{ route('processos.votar.store', $processo) }}">
             @csrf
@@ -16,7 +16,7 @@
                 <div class="border border-slate-300 rounded-lg p-6">
                     <h4 class="text-2xl font-bold text-emerald-900">Registre seu voto</h4>
                     <p class="text-slate-500 font-semibold mt-4">
-                        Seu voto so pode ser registrado uma vez. Escolha com atencao.
+                        Seu voto só pode ser registrado uma vez. Escolha com atenção.
                     </p>
                 </div>
 

@@ -10,13 +10,13 @@
                     <h2 class="font-bold text-emerald-900 text-2xl">Processo SEI {{ $processo->numero_sei }}</h2>
                     <p class="text-sm text-slate-600 mt-2">
                         <span class="font-bold text-emerald-900">Relator:</span>
-                        {{ $processo->relator?->nome ?? 'Nao designado' }}
+                        {{ $processo->relator?->nome ?? 'Não designado' }}
                         ·
                         <span class="font-bold text-emerald-900">Administrador responsavel:</span>
-                        {{ $processo->administrador?->nome ?? 'Nao informado' }}
+                        {{ $processo->administrador?->nome ?? 'Não informado' }}
                     </p>
                     <p class="text-sm text-slate-500 mt-1">
-                        Admissao: {{ $processo->data_admissao?->format('d/m/Y') ?? 'Nao informado' }}
+                        Admissao: {{ $processo->data_admissao?->format('d/m/Y') ?? 'Não informado' }}
                         @if($processo->data_devolucao)
                             · Devolucao: {{ $processo->data_devolucao->format('d/m/Y') }}
                         @endif
@@ -108,8 +108,8 @@
             input.value = decisao;
 
             if (decisao === 'nao') {
-                titulo.textContent = 'Devolver ao Secretario Geral?';
-                mensagem.textContent = 'O processo sera devolvido.".';
+                titulo.textContent = 'Devolver ao Secretário Geral?';
+                mensagem.textContent = 'O processo será devolvido.".';
                 btnConfirmar.textContent = 'Sim, Devolver';
                 btnConfirmar.className = 'bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg';
             } else {

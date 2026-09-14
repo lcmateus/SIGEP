@@ -12,12 +12,12 @@
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
             <p class="text-sm font-bold text-orange-500">Aguardando autorizacao</p>
             <h2 class="text-4xl font-bold text-orange-500">{{ $totalPendentes }}</h2>
-            <p class="text-sm text-slate-500">Usuarios pendentes de autorizacao</p>
+            <p class="text-sm text-slate-500">Usuários pendentes de autorização</p>
         </div>
     </div>
 
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <h3 class="text-sm font-bold text-emerald-700 uppercase mb-5">Lista de Usuarios</h3>
+        <h3 class="text-sm font-bold text-emerald-700 uppercase mb-5">Lista de Usuários</h3>
         <div class="overflow-x-auto">
             <table class="w-full border-collapse">
                 <thead class="bg-slate-100">
@@ -27,7 +27,7 @@
                         <th class="p-4">SIAPE</th>
                         <th class="p-4">Tipo</th>
                         <th class="p-4">Status</th>
-                        <th class="p-4 text-center">Acoes</th>
+                        <th class="p-4 text-center">Ações</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 text-sm">

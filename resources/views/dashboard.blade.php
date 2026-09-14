@@ -40,7 +40,7 @@
         <table class="w-full text-left border-collapse mt-3">
             <thead class="bg-gray-200 text-slate-500 text-xs uppercase">
                 <tr>
-                    <th class="p-4 text-emerald-900">Numero SEI</th>
+                    <th class="p-4 text-emerald-900">Número SEI</th>
                     <th class="p-4 text-emerald-900">Admissão</th>
                     <th class="p-4 text-emerald-900">Devolução</th>
                     <th class="p-4 text-emerald-900">Relator</th>

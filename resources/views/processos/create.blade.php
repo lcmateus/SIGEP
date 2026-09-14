@@ -17,8 +17,8 @@
             </div>
 
             <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-sm text-emerald-800">
-                O relator sera designado automaticamente pelo sistema, priorizando o membro com menos processos atribuidos.
-                A data de admissao sera registrada como hoje.
+                O relator será designado automaticamente pelo sistema, priorizando o membro com menos processos atribuídos.
+                A data de admissão será registrada como hoje.
             </div>
 
             <div class="flex items-center justify-between pt-2">
