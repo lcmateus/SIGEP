@@ -14,7 +14,7 @@
         <table class="w-full border-collapse">
             <thead class="bg-slate-100">
                 <tr class="text-left text-sm text-emerald-700">
-                    <th class="p-4">Numero SEI</th>
+                    <th class="p-4">Número SEI</th>
                     <th class="p-4">Admissão</th>
                     <th class="p-4">Devolução</th>
                     <th class="p-4">Relator</th>

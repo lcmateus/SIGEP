@@ -9,10 +9,10 @@
                 <h2 class="font-bold text-emerald-900 text-2xl">Processo SEI {{ $processo->numero_sei }}</h2>
                 <p class="text-sm text-slate-600 mt-2">
                     <span class="font-bold text-emerald-900">Relator:</span>
-                    {{ $processo->relator?->nome ?? 'Nao designado' }}
+                    {{ $processo->relator?->nome ?? 'Não designado' }}
                     ·
                     <span class="font-bold text-emerald-900">Secretário(a):</span>
-                    {{ $processo->administrador?->nome ?? 'Nao informado' }}
+                    {{ $processo->administrador?->nome ?? 'Não informado' }}
                 </p>
             </div>
         </div>

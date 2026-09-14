@@ -20,7 +20,7 @@
         </button>
         <button type="button" data-tab-btn="{{ $uid }}" data-tab="votacoes"
             class="px-4 py-2 text-sm font-bold rounded-t-lg text-slate-500 hover:text-emerald-700">
-            Historico de Votacoes
+            Histórico de Votações
         </button>
     </div>
 
@@ -118,7 +118,7 @@
             <div class="flex items-center justify-between py-3 border-b border-slate-100 text-sm">
                 <div>
                     <p class="font-bold text-emerald-900">
-                        Votacao #{{ $rodada->id }}
+                        Votação #{{ $rodada->id }}
                         <span class="font-medium text-slate-400">
                             · {{ $rodada->etapa?->tipo_display ?? 'Sem etapa' }}
                         </span>
@@ -135,7 +135,7 @@
                 </div>
             </div>
         @empty
-            <p class="text-sm text-slate-500 py-3">Este processo nao possui votacoes registradas.</p>
+            <p class="text-sm text-slate-500 py-3">Este processo não possui votações registradas.</p>
         @endforelse
     </div>
 </div>
@@ -165,19 +165,19 @@
                 <select name="tipo" id="upload-tipo" required
                     class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     <option value="pdf_sei">PDF do SEI</option>
-                    <option value="relatorio_juizo">Relatorio do Juizo</option>
-                    <option value="relatorio_pp">Relatorio do PP</option>
+                    <option value="relatorio_juizo">Relatorio do Juízo</option>
+                    <option value="relatorio_pp">Relatório do PP</option>
                     <option value="minuta_acpp">Minuta do ACPP</option>
-                    <option value="versao_final_acpp">Versao Final do ACPP</option>
-                    <option value="versao_assinada_acpp">Versao Assinada do ACPP</option>
-                    <option value="diligencia">Diligencia</option>
+                    <option value="versao_final_acpp">Versão Final do ACPP</option>
+                    <option value="versao_assinada_acpp">Versão Assinada do ACPP</option>
+                    <option value="diligencia">Diligência</option>
                     <option value="prova_documental">Prova Documental</option>
                     <option value="prova_testemunhal">Prova Testemunhal</option>
                     <option value="prova_pericial">Prova Pericial</option>
-                    <option value="relatorio_parcial_pae">Relatorio Parcial do PAE</option>
+                    <option value="relatorio_parcial_pae">Relatório Parcial do PAE</option>
                     <option value="defesa_investigado">Defesa do Investigado</option>
-                    <option value="alegacoes_finais">Alegacoes Finais</option>
-                    <option value="reconsideracao">Reconsideracao</option>
+                    <option value="alegacoes_finais">Alegações Finais</option>
+                    <option value="reconsideracao">Reconsideração</option>
                     <option value="outro" selected>Outro</option>
                 </select>
             </div>
@@ -277,7 +277,7 @@
                     return r.json().then(function (d) { return { ok: r.ok, data: d }; });
                 }
                 return r.text().then(function (t) {
-                    console.error('Resposta nao-JSON (status ' + r.status + '):', t.substring(0, 500));
+                    console.error('Resposta não-JSON (status ' + r.status + '):', t.substring(0, 500));
                     throw new Error('Servidor retornou status ' + r.status);
                 });
             })
@@ -300,7 +300,7 @@
                 var container = document.getElementById('docs-{{ $uid }}-' + etapaId);
 
                 if (!container) {
-                    console.error('Container docs-{{ $uid }}-' + etapaId + ' nao encontrado');
+                    console.error('Container docs-{{ $uid }}-' + etapaId + ' não encontrado');
                     location.reload();
                     return;
                 }
@@ -345,7 +345,7 @@
             })
             .catch(function (err) {
                 console.error('Erro no upload:', err);
-                erroDiv.textContent = 'Erro: ' + (err.message || 'conexao. Tente novamente.');
+                erroDiv.textContent = 'Erro: ' + (err.message || 'conexão. Tente novamente.');
                 erroDiv.classList.remove('hidden');
                 btn.disabled = false;
                 btn.textContent = 'Anexar';
