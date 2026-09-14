@@ -7,6 +7,7 @@ use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\ProcessoController;
 use App\Http\Controllers\UsuarioMembroController;
 use App\Http\Controllers\VotacaoController;
+use App\Http\Controllers\RelatorioController;
 use Illuminate\Support\Facades\Route;
 
 /*
