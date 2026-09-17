@@ -3,7 +3,7 @@
         <div>
             <img src="{{ asset('images/logo-ifpr.png') }}"
             <h1 class="font-bold text-xl leading-none text-white">SIGEP</h1>
-            <p class="text-[10px] text-emerald-950 uppercase">Sistema de Gestao da Etica Publica</p>
+            <p class="text-[10px] text-emerald-950 uppercase">Sistema de Gestão da Ética Pública</p>
         </div>
     </div>
 
@@ -83,7 +83,7 @@
 <a href="{{ route('perfil') }}" class="flex items-center p-3 {{ request()->routeIs('perfil') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Perfil</a>
 
         <hr class="mx-3 border-emerald-400">
-        <a href="{{ route('configuracoes') }}" class="flex items-center p-3 {{ request()->routeIs('configuracoes') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Configuracoes</a>
+        <a href="{{ route('configuracoes') }}" class="flex items-center p-3 {{ request()->routeIs('configuracoes') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Configurações</a>
     </nav>
 </aside>
 @push('scripts')

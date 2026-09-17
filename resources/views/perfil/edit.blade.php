@@ -38,7 +38,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-emerald-700 uppercase mb-2">
-                            Email Institucional
+                            E-mail Institucional
                         </label>
                         <input
                             type="email"

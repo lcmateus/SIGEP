@@ -133,7 +133,7 @@
 
             @if($mostrarNovoCard)
                 <div class="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
-                    <h3 class="text-lg font-bold text-emerald-900 mb-4">Qual o proximo passo?</h3>
+                    <h3 class="text-lg font-bold text-emerald-900 mb-4">Qual o próximo passo?</h3>
                     <div class="flex gap-3">
                         <form id="form-devolver-secretario" action="{{ route('processos.devolver-secretario', $processo) }}" method="POST">
                             @csrf
@@ -172,7 +172,7 @@
 
             @if($mostrarAcoesAdmin)
                 <div class="mt-6 pt-6 border-t border-slate-200">
-                    <h3 class="font-bold text-emerald-900 text-lg mb-4">Acoes do Administrador</h3>
+                    <h3 class="font-bold text-emerald-900 text-lg mb-4">Ações do Administrador</h3>
                     <div class="flex flex-wrap gap-3">
                         <form id="form-admin-reativar" action="{{ route('processos.admin-acao', $processo) }}" method="POST">
                             @csrf
