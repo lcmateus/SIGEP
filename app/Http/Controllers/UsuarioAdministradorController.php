@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\UsuarioAdministrador;
+use App\Rules\SenhaForte;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -33,7 +34,7 @@ class UsuarioAdministradorController extends Controller
             'siape' => ['required', 'string', 'max:20', 'unique:usuario_administradors,siape'],
             'nome' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:usuario_administradors,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'confirmed', new SenhaForte],
         ]);
 
         $data['password'] = bcrypt($data['password']);
@@ -50,7 +51,7 @@ class UsuarioAdministradorController extends Controller
             'siape' => ['required', 'string', 'max:20', 'unique:usuario_administradors,siape,'.$administrador->id],
             'nome' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:usuario_administradors,email,'.$administrador->id],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'password' => ['nullable', 'string', 'confirmed', new SenhaForte],
         ]);
 
         if (empty($data['password'])) {

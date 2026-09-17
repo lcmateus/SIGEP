@@ -11,6 +11,8 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
+    private const SENHA_PADRAO = 'SenhaForte#1234';
+
     public function run(): void
     {
         $admin = UsuarioAdministrador::query()->firstOrCreate(
@@ -18,7 +20,7 @@ class DatabaseSeeder extends Seeder
             [
                 'nome' => 'Secretario Geral',
                 'email' => 'secretario@sigep.test',
-                'password' => bcrypt('password'),
+                'password' => bcrypt(self::SENHA_PADRAO),
             ]
         );
 
@@ -31,7 +33,7 @@ class DatabaseSeeder extends Seeder
                 [
                     'nome' => "Membro Teste {$i}",
                     'email' => "membro{$i}@sigep.test",
-                    'password' => bcrypt('password'),
+                    'password' => bcrypt(self::SENHA_PADRAO),
                     'data_ativacao' => now(),
                     'ativado_por' => $admin->siape,
                     'is_presidente' => false,

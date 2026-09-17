@@ -64,26 +64,45 @@
         </div>
         <div class="mt-8 pt-8 border-t border-slate-200">
             <h4 class="text-sm font-bold text-emerald-700 uppercase mb-4">Alterar senha (opcional)</h4>
+            <p class="text-xs text-slate-500 mb-4">A senha deve ter pelo menos 12 caracteres, com pelo menos 1 letra maiúscula, 1 número e 1 caractere especial.</p>
             <div class="grid grid-cols-2 gap-8">
                 <div>
                     <label class="block text-sm font-bold text-emerald-700 uppercase mb-2">
                         Nova senha
                     </label>
-                    <input
-                        type="password"
-                        name="password"
-                        class="w-full border border-slate-300 rounded-lg p-4 outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
+                    <div class="relative">
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            class="w-full border border-slate-300 rounded-lg p-4 pr-12 outline-none focus:ring-2 focus:ring-emerald-500"
+                        >
+                        <button type="button" data-toggle-password="password" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-700" aria-label="Mostrar ou esconder senha">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-emerald-700 uppercase mb-2">
                         Confirmar nova senha
                     </label>
-                    <input
-                        type="password"
-                        name="password_confirmation"
-                        class="w-full border border-slate-300 rounded-lg p-4 outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
+                    <div class="relative">
+                        <input
+                            type="password"
+                            name="password_confirmation"
+                            id="password_confirmation"
+                            class="w-full border border-slate-300 rounded-lg p-4 pr-12 outline-none focus:ring-2 focus:ring-emerald-500"
+                        >
+                        <button type="button" data-toggle-password="password_confirmation" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-700" aria-label="Mostrar ou esconder senha">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -97,4 +116,14 @@
         </div>
     </form>
 </div>
+@push('scripts')
+<script>
+    document.querySelectorAll('[data-toggle-password]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var input = document.getElementById(button.getAttribute('data-toggle-password'));
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+    });
+</script>
+@endpush
 @endsection

@@ -54,6 +54,7 @@
                     </button>
                 </div>
                 @error('password') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                <p class="text-xs text-slate-500 mt-1">A senha deve ter pelo menos 12 caracteres, com pelo menos 1 letra maiúscula, 1 número e 1 caractere especial.</p>
             </div>
 
             <div>

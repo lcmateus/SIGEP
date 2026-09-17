@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\UsuarioMembro;
 use App\Models\UsuarioAdministrador;
+use App\Rules\SenhaForte;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -68,7 +69,7 @@ class AuthController extends Controller
             'siape' => ['required', 'string', 'max:20', "unique:$table,siape"],
             'nome' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', "unique:$table,email"],
-            'password' => ['required', 'confirmed', 'min:8'],
+            'password' => ['required', 'confirmed', new SenhaForte],
         ]);
 
         $data['password'] = bcrypt($data['password']);
