@@ -10,4 +10,5 @@ Artisan::command('inspire', function () {
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('votacao:fechar-vencidas')->daily();
+Schedule::command('votacao:avisar-encerramento-24h')->dailyAt('08:00');
 

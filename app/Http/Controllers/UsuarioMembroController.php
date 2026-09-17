@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\UsuarioAdministrador;
 use App\Models\UsuarioMembro;
+use App\Services\NotificacaoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -44,6 +45,8 @@ class UsuarioMembroController extends Controller
         $this->authorizeAdmin();
 
         $usuario->update(['data_ativacao' => now(), 'ativado_por' => auth()->user()->siape]);
+
+        app(NotificacaoService::class)->notificarCadastroAprovado($usuario);
 
         return redirect()->route('usuarios.list')->with('status', 'Usuario aprovado.');
     }

@@ -8,6 +8,7 @@ use App\Models\Processo;
 use App\Models\RodadaVotacao;
 use App\Models\UsuarioAdministrador;
 use App\Models\UsuarioMembro;
+use App\Services\NotificacaoService;
 use App\Services\VotacaoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -138,6 +139,8 @@ class ProcessoController extends Controller
             'status' => Etapa::STATUS_EM_ELABORACAO,
         ]);
 
+        app(NotificacaoService::class)->notificarProcessoDesignado($relator, $processo);
+
         return redirect()->route('processos.index')->with('status', 'Processo criado.');
     }
 
@@ -210,6 +213,8 @@ class ProcessoController extends Controller
             $etapaAtual->update(['status' => Etapa::STATUS_DEVOLVIDO]);
             $processo->update(['data_devolucao' => now()]);
 
+            app(NotificacaoService::class)->notificarProcessoDevolvido($processo);
+
             return redirect()->route('processos.meus')
                 ->with('status', 'Processo devolvido ao Secretario Geral.');
         }
@@ -270,6 +275,8 @@ class ProcessoController extends Controller
 
         if ($data['decisao'] === 'reativar') {
             $etapaAtual->update(['status' => Etapa::STATUS_EM_ELABORACAO]);
+
+            app(NotificacaoService::class)->notificarProcessoReativado($processo);
         } elseif ($data['decisao'] === 'arquivar') {
             $etapaAtual->update(['status' => Etapa::STATUS_ARQUIVADO]);
         }
@@ -298,6 +305,8 @@ class ProcessoController extends Controller
         $etapaEmElaboracao->update(['status' => Etapa::STATUS_DEVOLVIDO]);
         $processo->update(['data_devolucao' => now()]);
 
+        app(NotificacaoService::class)->notificarProcessoDevolvido($processo);
+
         return redirect()->route('processos.show', $processo)
             ->with('status', 'Processo devolvido ao Secretario Geral.');
     }
@@ -321,12 +330,14 @@ class ProcessoController extends Controller
 
         $etapaEmElaboracao->update(['status' => Etapa::STATUS_EM_VOTACAO]);
 
-        RodadaVotacao::query()->create([
+        $rodada = RodadaVotacao::query()->create([
             'data_abertura' => now(),
             'data_encerramento' => now()->addWeeks(2),
             'resultado' => null,
             'id_etapa' => $etapaEmElaboracao->id,
         ]);
+
+        app(NotificacaoService::class)->notificarNovaVotacao($rodada);
 
         UsuarioMembro::query()->where('is_presidente', true)->update(['is_presidente' => false]);
 

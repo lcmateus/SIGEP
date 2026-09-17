@@ -112,6 +112,8 @@ class VotacaoService
         if ($etapa) {
             $etapa->update(['status' => Etapa::STATUS_FINALIZADO]);
         }
+
+        app(NotificacaoService::class)->notificarVotacaoEncerrada($rodada, $decisao);
     }
 
     /**
