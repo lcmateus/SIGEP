@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\ProcessoController;
@@ -16,7 +17,18 @@ Route::view('/', 'auth.login')->name('login');
 Route::view('/cadastro', 'auth.register')->name('register');
 */
 
-Route::view('/recuperar-senha', 'home.forgot-password')->name('forgot-password');
+Route::get('/recuperar-senha', [PasswordResetController::class, 'showRequestForm'])->name('forgot-password');
+Route::post('/recuperar-senha', [PasswordResetController::class, 'sendCode'])
+    ->middleware('throttle:recuperar')
+    ->name('forgot-password.send');
+
+Route::get('/recuperar-senha/codigo', [PasswordResetController::class, 'showCodeForm'])->name('password.code');
+Route::post('/recuperar-senha/codigo', [PasswordResetController::class, 'verifyCode'])
+    ->middleware('throttle:codigo')
+    ->name('password.code.verify');
+
+Route::get('/recuperar-senha/redefinir', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+Route::post('/recuperar-senha/redefinir', [PasswordResetController::class, 'resetPassword'])->name('password.reset.store');
 
 Route::get('/', [AuthController::class, 'showLogin'])->name('home');
 Route::post('/', [AuthController::class, 'login'])->name('login');
