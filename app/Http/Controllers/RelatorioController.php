@@ -195,7 +195,7 @@ class RelatorioController extends Controller
             $tipo = $processo->etapa_atual_relatorio?->tipo;
 
             if ($tipo && $processosPorTipo->has($tipo)) {
-                $processosPorTipo[$tipo]++;
+                //$processosPorTipo[$tipo]++; 
             }
         }
 
