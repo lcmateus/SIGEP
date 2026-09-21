@@ -18,58 +18,114 @@ class RelatorioController extends Controller
     {
         $periodo = $request->get('periodo', '30');
 
-        [$inicio, $fim, $nomePeriodo] = $this->definirPeriodo($periodo);
+        [$inicio, $fim, $periodoLabel] = $this->definirPeriodo($periodo);
 
         /*
         |--------------------------------------------------------------------------
         | PROCESSOS
         |--------------------------------------------------------------------------
+        |
+        | Os indicadores de processos consideram a data de admissão.
+        | Cada processo é contado apenas uma vez.
+        |
         */
 
-        $processosQuery = Processo::query()
+        $processos = Processo::query()
+            ->with('etapas')
             ->whereBetween('data_admissao', [
                 $inicio->toDateString(),
                 $fim->toDateString(),
-            ]);
-
-        $totalProcessos = (clone $processosQuery)->count();
-
-        $etapas = Etapa::query()
-            ->whereHas('processo', function ($query) use ($inicio, $fim) {
-                $query->whereBetween('data_admissao', [
-                    $inicio->toDateString(),
-                    $fim->toDateString(),
-                ]);
-            })
+            ])
             ->get();
 
-        $processosFinalizados = $etapas
-            ->where('status', Etapa::STATUS_FINALIZADO)
-            ->pluck('numero_sei_processo')
-            ->unique()
+        $totalProcessos = $processos->count();
+
+        /*
+         * Descobre a etapa atual de cada processo.
+         *
+         * A regra é a mesma utilizada no model Processo:
+         * maior ordem que ainda não esteja finalizada.
+         * Caso todas estejam finalizadas, utiliza a última etapa.
+         */
+        $processosComEtapaAtual = $processos->map(function ($processo) {
+            $etapas = $processo->etapas->sortByDesc('ordem');
+
+            $etapaAtual = $etapas
+                ->first(fn ($etapa) => $etapa->status !== Etapa::STATUS_FINALIZADO);
+
+            $etapaAtual ??= $etapas->first();
+
+            $processo->etapa_atual_relatorio = $etapaAtual;
+
+            return $processo;
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | STATUS ATUAL DOS PROCESSOS
+        |--------------------------------------------------------------------------
+        */
+
+        $processosPorStatus = collect([
+            Etapa::STATUS_EM_ELABORACAO => 0,
+            Etapa::STATUS_EM_VOTACAO => 0,
+            Etapa::STATUS_AGUARDANDO_MINERVA => 0,
+            Etapa::STATUS_DEVOLVIDO => 0,
+            Etapa::STATUS_ARQUIVADO => 0,
+            Etapa::STATUS_FINALIZADO => 0,
+        ]);
+
+        foreach ($processosComEtapaAtual as $processo) {
+            $status = $processo->etapa_atual_relatorio?->status;
+
+            if ($status && $processosPorStatus->has($status)) {
+                $processosPorStatus[$status]++;
+            }
+        }
+
+        $processosPorStatus = $processosPorStatus->filter(
+            fn ($quantidade) => $quantidade > 0
+        );
+
+        $processosFinalizados = $processosComEtapaAtual
+            ->filter(fn ($processo) =>
+                $processo->etapa_atual_relatorio?->status === Etapa::STATUS_FINALIZADO
+            )
             ->count();
 
-        $processosDevolvidos = $etapas
-            ->where('status', Etapa::STATUS_DEVOLVIDO)
-            ->pluck('numero_sei_processo')
-            ->unique()
+        $processosEmAndamento = $processosComEtapaAtual
+            ->filter(function ($processo) {
+                $status = $processo->etapa_atual_relatorio?->status;
+
+                return in_array($status, [
+                    Etapa::STATUS_EM_ELABORACAO,
+                    Etapa::STATUS_EM_VOTACAO,
+                    Etapa::STATUS_AGUARDANDO_MINERVA,
+                ], true);
+            })
             ->count();
 
-        $processosArquivados = $etapas
-            ->where('status', Etapa::STATUS_ARQUIVADO)
-            ->pluck('numero_sei_processo')
-            ->unique()
+        $processosDevolvidos = $processosComEtapaAtual
+            ->filter(fn ($processo) =>
+                $processo->etapa_atual_relatorio?->status === Etapa::STATUS_DEVOLVIDO
+            )
             ->count();
 
-        $processosEmAndamento = $etapas
-            ->whereIn('status', [
-                Etapa::STATUS_EM_ELABORACAO,
-                Etapa::STATUS_EM_VOTACAO,
-                Etapa::STATUS_AGUARDANDO_MINERVA,
-            ])
-            ->pluck('numero_sei_processo')
-            ->unique()
+        $processosArquivados = $processosComEtapaAtual
+            ->filter(fn ($processo) =>
+                $processo->etapa_atual_relatorio?->status === Etapa::STATUS_ARQUIVADO
+            )
             ->count();
+
+        $processosSemEtapa = $processosComEtapaAtual
+            ->filter(fn ($processo) => !$processo->etapa_atual_relatorio)
+            ->count();
+
+        /*
+        |--------------------------------------------------------------------------
+        | TAXA DE CONCLUSÃO
+        |--------------------------------------------------------------------------
+        */
 
         $taxaConclusao = $totalProcessos > 0
             ? round(($processosFinalizados / $totalProcessos) * 100, 1)
@@ -77,83 +133,69 @@ class RelatorioController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | PROCESSOS POR STATUS
+        | PROCESSOS POR TIPO DA ETAPA ATUAL
         |--------------------------------------------------------------------------
         */
 
-        $processosPorStatus = [
-            Etapa::STATUS_EM_ELABORACAO => $etapas
-                ->where('status', Etapa::STATUS_EM_ELABORACAO)
-                ->pluck('numero_sei_processo')
-                ->unique()
-                ->count(),
+        $processosPorTipo = collect([
+            Etapa::TIPO_JUIZO => 0,
+            Etapa::TIPO_PROCEDIMENTO_PRELIMINAR => 0,
+            Etapa::TIPO_ACPP => 0,
+            Etapa::TIPO_PAE => 0,
+        ]);
 
-            Etapa::STATUS_EM_VOTACAO => $etapas
-                ->where('status', Etapa::STATUS_EM_VOTACAO)
-                ->pluck('numero_sei_processo')
-                ->unique()
-                ->count(),
+        foreach ($processosComEtapaAtual as $processo) {
+            $tipo = $processo->etapa_atual_relatorio?->tipo;
 
-            Etapa::STATUS_AGUARDANDO_MINERVA => $etapas
-                ->where('status', Etapa::STATUS_AGUARDANDO_MINERVA)
-                ->pluck('numero_sei_processo')
-                ->unique()
-                ->count(),
-
-            Etapa::STATUS_FINALIZADO => $processosFinalizados,
-
-            Etapa::STATUS_DEVOLVIDO => $processosDevolvidos,
-
-            Etapa::STATUS_ARQUIVADO => $processosArquivados,
-        ];
-
-        /*
-        |--------------------------------------------------------------------------
-        | PROCESSOS POR TIPO
-        |--------------------------------------------------------------------------
-        */
-
-        $processosPorTipo = [];
-
-        foreach (Etapa::TIPOS as $tipo) {
-            $processosPorTipo[$tipo] = $etapas
-                ->where('tipo', $tipo)
-                ->pluck('numero_sei_processo')
-                ->unique()
-                ->count();
+            if ($tipo && $processosPorTipo->has($tipo)) {
+                $processosPorTipo[$tipo]++;
+            }
         }
+
+        $processosPorTipo = $processosPorTipo->filter(
+            fn ($quantidade) => $quantidade > 0
+        );
 
         /*
         |--------------------------------------------------------------------------
         | VOTAÇÕES
         |--------------------------------------------------------------------------
+        |
+        | Votações são filtradas pela data de abertura da rodada.
+        | Isso evita perder uma votação ocorrida no período em um processo
+        | que foi admitido meses antes.
+        |
         */
 
-        $rodadasQuery = RodadaVotacao::query()
-            ->whereHas('etapa.processo', function ($query) use ($inicio, $fim) {
-                $query->whereBetween('data_admissao', [
-                    $inicio->toDateString(),
-                    $fim->toDateString(),
-                ]);
-            });
+        $rodadas = RodadaVotacao::query()
+            ->whereBetween('data_abertura', [
+                $inicio->copy()->startOfDay(),
+                $fim->copy()->endOfDay(),
+            ])
+            ->get();
 
-        $totalVotacoes = (clone $rodadasQuery)->count();
+        $totalVotacoes = $rodadas->count();
 
-        $votacoesAbertas = (clone $rodadasQuery)
-            ->whereNull('data_encerramento')
+        $votacoesAbertas = $rodadas
+            ->filter(fn ($rodada) => is_null($rodada->data_encerramento))
             ->count();
 
-        $votacoesEncerradas = (clone $rodadasQuery)
-            ->whereNotNull('data_encerramento')
+        $votacoesEncerradas = $rodadas
+            ->filter(fn ($rodada) => !is_null($rodada->data_encerramento))
             ->count();
 
-        $votacoesAprovadas = (clone $rodadasQuery)
-            ->where('resultado', 'aprovado')
+        $votacoesAprovadas = $rodadas
+            ->filter(fn ($rodada) => $rodada->resultado === 'aprovado')
             ->count();
 
-        $votacoesReprovadas = (clone $rodadasQuery)
-            ->where('resultado', 'reprovado')
+        $votacoesReprovadas = $rodadas
+            ->filter(fn ($rodada) => $rodada->resultado === 'reprovado')
             ->count();
+
+        $resultadoVotos = collect([
+            'Aprovadas' => $votacoesAprovadas,
+            'Reprovadas' => $votacoesReprovadas,
+        ]);
 
         /*
         |--------------------------------------------------------------------------
@@ -161,52 +203,56 @@ class RelatorioController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $votosQuery = Voto::query()
-            ->whereHas('rodada.etapa.processo', function ($query) use ($inicio, $fim) {
-                $query->whereBetween('data_admissao', [
-                    $inicio->toDateString(),
-                    $fim->toDateString(),
+        $votos = Voto::query()
+            ->whereHas('rodada', function ($query) use ($inicio, $fim) {
+                $query->whereBetween('data_abertura', [
+                    $inicio->copy()->startOfDay(),
+                    $fim->copy()->endOfDay(),
                 ]);
-            });
+            })
+            ->get();
 
-        $resultadoVotos = [
-            'aprova' => (clone $votosQuery)
-                ->where('opcao', 'aprova')
-                ->count(),
+        $totalVotos = $votos->count();
 
-            'desaprova' => (clone $votosQuery)
-                ->where('opcao', 'desaprova')
-                ->count(),
+        $votosAprova = $votos
+            ->where('opcao', 'aprova')
+            ->count();
 
-            'aprova com resalva' => (clone $votosQuery)
-                ->where('opcao', 'aprova com resalva')
-                ->count(),
+        $votosDesaprova = $votos
+            ->where('opcao', 'desaprova')
+            ->count();
 
-            'abstenho' => (clone $votosQuery)
-                ->where('opcao', 'abstenho')
-                ->count(),
-        ];
+        /*
+         * Atenção:
+         * o banco possui "resalva" sem o segundo S.
+         * Mantemos esse valor aqui para compatibilidade com a migration.
+         */
+        $votosRessalva = $votos
+            ->where('opcao', 'aprova com resalva')
+            ->count();
 
-        $totalVotos = array_sum($resultadoVotos);
+        $votosAbstencao = $votos
+            ->where('opcao', 'abstenho')
+            ->count();
 
         /*
         |--------------------------------------------------------------------------
-        | MEMBROS
+        | USUÁRIOS
         |--------------------------------------------------------------------------
         */
 
-        $totalMembros = UsuarioMembro::query()->count();
+        $totalAdministradores = UsuarioAdministrador::count();
+
+        $totalMembros = UsuarioMembro::count();
 
         $membrosAtivos = UsuarioMembro::query()
             ->whereNotNull('data_ativacao')
             ->count();
 
-        $totalAdministradores = UsuarioAdministrador::query()->count();
-
         $novosMembros = UsuarioMembro::query()
             ->whereBetween('data_ativacao', [
-                $inicio,
-                $fim,
+                $inicio->copy()->startOfDay(),
+                $fim->copy()->endOfDay(),
             ])
             ->count();
 
@@ -225,7 +271,6 @@ class RelatorioController extends Controller
                     ]);
                 },
             ])
-            ->whereNotNull('data_ativacao')
             ->orderByDesc('processos_count')
             ->limit(5)
             ->get();
@@ -236,21 +281,10 @@ class RelatorioController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $evolucao = $this->montarEvolucaoMensal($inicio, $fim);
-
-        /*
-        |--------------------------------------------------------------------------
-        | PRIMEIRO E ÚLTIMO PROCESSO DO PERÍODO
-        |--------------------------------------------------------------------------
-        */
-
-        $primeiroProcesso = (clone $processosQuery)
-            ->orderBy('data_admissao')
-            ->first();
-
-        $ultimoProcesso = (clone $processosQuery)
-            ->orderByDesc('data_admissao')
-            ->first();
+        $evolucao = $this->montarEvolucaoMensal(
+            $inicio,
+            $fim
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -260,27 +294,31 @@ class RelatorioController extends Controller
 
         $anosDisponiveis = Processo::query()
             ->selectRaw('YEAR(data_admissao) as ano')
+            ->whereNotNull('data_admissao')
             ->distinct()
             ->orderByDesc('ano')
-            ->pluck('ano');
+            ->pluck('ano')
+            ->map(fn ($ano) => (string) $ano)
+            ->values();
 
         /*
         |--------------------------------------------------------------------------
-        | RESULTADOS
+        | LABEL DO PERÍODO
         |--------------------------------------------------------------------------
         */
 
         return view('resultados.results', compact(
             'periodo',
+            'periodoLabel',
             'inicio',
             'fim',
-            'nomePeriodo',
 
             'totalProcessos',
             'processosFinalizados',
             'processosEmAndamento',
             'processosDevolvidos',
             'processosArquivados',
+            'processosSemEtapa',
             'taxaConclusao',
 
             'processosPorStatus',
@@ -291,202 +329,176 @@ class RelatorioController extends Controller
             'votacoesEncerradas',
             'votacoesAprovadas',
             'votacoesReprovadas',
-
             'resultadoVotos',
-            'totalVotos',
 
+            'totalVotos',
+            'votosAprova',
+            'votosDesaprova',
+            'votosRessalva',
+            'votosAbstencao',
+
+            'totalAdministradores',
             'totalMembros',
             'membrosAtivos',
-            'totalAdministradores',
             'novosMembros',
 
             'rankingRelatores',
-
             'evolucao',
-
-            'primeiroProcesso',
-            'ultimoProcesso',
-
-            'anosDisponiveis',
+            'anosDisponiveis'
         ));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DEFINIR PERÍODO
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Define o intervalo utilizado pelos filtros do dashboard.
+     */
     private function definirPeriodo(string $periodo): array
     {
-        $fim = Carbon::today();
+        $agora = Carbon::now();
+
+        /*
+         * Filtro por ano.
+         * Exemplo: ?periodo=2026
+         */
+        if (preg_match('/^\d{4}$/', $periodo)) {
+            $ano = (int) $periodo;
+
+            $inicio = Carbon::create($ano, 1, 1)->startOfDay();
+            $fim = Carbon::create($ano, 12, 31)->endOfDay();
+
+            return [
+                $inicio,
+                $fim,
+                "Ano de {$ano}",
+            ];
+        }
 
         switch ($periodo) {
-
             case 'hoje':
-                $inicio = Carbon::today();
-                $nome = 'Hoje';
+                $inicio = $agora->copy()->startOfDay();
+                $fim = $agora->copy()->endOfDay();
+                $label = 'Hoje';
                 break;
 
             case '15':
-                $inicio = Carbon::today()->subDays(14);
-                $nome = 'Últimos 15 dias';
+                $inicio = $agora->copy()->subDays(14)->startOfDay();
+                $fim = $agora->copy()->endOfDay();
+                $label = 'Últimos 15 dias';
                 break;
 
             case '30':
-                $inicio = Carbon::today()->subDays(29);
-                $nome = 'Últimos 30 dias';
+                $inicio = $agora->copy()->subDays(29)->startOfDay();
+                $fim = $agora->copy()->endOfDay();
+                $label = 'Últimos 30 dias';
                 break;
 
             case '3':
-                $inicio = Carbon::today()->subMonths(3);
-                $nome = 'Últimos 3 meses';
+                $inicio = $agora->copy()->subMonths(3)->startOfDay();
+                $fim = $agora->copy()->endOfDay();
+                $label = 'Últimos 3 meses';
                 break;
 
             case '6':
-                $inicio = Carbon::today()->subMonths(6);
-                $nome = 'Últimos 6 meses';
+                $inicio = $agora->copy()->subMonths(6)->startOfDay();
+                $fim = $agora->copy()->endOfDay();
+                $label = 'Últimos 6 meses';
                 break;
 
             case '12':
-                $inicio = Carbon::today()->subYear();
-                $nome = 'Último ano';
+            case '1ano':
+                $inicio = $agora->copy()->subYear()->startOfDay();
+                $fim = $agora->copy()->endOfDay();
+                $label = 'Último 1 ano';
                 break;
 
             default:
-
-                if (preg_match('/^\d{4}$/', $periodo)) {
-
-                    $ano = (int) $periodo;
-
-                    $inicio = Carbon::create($ano, 1, 1)->startOfDay();
-
-                    $fim = Carbon::create($ano, 12, 31)->endOfDay();
-
-                    $nome = "Ano de {$ano}";
-
-                } else {
-
-                    $inicio = Carbon::today()->subDays(29);
-
-                    $nome = 'Últimos 30 dias';
-                }
-
+                $inicio = $agora->copy()->subDays(29)->startOfDay();
+                $fim = $agora->copy()->endOfDay();
+                $label = 'Últimos 30 dias';
                 break;
         }
 
-        return [
-            $inicio,
-            $fim,
-            $nome,
-        ];
+        return [$inicio, $fim, $label];
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | EVOLUÇÃO MENSAL
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Monta os dados da evolução mensal.
+     */
     private function montarEvolucaoMensal(
         Carbon $inicio,
         Carbon $fim
     ): array {
+        /*
+         * Se o período for muito curto, ainda mostramos os meses
+         * envolvidos para o gráfico não ficar vazio.
+         */
+        $inicioMes = $inicio->copy()->startOfMonth();
+        $fimMes = $fim->copy()->startOfMonth();
 
-        $meses = [];
+        $labels = [];
+        $entraram = [];
+        $finalizados = [];
+        $devolvidos = [];
+        $arquivados = [];
 
-        $cursor = $inicio->copy()->startOfMonth();
+        $cursor = $inicioMes->copy();
 
-        while ($cursor <= $fim) {
+        while ($cursor <= $fimMes) {
+            $mesInicio = $cursor->copy()->startOfMonth();
+            $mesFim = $cursor->copy()->endOfMonth();
 
-            $inicioMes = $cursor->copy()->startOfMonth();
+            $labels[] = $cursor->translatedFormat('M/Y');
 
-            $fimMes = $cursor->copy()->endOfMonth();
-
-            if ($inicioMes->lt($inicio)) {
-                $inicioMes = $inicio->copy();
-            }
-
-            if ($fimMes->gt($fim)) {
-                $fimMes = $fim->copy();
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Processos criados
-            |--------------------------------------------------------------------------
-            */
-
-            $criados = Processo::query()
+            $entraram[] = Processo::query()
                 ->whereBetween('data_admissao', [
-                    $inicioMes->toDateString(),
-                    $fimMes->toDateString(),
+                    $mesInicio->toDateString(),
+                    $mesFim->toDateString(),
                 ])
                 ->count();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Processos finalizados
-            |--------------------------------------------------------------------------
-            */
-
-            $finalizados = Etapa::query()
+            $finalizados[] = Etapa::query()
                 ->where('status', Etapa::STATUS_FINALIZADO)
+                ->whereNotNull('data_encerramento')
                 ->whereBetween('data_encerramento', [
-                    $inicioMes,
-                    $fimMes,
+                    $mesInicio,
+                    $mesFim,
                 ])
-                ->pluck('numero_sei_processo')
-                ->unique()
                 ->count();
 
             /*
-            |--------------------------------------------------------------------------
-            | Processos devolvidos
-            |--------------------------------------------------------------------------
-            */
-
-            $devolvidos = Etapa::query()
-                ->where('status', Etapa::STATUS_DEVOLVIDO)
-                ->whereBetween('updated_at', [
-                    $inicioMes,
-                    $fimMes,
+             * O processo possui uma data específica para devolução.
+             * Ela é mais confiável do que updated_at para representar
+             * quando a devolução aconteceu.
+             */
+            $devolvidos[] = Processo::query()
+                ->whereNotNull('data_devolucao')
+                ->whereBetween('data_devolucao', [
+                    $mesInicio->toDateString(),
+                    $mesFim->toDateString(),
                 ])
-                ->pluck('numero_sei_processo')
-                ->unique()
                 ->count();
 
             /*
-            |--------------------------------------------------------------------------
-            | Processos arquivados
-            |--------------------------------------------------------------------------
-            */
-
-            $arquivados = Etapa::query()
+             * A tabela não possui data exclusiva de arquivamento.
+             * Nesse caso usamos updated_at da etapa arquivada como
+             * registro temporal disponível.
+             */
+            $arquivados[] = Etapa::query()
                 ->where('status', Etapa::STATUS_ARQUIVADO)
                 ->whereBetween('updated_at', [
-                    $inicioMes,
-                    $fimMes,
+                    $mesInicio,
+                    $mesFim,
                 ])
-                ->pluck('numero_sei_processo')
-                ->unique()
                 ->count();
-
-            $meses[] = [
-                'label' => $cursor->translatedFormat('M/y'),
-
-                'criados' => $criados,
-
-                'finalizados' => $finalizados,
-
-                'devolvidos' => $devolvidos,
-
-                'arquivados' => $arquivados,
-            ];
 
             $cursor->addMonth();
         }
 
-        return $meses;
+        return [
+            'labels' => $labels,
+            'entraram' => $entraram,
+            'finalizados' => $finalizados,
+            'devolvidos' => $devolvidos,
+            'arquivados' => $arquivados,
+        ];
     }
 }
