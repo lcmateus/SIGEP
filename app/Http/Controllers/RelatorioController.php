@@ -66,22 +66,26 @@ class RelatorioController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $processosPorStatus = collect([
-            Etapa::STATUS_EM_ELABORACAO => 0,
-            Etapa::STATUS_EM_VOTACAO => 0,
-            Etapa::STATUS_AGUARDANDO_MINERVA => 0,
-            Etapa::STATUS_DEVOLVIDO => 0,
-            Etapa::STATUS_ARQUIVADO => 0,
-            Etapa::STATUS_FINALIZADO => 0,
-        ]);
+        $processosPorStatus = [
+    'Em Elaboração' => 0,
+    'Em Votação' => 0,
+    'Aguardando Minerva' => 0,
+    'Devolvido' => 0,
+    'Arquivado' => 0,
+    'Finalizado' => 0,
+];
 
-        foreach ($processosComEtapaAtual as $processo) {
-            $status = $processo->etapa_atual_relatorio?->status;
+foreach ($processos as $processo) {
+    $etapaAtual = $processo->etapas
+        ->sortByDesc('ordem')
+        ->first(fn ($etapa) => $etapa->status !== Etapa::STATUS_FINALIZADO)
+        ?? $processo->etapas->sortByDesc('ordem')->first();
 
-            if ($status && $processosPorStatus->has($status)) {
-                $processosPorStatus[$status]++;
-            }
-        }
+    if ($etapaAtual && array_key_exists($etapaAtual->status, $processosPorStatus)) {
+        $status = $etapaAtual->status;
+        $processosPorStatus[$status] = $processosPorStatus[$status] + 1;
+    }
+}
 
         $processosPorStatus = $processosPorStatus->filter(
             fn ($quantidade) => $quantidade > 0
