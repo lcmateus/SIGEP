@@ -114,29 +114,49 @@
     </div>
 
     <div data-tab-panel="{{ $uid }}" data-tab="votacoes" class="hidden">
-        @forelse($rodadas as $rodada)
-            <div class="flex items-center justify-between py-3 border-b border-slate-100 text-sm">
-                <div>
-                    <p class="font-bold text-emerald-900">
-                        Votação #{{ $rodada->id }}
-                        <span class="font-medium text-slate-400">
-                            · {{ $rodada->etapa?->tipo_display ?? 'Sem etapa' }}
-                        </span>
-                    </p>
-                    <p class="text-xs text-slate-500 mt-1">
-                        Abertura: {{ $rodada->data_abertura?->format('d/m/Y H:i') ?? '-' }}
-                        · Encerramento: {{ $rodada->data_encerramento?->format('d/m/Y H:i') ?? '-' }}
-                    </p>
-                </div>
-                <div class="text-right">
-                    <p class="text-xs text-slate-500 mt-1">
-                        Resultado: {{ $rodada->resultado ? str_replace('_', ' ', ucfirst($rodada->resultado)) : 'Pendente' }}
-                    </p>
-                </div>
-            </div>
-        @empty
+        @if($rodadas->isEmpty())
             <p class="text-sm text-slate-500 py-3">Este processo não possui votações registradas.</p>
-        @endforelse
+        @else
+            @php
+                $etapaAtual = $processo->etapa_atual;
+                $outrasEtapas = $processo->etapas
+                    ->sortByDesc('ordem')
+                    ->reject(fn ($etapa) => $etapaAtual && $etapa->id === $etapaAtual->id)
+                    ->values();
+            @endphp
+
+            @if($etapaAtual)
+                <details open class="mb-3 border border-slate-200 rounded-lg bg-white">
+                    <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-emerald-900 hover:bg-slate-50 rounded-lg">
+                        Etapa atual: {{ $etapaAtual->tipo_display }}
+                        <span class="text-slate-400 font-medium">({{ $etapaAtual->status_display }})</span>
+                    </summary>
+                    <div class="px-4 pb-3">
+                        @forelse($rodadas->where('id_etapa', $etapaAtual->id)->sortBy('data_abertura') as $rodada)
+                            @include('processos.partials.rodada-votacao', ['rodada' => $rodada])
+                        @empty
+                            <p class="text-sm text-slate-500 py-2">Nenhuma votação nesta etapa.</p>
+                        @endforelse
+                    </div>
+                </details>
+            @endif
+
+            @foreach($outrasEtapas as $etapa)
+                <details class="mb-3 border border-slate-200 rounded-lg bg-white">
+                    <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 rounded-lg">
+                        {{ $etapa->tipo_display }}
+                        <span class="text-slate-400 font-medium">({{ $etapa->status_display }})</span>
+                    </summary>
+                    <div class="px-4 pb-3">
+                        @forelse($rodadas->where('id_etapa', $etapa->id)->sortBy('data_abertura') as $rodada)
+                            @include('processos.partials.rodada-votacao', ['rodada' => $rodada])
+                        @empty
+                            <p class="text-sm text-slate-500 py-2">Nenhuma votação nesta etapa.</p>
+                        @endforelse
+                    </div>
+                </details>
+            @endforeach
+        @endif
     </div>
 </div>
 

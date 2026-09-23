@@ -44,7 +44,6 @@
                     <th class="p-4 text-emerald-900">Admissão</th>
                     <th class="p-4 text-emerald-900">Devolução</th>
                     <th class="p-4 text-emerald-900">Relator</th>
-                    <th class="p-4 text-emerald-900">Ações</th>
                 </tr>
             </thead>
             <tbody class="text-sm divide-y divide-slate-100">
@@ -54,9 +53,6 @@
                         <td class="p-4">{{ $processo->data_admissao?->format('d/m/Y') ?? '-' }}</td>
                         <td class="p-4">{{ $processo->data_devolucao?->format('d/m/Y') ?? '-' }}</td>
                         <td class="p-4">{{ $processo->relator?->nome ?? '-' }}</td>
-                        <td class="p-4 space-x-3">
-                            <a class="text-white bg-blue-600 px-4 py-1 rounded-xl font-bold" href="{{ route('processos.show', $processo) }}">Detalhes</a>
-                        </td>
                     </tr>
                 @empty
                     <tr>

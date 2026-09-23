@@ -20,6 +20,7 @@ class RodadaVotacao extends Model
 
     protected $fillable = [
         'id_etapa',
+        'id_presidente',
         'resultado',
         'data_abertura',
         'data_encerramento',
@@ -33,6 +34,11 @@ class RodadaVotacao extends Model
     public function etapa(): BelongsTo
     {
         return $this->belongsTo(Etapa::class, 'id_etapa', 'id');
+    }
+
+    public function presidente(): BelongsTo
+    {
+        return $this->belongsTo(UsuarioMembro::class, 'id_presidente', 'siape');
     }
 
     public function votos(): HasMany

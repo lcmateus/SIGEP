@@ -9,6 +9,7 @@ use App\Models\RodadaVotacao;
 use App\Models\UsuarioAdministrador;
 use App\Models\UsuarioMembro;
 use App\Services\NotificacaoService;
+use App\Services\RelatorService;
 use App\Services\VotacaoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -90,7 +91,7 @@ class ProcessoController extends Controller
 
         $rodadasPorProcesso = RodadaVotacao::query()
             ->whereHas('etapa', fn ($query) => $query->whereIn('numero_sei_processo', $processos->pluck('numero_sei')))
-            ->with('etapa')
+            ->with(['etapa', 'presidente', 'votos.membro'])
             ->orderBy('data_abertura')
             ->get()
             ->groupBy(fn ($rodada) => $rodada->etapa?->numero_sei_processo);
@@ -117,7 +118,7 @@ class ProcessoController extends Controller
             'numero_sei' => ['required', 'string', 'max:255', 'unique:processo,numero_sei'],
         ]);
 
-        $relator = $this->proximoRelator();
+        $relator = app(RelatorService::class)->proximoRelator();
 
         if (!$relator) {
             return back()
@@ -156,7 +157,7 @@ class ProcessoController extends Controller
 
         $rodadas = RodadaVotacao::query()
             ->whereHas('etapa', fn ($query) => $query->where('numero_sei_processo', $processo->numero_sei))
-            ->with('etapa')
+            ->with(['etapa', 'presidente', 'votos.membro'])
             ->orderBy('data_abertura')
             ->get();
 
@@ -179,7 +180,7 @@ class ProcessoController extends Controller
 
         $rodadas = RodadaVotacao::query()
             ->whereHas('etapa', fn ($query) => $query->where('numero_sei_processo', $processo->numero_sei))
-            ->with('etapa')
+            ->with(['etapa', 'presidente', 'votos.membro'])
             ->orderBy('data_abertura')
             ->get();
 
@@ -330,25 +331,20 @@ class ProcessoController extends Controller
 
         $etapaEmElaboracao->update(['status' => Etapa::STATUS_EM_VOTACAO]);
 
+        $presidente = UsuarioMembro::query()
+            ->whereNotNull('data_ativacao')
+            ->inRandomOrder()
+            ->first();
+
         $rodada = RodadaVotacao::query()->create([
             'data_abertura' => now(),
             'data_encerramento' => now()->addWeeks(2),
             'resultado' => null,
             'id_etapa' => $etapaEmElaboracao->id,
+            'id_presidente' => $presidente?->siape,
         ]);
 
         app(NotificacaoService::class)->notificarNovaVotacao($rodada);
-
-        UsuarioMembro::query()->where('is_presidente', true)->update(['is_presidente' => false]);
-
-        $novoPresidente = UsuarioMembro::query()
-            ->whereNotNull('data_ativacao')
-            ->inRandomOrder()
-            ->first();
-
-        if ($novoPresidente) {
-            $novoPresidente->update(['is_presidente' => true]);
-        }
 
         return redirect()->route('dashboard')
             ->with('status', 'Votacao iniciada com sucesso.');
@@ -389,16 +385,6 @@ class ProcessoController extends Controller
 
         return redirect()->route('processos.show', $processo)
             ->with('status', 'Proxima etapa definida.');
-    }
-
-    private function proximoRelator(): ?UsuarioMembro
-    {
-        return UsuarioMembro::query()
-            ->whereNotNull('data_ativacao')
-            ->withCount('processosComoRelator')
-            ->orderBy('processos_como_relator_count')
-            ->orderBy('data_ativacao')
-            ->first();
     }
 
     private function authorizeAdmin(): void

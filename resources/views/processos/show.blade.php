@@ -35,7 +35,7 @@
             </div>
 
             <div class="mt-6 flex gap-3">
-                <a href="{{ route('processos.index') }}" class="inline-block text-center bg-slate-200 hover:bg-slate-300 text-emerald-900 text-sm font-bold px-5 py-2 rounded-md">
+                <a href="{{ request('origem') === 'meus' ? route('processos.meus') : route('processos.index') }}" class="inline-block text-center bg-slate-200 hover:bg-slate-300 text-emerald-900 text-sm font-bold px-5 py-2 rounded-md">
                     Voltar
                 </a>
             </div>

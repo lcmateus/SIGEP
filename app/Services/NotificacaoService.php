@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Mail\CadastroAprovado;
 use App\Mail\CodigoRecuperacao;
+use App\Mail\NovoPresidente;
 use App\Mail\NovaVotacao;
 use App\Mail\NovoCadastroPendente;
 use App\Mail\ProcessoDevolvido;
@@ -188,5 +189,10 @@ class NotificacaoService
             $nome,
             now()->format('d/m/Y H:i'),
         ));
+    }
+
+    public function notificarNovoPresidente(string $email, string $nome): void
+    {
+        $this->enviar($email, new NovoPresidente($nome));
     }
 }

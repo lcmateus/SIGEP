@@ -1,5 +1,5 @@
 @extends('layouts.main_layout', [
-    'titulo' => 'Votação',
+    'titulo' => 'Voto de Minerva',
 ])
 
 @section('content')
@@ -24,12 +24,13 @@
                     <p class="text-sm text-slate-500 mt-1">
                         Votação #{{ $rodada->id }}
                         · Abertura: {{ $rodada->data_abertura?->format('d/m/Y H:i') ?? '-' }}
+                        · Encerramento: {{ $rodada->data_encerramento?->format('d/m/Y H:i') ?? '-' }}
                     </p>
                 </div>
 
-                @if($processo->etapa_atual)
-                    <span class="bg-emerald-600 px-5 py-1 rounded-md text-sm font-semibold tracking-wide text-white">
-                        {{ $processo->etapa_atual->tipo_display }}
+                @if($rodada->etapa)
+                    <span class="bg-amber-500 px-5 py-1 rounded-md text-sm font-semibold tracking-wide text-white">
+                        {{ $rodada->etapa->tipo_display }}
                     </span>
                 @else
                     <span class="bg-slate-400 px-5 py-1 rounded-md text-sm font-semibold tracking-wide text-white">
@@ -39,7 +40,7 @@
             </div>
 
             <div class="mt-6 flex gap-3">
-                <a href="{{ route('votacoes.disponiveis') }}" class="inline-block text-center bg-slate-200 hover:bg-slate-300 text-emerald-900 text-sm font-bold px-5 py-2 rounded-md">
+                <a href="{{ route('votacoes.minerva') }}" class="inline-block text-center bg-slate-200 hover:bg-slate-300 text-emerald-900 text-sm font-bold px-5 py-2 rounded-md">
                     Voltar
                 </a>
             </div>
@@ -47,76 +48,39 @@
 
         <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
             @include('processos.partials.detalhe-abas', [
-                'uid' => 'votar',
+                'uid' => 'minerva-votar',
                 'processo' => $processo,
                 'documentosPorEtapa' => $documentosPorEtapa,
                 'rodadas' => collect(),
+                'somenteLeitura' => true,
             ])
 
             <div class="mt-6 pt-6 border-t border-slate-200">
-                <h3 class="font-bold text-emerald-900 text-lg mb-4">Registro de Voto</h3>
+                <h3 class="font-bold text-emerald-900 text-lg mb-4">Voto de Minerva</h3>
                 <div class="max-w-sm space-y-3">
-                    <form id="form-aprova" action="{{ route('votacoes.votar.store', $rodada) }}" method="POST">
+                    <form id="form-aprova" action="{{ route('votacoes.minerva.votar', $rodada) }}" method="POST">
                         @csrf
                         <input type="hidden" name="opcao" value="aprova">
                         <button type="button"
                             data-confirm-form="form-aprova"
-                            data-confirm-titulo="Registrar voto?"
-                            data-confirm-mensagem="Confirmar seu voto: APROVO?"
-                            data-confirm-botao="Confirmar Aprovo"
+                            data-confirm-titulo="Voto de Minerva: Aprovar?"
+                            data-confirm-mensagem="Confirmar voto de Minerva APROVANDO o processo {{ $processo->numero_sei }}?"
+                            data-confirm-botao="Confirmar Aprova"
                             class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg transition-colors">
-                            Aprovo
+                            Aprovar
                         </button>
                     </form>
 
-                    <form id="form-desaprova" action="{{ route('votacoes.votar.store', $rodada) }}" method="POST">
+                    <form id="form-reprova" action="{{ route('votacoes.minerva.votar', $rodada) }}" method="POST">
                         @csrf
                         <input type="hidden" name="opcao" value="desaprova">
                         <button type="button"
-                            data-confirm-form="form-desaprova"
-                            data-confirm-titulo="Registrar voto?"
-                            data-confirm-mensagem="Confirmar seu voto: DESAPROVO?"
-                            data-confirm-botao="Confirmar Desaprovo"
+                            data-confirm-form="form-reprova"
+                            data-confirm-titulo="Voto de Minerva: Reprovar?"
+                            data-confirm-mensagem="Confirmar voto de Minerva REPROVANDO o processo {{ $processo->numero_sei }}?"
+                            data-confirm-botao="Confirmar Reprova"
                             class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-lg transition-colors">
-                            Desaprovo
-                        </button>
-                    </form>
-
-                    <div>
-                        <button type="button" id="btn-ressalva"
-                            class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2.5 px-4 rounded-lg transition-colors">
-                            Aprovo, com ressalva
-                        </button>
-                        <div id="ressalva-area" class="hidden mt-3">
-                            <form id="form-ressalva" action="{{ route('votacoes.votar.store', $rodada) }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="opcao" value="aprova com resalva">
-                                <textarea name="justificativa" id="ressalva-texto" rows="3" placeholder="Escreva sua ressalva..."
-                                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"></textarea>
-                                <div class="flex justify-end mt-2">
-                                    <button type="button" id="btn-enviar-ressalva"
-                                        data-confirm-form="form-ressalva"
-                                        data-confirm-titulo="Registrar voto?"
-                                        data-confirm-mensagem="Confirmar seu voto: APROVO, COM RESSALVA?"
-                                        data-confirm-botao="Confirmar Voto"
-                                        class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">
-                                        Enviar
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <form id="form-abstencao" action="{{ route('votacoes.votar.store', $rodada) }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="opcao" value="abstenho">
-                        <button type="button"
-                            data-confirm-form="form-abstencao"
-                            data-confirm-titulo="Registrar voto?"
-                            data-confirm-mensagem="Confirmar sua abstenção?"
-                            data-confirm-botao="Confirmar Abstenção"
-                            class="w-full bg-slate-500 hover:bg-slate-600 text-white font-bold py-2.5 px-4 rounded-lg transition-colors">
-                            Abstenho
+                            Reprovar
                         </button>
                     </form>
                 </div>
@@ -172,18 +136,9 @@
                 formAlvo = null;
             });
 
-            document.querySelectorAll('[data-confirm-form], [data-confirm-titulo]').forEach(function (btn) {
+            document.querySelectorAll('[data-confirm-form]').forEach(function (btn) {
                 btn.addEventListener('click', abrirConfirmacao);
             });
-
-            var btnRessalva = document.getElementById('btn-ressalva');
-            var areaRessalva = document.getElementById('ressalva-area');
-
-            if (btnRessalva && areaRessalva) {
-                btnRessalva.addEventListener('click', function () {
-                    areaRessalva.classList.toggle('hidden');
-                });
-            }
         })();
     </script>
     @endpush

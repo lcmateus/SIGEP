@@ -21,7 +21,10 @@ class VotacaoService
      */
     public function contagemVotos(RodadaVotacao $rodada): array
     {
-        $votos = $rodada->votos()->where('is_minerva', false)->get();
+        $votos = $rodada->votos()
+            ->where('is_minerva', false)
+            ->whereHas('membro', fn ($query) => $query->whereNotNull('data_ativacao'))
+            ->get();
 
         $aprova = 0;
         $desaprova = 0;
@@ -129,17 +132,6 @@ class VotacaoService
     }
 
     /**
-     * Retorna o presidente ativo (is_presidente = true).
-     */
-    public function presidenteAtual(): ?UsuarioMembro
-    {
-        return UsuarioMembro::query()
-            ->where('is_presidente', true)
-            ->whereNotNull('data_ativacao')
-            ->first();
-    }
-
-    /**
      * Total de membros ativos aptos a votar.
      */
     public function totalMembrosAtivos(): int
@@ -157,6 +149,7 @@ class VotacaoService
     {
         $votantes = $rodada->votos()
             ->where('is_minerva', false)
+            ->whereHas('membro', fn ($query) => $query->whereNotNull('data_ativacao'))
             ->distinct()
             ->pluck('id_membro');
 

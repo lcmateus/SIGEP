@@ -58,6 +58,8 @@ class VotacaoController extends Controller
             ->get()
             ->groupBy('etapa_id');
 
+        $rodada->load('presidente');
+
         return view('votacoes.votar', [
             'rodada' => $rodada,
             'processo' => $processo,
@@ -124,9 +126,9 @@ class VotacaoController extends Controller
             403
         );
 
-        $rodadas = RodadaVotacao::query()
+$rodadas = RodadaVotacao::query()
             ->whereNull('resultado')
-            ->with(['etapa.processo.relator', 'etapa.processo.administrador'])
+            ->with(['etapa.processo.relator', 'etapa.processo.administrador', 'presidente'])
             ->orderByDesc('data_abertura')
             ->get();
 
@@ -158,11 +160,11 @@ class VotacaoController extends Controller
 
         $siape = auth()->user()->siape;
 
-        $rodadas = RodadaVotacao::query()
+$rodadas = RodadaVotacao::query()
             ->whereNull('resultado')
             ->whereDoesntHave('etapa', fn ($q) => $q->where('status', Etapa::STATUS_AGUARDANDO_MINERVA))
             ->whereDoesntHave('votos', fn ($q) => $q->where('id_membro', $siape))
-            ->with(['etapa.processo.relator'])
+            ->with(['etapa.processo.relator', 'etapa.processo.administrador', 'presidente'])
             ->orderByDesc('data_abertura')
             ->get();
 
@@ -175,23 +177,70 @@ class VotacaoController extends Controller
     {
         abort_unless(auth()->check() && auth()->user() instanceof \App\Models\UsuarioMembro, 403);
 
-        $presidente = auth()->user();
+        $siape = auth()->user()->siape;
 
-        $isPresidente = $presidente->isPresidente();
-
-        $rodadas = collect();
-
-        if ($isPresidente) {
-            $rodadas = RodadaVotacao::query()
-                ->whereHas('etapa', fn ($q) => $q->where('status', Etapa::STATUS_AGUARDANDO_MINERVA))
-                ->with(['etapa.processo.relator', 'etapa.processo.administrador'])
-                ->orderByDesc('data_abertura')
-                ->get();
-        }
+$rodadas = RodadaVotacao::query()
+            ->where('id_presidente', $siape)
+            ->whereHas('etapa', fn ($q) => $q->where('status', Etapa::STATUS_AGUARDANDO_MINERVA))
+            ->with(['etapa.processo.relator', 'etapa.processo.administrador', 'presidente'])
+            ->orderByDesc('data_abertura')
+            ->get();
 
         return view('votacoes.minerva', [
             'rodadas' => $rodadas,
-            'isPresidente' => $isPresidente,
+        ]);
+    }
+
+    public function minervaVotar(RodadaVotacao $rodada): View
+    {
+        abort_unless(
+            auth()->check() && auth()->user() instanceof \App\Models\UsuarioMembro,
+            403
+        );
+
+        $processo = $rodada->etapa?->processo;
+
+        abort_if(
+            !$processo || $rodada->resultado !== null,
+            404,
+            'Votacao indisponivel.'
+        );
+
+        abort_if(
+            $rodada->etapa?->status !== Etapa::STATUS_AGUARDANDO_MINERVA,
+            404,
+            'Votacao nao aguardando voto de Minerva.'
+        );
+
+        abort_if(
+            $rodada->id_presidente !== auth()->user()->siape,
+            403,
+            'Apenas o presidente desta rodada pode registrar voto de Minerva.'
+        );
+
+        abort_if(
+            Voto::query()
+                ->where('id_rodada', $rodada->id)
+                ->where('is_minerva', true)
+                ->exists(),
+            403,
+            'Voto de Minerva ja registrado nesta rodada.'
+        );
+
+        $processo->load(['relator', 'administrador', 'etapas']);
+
+        $documentos = Documento::query()
+            ->whereIn('etapa_id', $processo->etapas->pluck('id'))
+            ->orderBy('data_upload')
+            ->get()
+            ->groupBy('etapa_id');
+
+        $rodada->load('presidente');
+
+        return view('votacoes.minerva-votar', [
+            'rodada' => $rodada,
+            'processo' => $processo,
+            'documentosPorEtapa' => $documentos,
         ]);
     }
 
@@ -199,9 +248,7 @@ class VotacaoController extends Controller
     {
         abort_unless(auth()->check() && auth()->user() instanceof \App\Models\UsuarioMembro, 403);
 
-        $presidente = auth()->user();
-
-        abort_if(!$presidente->isPresidente(), 403, 'Apenas o presidente pode registrar voto de Minerva.');
+        abort_if($rodada->id_presidente !== auth()->user()->siape, 403, 'Apenas o presidente desta rodada pode registrar voto de Minerva.');
 
         abort_if(
             $rodada->resultado !== null,
@@ -232,13 +279,11 @@ class VotacaoController extends Controller
             'opcao' => $data['opcao'],
             'justificativa' => null,
             'is_minerva' => true,
-            'id_membro' => $presidente->siape,
+            'id_membro' => auth()->user()->siape,
             'id_rodada' => $rodada->id,
         ]);
 
         $service->aplicarVotoMinerva($rodada, $data['opcao']);
-
-        $presidente->update(['is_presidente' => false]);
 
         return redirect()->route('votacoes.minerva')
             ->with('status', 'Voto de Minerva registrado. Resultado apurado com sucesso.');

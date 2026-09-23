@@ -6,6 +6,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
+use App\Rules\EmailUnico;
 use App\Rules\SenhaForte;
 
 class PerfilController extends Controller
@@ -23,7 +24,7 @@ class PerfilController extends Controller
 
         $data = $request->validate([
             'nome' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:' . $user->getTable() . ',email,' . $user->siape . ',siape'],
+            'email' => ['required', 'email', 'max:255', new EmailUnico($user->siape)],
             'password' => ['nullable', 'confirmed', new SenhaForte],
         ]);
 

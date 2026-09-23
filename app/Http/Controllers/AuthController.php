@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\UsuarioMembro;
 use App\Models\UsuarioAdministrador;
+use App\Rules\EmailUnico;
 use App\Rules\SenhaForte;
+use App\Rules\SiapeUnico;
 use App\Services\NotificacaoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -64,12 +66,10 @@ class AuthController extends Controller
     {
         $hasAdmin = UsuarioAdministrador::exists();
 
-        $table = $hasAdmin ? 'usuario_membro' : 'usuario_administrador';
-
         $data = $request->validate([
-            'siape' => ['required', 'string', 'max:20', "unique:$table,siape"],
+            'siape' => ['required', 'string', 'max:20', new SiapeUnico],
             'nome' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', "unique:$table,email"],
+            'email' => ['required', 'email', 'max:255', new EmailUnico],
             'password' => ['required', 'confirmed', new SenhaForte],
         ]);
 

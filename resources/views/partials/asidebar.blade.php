@@ -83,7 +83,6 @@
 <a href="{{ route('perfil') }}" class="flex items-center p-3 {{ request()->routeIs('perfil') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Perfil</a>
 
         <hr class="mx-3 border-emerald-400">
-        <a href="{{ route('configuracoes') }}" class="flex items-center p-3 {{ request()->routeIs('configuracoes') ? 'bg-emerald-200 text-emerald-700' : 'text-white hover:bg-emerald-900' }}">Configurações</a>
     </nav>
 </aside>
 @push('scripts')

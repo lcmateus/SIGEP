@@ -10,15 +10,10 @@
             @csrf
 
             <div>
-                <label for="numero_sei" class="font-bold text-emerald-900 text-xl">Numero SEI</label>
-                <input type="text" id="numero_sei" name="numero_sei" value="{{ old('numero_sei') }}" placeholder="Digite o numero SEI do processo" required
+                <label for="numero_sei" class="font-bold text-emerald-900 text-xl">Número SEI</label>
+                <input type="text" id="numero_sei" name="numero_sei" value="{{ old('numero_sei') }}" placeholder="Digite o número SEI do processo" required
                     class="w-full border border-slate-300 p-3 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none mt-3">
                 @error('numero_sei') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-            </div>
-
-            <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-sm text-emerald-800">
-                O relator será designado automaticamente pelo sistema, priorizando o membro com menos processos atribuídos.
-                A data de admissão será registrada como hoje.
             </div>
 
             <div class="flex items-center justify-between pt-2">

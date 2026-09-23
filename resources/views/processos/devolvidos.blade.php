@@ -14,12 +14,12 @@
         <table class="w-full border-collapse">
             <thead class="bg-slate-100">
                 <tr class="text-left text-sm text-emerald-700">
-                    <th class="p-4">Numero SEI</th>
-                    <th class="p-4">Admissao</th>
-                    <th class="p-4">Devolucao</th>
+                    <th class="p-4">Número SEI</th>
+                    <th class="p-4">Admissão</th>
+                    <th class="p-4">Devolução</th>
                     <th class="p-4">Relator</th>
                     <th class="p-4">Etapa Devolvida</th>
-                    <th class="p-4">Acoes</th>
+                    <th class="p-4">Ações</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-200 text-sm">

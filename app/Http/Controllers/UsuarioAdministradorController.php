@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\UsuarioAdministrador;
+use App\Rules\EmailUnico;
 use App\Rules\SenhaForte;
+use App\Rules\SiapeUnico;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -31,9 +33,9 @@ class UsuarioAdministradorController extends Controller
         $this->authorizeAdmin();
 
         $data = $request->validate([
-            'siape' => ['required', 'string', 'max:20', 'unique:usuario_administradors,siape'],
+            'siape' => ['required', 'string', 'max:20', new SiapeUnico],
             'nome' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:usuario_administradors,email'],
+            'email' => ['required', 'email', 'max:255', new EmailUnico],
             'password' => ['required', 'string', 'confirmed', new SenhaForte],
         ]);
 
@@ -48,9 +50,9 @@ class UsuarioAdministradorController extends Controller
         $this->authorizeAdmin();
 
         $data = $request->validate([
-            'siape' => ['required', 'string', 'max:20', 'unique:usuario_administradors,siape,'.$administrador->id],
+            'siape' => ['required', 'string', 'max:20', new SiapeUnico($administrador->siape)],
             'nome' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:usuario_administradors,email,'.$administrador->id],
+            'email' => ['required', 'email', 'max:255', new EmailUnico($administrador->siape)],
             'password' => ['nullable', 'string', 'confirmed', new SenhaForte],
         ]);
 

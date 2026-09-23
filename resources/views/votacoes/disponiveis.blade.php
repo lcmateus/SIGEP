@@ -15,6 +15,8 @@
                     <th class="p-4">Processo SEI</th>
                     <th class="p-4">Etapa</th>
                     <th class="p-4">Relator</th>
+                    <th class="p-4">Presidente da Rodada</th>
+                    <th class="p-4">Secretário(a)</th>
                     <th class="p-4">Abertura</th>
                     <th class="p-4">Ações</th>
                 </tr>
@@ -29,6 +31,8 @@
                         <td class="p-4 font-medium text-emerald-900">{{ $processo?->numero_sei ?? '-' }}</td>
                         <td class="p-4">{{ $rodada->etapa?->tipo_display ?? '-' }}</td>
                         <td class="p-4">{{ $processo?->relator?->nome ?? '-' }}</td>
+                        <td class="p-4">{{ $rodada->presidente?->nome ?? '-' }}</td>
+                        <td class="p-4">{{ $processo?->administrador?->nome ?? '-' }}</td>
                         <td class="p-4">{{ $rodada->data_abertura?->format('d/m/Y H:i') ?? '-' }}</td>
                         <td class="p-4">
                             <a href="{{ route('votacoes.votar', $rodada) }}"
@@ -39,7 +43,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td class="p-4 text-slate-500" colspan="6">Nenhuma votação disponível.</td>
+                        <td class="p-4 text-slate-500" colspan="8">Nenhuma votação disponível.</td>
                     </tr>
                 @endforelse
             </tbody>

@@ -11,12 +11,6 @@ use App\Http\Controllers\VotacaoController;
 use App\Http\Controllers\RelatorioController;
 use Illuminate\Support\Facades\Route;
 
-/*
-Route::view('/', 'auth.login')->name('login');
-
-Route::view('/cadastro', 'auth.register')->name('register');
-*/
-
 Route::get('/recuperar-senha', [PasswordResetController::class, 'showRequestForm'])->name('forgot-password');
 Route::post('/recuperar-senha', [PasswordResetController::class, 'sendCode'])
     ->middleware('throttle:recuperar')
@@ -80,6 +74,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/votacoes/disponiveis', [VotacaoController::class, 'disponiveis'])->name('votacoes.disponiveis');
     Route::get('/votacoes/minerva', [VotacaoController::class, 'minerva'])->name('votacoes.minerva');
+    Route::get('/votacoes/minerva/{rodada}', [VotacaoController::class, 'minervaVotar'])->name('votacoes.minerva.votar-pagina');
     Route::post('/votacoes/minerva/{rodada}', [VotacaoController::class, 'votarMinerva'])->name('votacoes.minerva.votar');
     Route::get('/votacoes/abertas', [VotacaoController::class, 'abertas'])->name('votacoes.abertas');
     Route::put('/votacoes/abertas/{rodada}/encerramento', [VotacaoController::class, 'atualizarEncerramento'])->name('votacoes.atualizar-encerramento');
@@ -96,8 +91,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/resultados', function () {
         return view('resultados.results');
     })->name('resultados');
-
-    Route::get('/configuracoes', function () {
-        return view('configuracoes');
-    })->name('configuracoes');
 });

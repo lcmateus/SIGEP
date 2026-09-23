@@ -16,11 +16,11 @@
             @csrf
 
             @if (!$hasAdmin)
-                <h2 class="text-xl font-bold">Cadastro de Administrador</h2>
-                <p class="text-sm text-slate-500">Nenhum administrador cadastrado. O primeiro cadastro será o administrador do sistema.</p>
+                <h2 class="text-xl font-bold">{{ __('Cadastro de Secretário(a) Geral') }}</h2>
+                <p class="text-sm text-slate-500">{{ __('Nenhum Secretário(a) Geral cadastrado. O primeiro cadastro será o Secretário(a) Geral do sistema.') }}</p>
             @else
-                <h2 class="text-xl font-bold">Cadastro de Membro</h2>
-                <p class="text-sm text-slate-500">Seu cadastro será enviado para aprovação.</p>
+                <h2 class="text-xl font-bold">{{ __('Cadastro de Membro') }}</h2>
+                <p class="text-sm text-slate-500">{{ __('Seu cadastro será enviado para aprovação.') }}</p>
             @endif
 
             <div>
