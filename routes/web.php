@@ -88,7 +88,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/perfil', [PerfilController::class, 'edit'])->name('perfil');
     Route::put('/perfil', [PerfilController::class, 'update'])->name('perfil.update');
 
-    Route::get('/resultados', function () {
-        return view('resultados.results');
-    })->name('resultados');
+    Route::get('/resultados', [RelatorioController::class, 'index'])
+    ->name('resultados');
 });

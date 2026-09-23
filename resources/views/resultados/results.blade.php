@@ -1,329 +1,408 @@
-@extends('layouts/main_layout', [
-    'title' => 'Resultados - SIGEP',
-    'titulo' => 'RESULTADOS',
-    'usuario' => 'admin',
-])
+@extends('layouts.main_layout')
 
 @section('content')
 
-<div class="space-y-6">
+<div class="space-y-8">
 
-    {{-- CABEÇALHO --}}
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    {{-- ============================================================
+         CABEÇALHO
+    ============================================================= --}}
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+
         <div>
-            <p class="text-sm font-semibold text-emerald-600 uppercase tracking-wide">
-                Painel de indicadores
-            </p>
-
-            <h2 class="text-2xl font-bold text-slate-800 mt-1">
-                Resultados e estatísticas
-            </h2>
-
-            <p class="text-sm text-slate-500 mt-1">
-                Acompanhe os principais indicadores dos processos e votações do SIGEP.
-            </p>
-        </div>
-
-        <div class="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
-            <p class="text-xs font-semibold text-emerald-600 uppercase">
-                Período selecionado
-            </p>
-
-            <p class="text-sm font-bold text-emerald-800 mt-1">
-                {{ $nomePeriodo }}
-            </p>
-        </div>
-    </div>
-
-
-    {{-- FILTROS --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-
-        <div class="flex items-center gap-3 mb-5">
-            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                <span class="text-lg">⚙️</span>
-            </div>
-
-            <div>
-                <h3 class="text-sm font-bold text-slate-800 uppercase">
-                    Filtros
-                </h3>
-
-                <p class="text-xs text-slate-500">
-                    Selecione o período que deseja analisar.
-                </p>
-            </div>
-        </div>
-
-        <form method="GET" action="{{ route('relatorios.index') }}">
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="flex items-center gap-3">
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100">
+                    <svg class="h-6 w-6 text-emerald-700"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-2">
-                        Período
-                    </label>
+                    <h1 class="text-2xl font-bold text-slate-800">
+                        Resultados
+                    </h1>
 
-                    <select
-                        name="periodo"
-                        class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <p class="text-sm text-slate-500">
+                        Painel de indicadores e estatísticas do SIGEP
+                    </p>
+                </div>
+            </div>
+        </div>
 
-                        <option value="hoje" @selected($periodo === 'hoje')>
-                            Hoje
-                        </option>
+        {{-- FILTRO --}}
+        <form method="GET"
+              action="{{ route('resultados') }}"
+              class="flex flex-col gap-2 sm:flex-row sm:items-center">
 
-                        <option value="15" @selected($periodo === '15')>
-                            Últimos 15 dias
-                        </option>
+            <label for="periodo"
+                   class="text-sm font-medium text-slate-600">
+                Período
+            </label>
 
-                        <option value="30" @selected($periodo === '30')>
-                            Últimos 30 dias
-                        </option>
+            <select
+                id="periodo"
+                name="periodo"
+                onchange="this.form.submit()"
+                class="min-w-[190px] rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100">
 
-                        <option value="3" @selected($periodo === '3')>
-                            Últimos 3 meses
-                        </option>
+                <option value="hoje"
+                    {{ $periodo === 'hoje' ? 'selected' : '' }}>
+                    Hoje
+                </option>
 
-                        <option value="6" @selected($periodo === '6')>
-                            Últimos 6 meses
-                        </option>
+                <option value="15"
+                    {{ $periodo === '15' ? 'selected' : '' }}>
+                    Últimos 15 dias
+                </option>
 
-                        <option value="12" @selected($periodo === '12')>
-                            Último ano
-                        </option>
+                <option value="30"
+                    {{ $periodo === '30' ? 'selected' : '' }}>
+                    Últimos 30 dias
+                </option>
+
+                <option value="3"
+                    {{ $periodo === '3' ? 'selected' : '' }}>
+                    Últimos 3 meses
+                </option>
+
+                <option value="6"
+                    {{ $periodo === '6' ? 'selected' : '' }}>
+                    Últimos 6 meses
+                </option>
+
+                <option value="12"
+                    {{ $periodo === '12' ? 'selected' : '' }}>
+                    Último 1 ano
+                </option>
+
+                @if(isset($anosDisponiveis) && $anosDisponiveis->count())
+                    <optgroup label="Anos">
 
                         @foreach($anosDisponiveis as $ano)
-                            <option
-                                value="{{ $ano }}"
-                                @selected($periodo == $ano)>
-                                Ano de {{ $ano }}
+                            <option value="{{ $ano }}"
+                                {{ $periodo === (string) $ano ? 'selected' : '' }}>
+                                {{ $ano }}
                             </option>
                         @endforeach
 
-                    </select>
-                </div>
+                    </optgroup>
+                @endif
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-2">
-                        Início
-                    </label>
-
-                    <div class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700">
-                        {{ $inicio->format('d/m/Y') }}
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-2">
-                        Fim
-                    </label>
-
-                    <div class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700">
-                        {{ $fim->format('d/m/Y') }}
-                    </div>
-                </div>
-
-                <div class="flex items-end">
-
-                    <button
-                        type="submit"
-                        class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-all shadow-sm">
-
-                        Atualizar resultados
-                    </button>
-
-                </div>
-
-            </div>
-
+            </select>
         </form>
-
     </div>
 
 
-    {{-- INDICADORES --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    {{-- ============================================================
+         PERÍODO ATUAL
+    ============================================================= --}}
+    <div class="flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50 px-5 py-4">
 
-        {{-- PROCESSOS --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <svg class="h-5 w-5 shrink-0 text-emerald-600"
+             fill="none"
+             stroke="currentColor"
+             viewBox="0 0 24 24">
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
 
-            <div class="flex items-center justify-between">
+        <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-emerald-600">
+                Período selecionado
+            </p>
+
+            <p class="text-sm font-semibold text-emerald-900">
+                {{ $periodoLabel ?? 'Últimos 30 dias' }}
+            </p>
+        </div>
+    </div>
+
+
+    {{-- ============================================================
+         INDICADORES PRINCIPAIS
+    ============================================================= --}}
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+
+        {{-- Total --}}
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex items-start justify-between">
 
                 <div>
-                    <p class="text-xs font-bold text-slate-500 uppercase">
+                    <p class="text-sm font-medium text-slate-500">
                         Processos recebidos
                     </p>
 
-                    <p class="text-3xl font-bold text-slate-800 mt-2">
+                    <p class="mt-3 text-3xl font-bold text-slate-800">
                         {{ $totalProcessos }}
+                    </p>
+
+                    <p class="mt-1 text-xs text-slate-400">
+                        No período selecionado
                     </p>
                 </div>
 
-                <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                    <span class="text-xl">📄</span>
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100">
+                    <svg class="h-6 w-6 text-emerald-700"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h6l5 5v11a2 2 0 01-2 2z"/>
+                    </svg>
                 </div>
-
             </div>
-
-            <p class="text-xs text-slate-500 mt-4">
-                Processos admitidos no período.
-            </p>
-
         </div>
 
 
-        {{-- ANDAMENTO --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-
-            <div class="flex items-center justify-between">
+        {{-- Em andamento --}}
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex items-start justify-between">
 
                 <div>
-                    <p class="text-xs font-bold text-slate-500 uppercase">
+                    <p class="text-sm font-medium text-slate-500">
                         Em andamento
                     </p>
 
-                    <p class="text-3xl font-bold text-orange-500 mt-2">
+                    <p class="mt-3 text-3xl font-bold text-slate-800">
                         {{ $processosEmAndamento }}
                     </p>
+
+                    <p class="mt-1 text-xs text-slate-400">
+                        Processos em tramitação
+                    </p>
                 </div>
 
-                <div class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
-                    <span class="text-xl">⏳</span>
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-100">
+                    <svg class="h-6 w-6 text-amber-600"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
                 </div>
-
             </div>
-
-            <p class="text-xs text-slate-500 mt-4">
-                Processos atualmente em andamento.
-            </p>
-
         </div>
 
 
-        {{-- FINALIZADOS --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-
-            <div class="flex items-center justify-between">
+        {{-- Finalizados --}}
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex items-start justify-between">
 
                 <div>
-                    <p class="text-xs font-bold text-slate-500 uppercase">
-                        Finalizados
+                    <p class="text-sm font-medium text-slate-500">
+                        Concluídos
                     </p>
 
-                    <p class="text-3xl font-bold text-blue-600 mt-2">
+                    <p class="mt-3 text-3xl font-bold text-slate-800">
                         {{ $processosFinalizados }}
                     </p>
+
+                    <p class="mt-1 text-xs text-slate-400">
+                        Etapa atual finalizada
+                    </p>
                 </div>
 
-                <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                    <span class="text-xl">✓</span>
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-green-100">
+                    <svg class="h-6 w-6 text-green-600"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 13l4 4L19 7"/>
+                    </svg>
                 </div>
-
             </div>
-
-            <p class="text-xs text-slate-500 mt-4">
-                Processos concluídos no período.
-            </p>
-
         </div>
 
 
-        {{-- TAXA --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-
-            <div class="flex items-center justify-between">
+        {{-- Taxa --}}
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex items-start justify-between">
 
                 <div>
-                    <p class="text-xs font-bold text-slate-500 uppercase">
+                    <p class="text-sm font-medium text-slate-500">
                         Taxa de conclusão
                     </p>
 
-                    <p class="text-3xl font-bold text-purple-600 mt-2">
+                    <p class="mt-3 text-3xl font-bold text-slate-800">
                         {{ number_format($taxaConclusao, 1, ',', '.') }}%
+                    </p>
+
+                    <p class="mt-1 text-xs text-slate-400">
+                        No período selecionado
                     </p>
                 </div>
 
-                <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
-                    <span class="text-xl">📊</span>
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100">
+                    <svg class="h-6 w-6 text-blue-600"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
                 </div>
-
             </div>
-
-            <div class="w-full h-2 bg-slate-100 rounded-full mt-4 overflow-hidden">
-
-                <div
-                    class="h-full bg-purple-500 rounded-full"
-                    style="width: {{ min($taxaConclusao, 100) }}%">
-                </div>
-
-            </div>
-
         </div>
 
     </div>
 
 
-    {{-- GRÁFICO DE EVOLUÇÃO --}}
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    {{-- ============================================================
+         SEGUNDA LINHA DE INDICADORES
+    ============================================================= --}}
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
 
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+        {{-- Votações --}}
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p class="text-sm font-medium text-slate-500">
+                Votações
+            </p>
 
-            <div>
-                <h3 class="text-sm font-bold text-slate-800 uppercase">
-                    Evolução dos processos
-                </h3>
+            <p class="mt-3 text-3xl font-bold text-slate-800">
+                {{ $totalVotacoes }}
+            </p>
 
-                <p class="text-xs text-slate-500 mt-1">
-                    Comparativo dos processos ao longo do período selecionado.
-                </p>
+            <div class="mt-3 flex gap-4 text-xs">
+                <span class="text-amber-600">
+                    {{ $votacoesAbertas }} abertas
+                </span>
+
+                <span class="text-slate-500">
+                    {{ $votacoesEncerradas }} encerradas
+                </span>
             </div>
-
         </div>
 
-        <div class="relative h-80">
+
+        {{-- Aprovadas --}}
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p class="text-sm font-medium text-slate-500">
+                Votações aprovadas
+            </p>
+
+            <p class="mt-3 text-3xl font-bold text-emerald-600">
+                {{ $votacoesAprovadas }}
+            </p>
+
+            <p class="mt-1 text-xs text-slate-400">
+                Resultado das rodadas
+            </p>
+        </div>
+
+
+        {{-- Reprovadas --}}
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p class="text-sm font-medium text-slate-500">
+                Votações reprovadas
+            </p>
+
+            <p class="mt-3 text-3xl font-bold text-red-600">
+                {{ $votacoesReprovadas }}
+            </p>
+
+            <p class="mt-1 text-xs text-slate-400">
+                Resultado das rodadas
+            </p>
+        </div>
+
+
+        {{-- Devolvidos --}}
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p class="text-sm font-medium text-slate-500">
+                Processos devolvidos
+            </p>
+
+            <p class="mt-3 text-3xl font-bold text-orange-600">
+                {{ $processosDevolvidos }}
+            </p>
+
+            <p class="mt-1 text-xs text-slate-400">
+                Situação atual
+            </p>
+        </div>
+
+    </div>
+
+
+    {{-- ============================================================
+         GRÁFICO DE EVOLUÇÃO
+    ============================================================= --}}
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+        <div class="mb-6">
+            <h2 class="text-lg font-bold text-slate-800">
+                Evolução dos processos
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+                Entrada e movimentação dos processos ao longo do período.
+            </p>
+        </div>
+
+        <div class="relative h-[340px]">
             <canvas id="evolucaoProcessos"></canvas>
         </div>
 
     </div>
 
 
-    {{-- STATUS + TIPOS --}}
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    {{-- ============================================================
+         GRÁFICOS
+    ============================================================= --}}
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
 
-        {{-- STATUS --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        {{-- Status --}}
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
             <div class="mb-5">
-                <h3 class="text-sm font-bold text-slate-800 uppercase">
+                <h2 class="text-lg font-bold text-slate-800">
                     Status dos processos
-                </h3>
+                </h2>
 
-                <p class="text-xs text-slate-500 mt-1">
-                    Distribuição dos processos por situação.
+                <p class="mt-1 text-sm text-slate-500">
+                    Distribuição da situação atual dos processos.
                 </p>
             </div>
 
-            <div class="relative h-80">
+            <div class="relative h-[320px]">
                 <canvas id="statusProcessos"></canvas>
             </div>
 
         </div>
 
 
-        {{-- TIPOS --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        {{-- Tipos --}}
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
             <div class="mb-5">
-                <h3 class="text-sm font-bold text-slate-800 uppercase">
-                    Tipos de processo
-                </h3>
+                <h2 class="text-lg font-bold text-slate-800">
+                    Processos por etapa
+                </h2>
 
-                <p class="text-xs text-slate-500 mt-1">
-                    Distribuição conforme o tipo de etapa.
+                <p class="mt-1 text-sm text-slate-500">
+                    Distribuição conforme a etapa atual.
                 </p>
             </div>
 
-            <div class="relative h-80">
+            <div class="relative h-[320px]">
                 <canvas id="tiposProcessos"></canvas>
             </div>
 
@@ -332,279 +411,233 @@
     </div>
 
 
-    {{-- VOTAÇÕES --}}
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    {{-- ============================================================
+         VOTAÇÕES + RELATORES
+    ============================================================= --}}
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
 
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+        {{-- Resultado das votações --}}
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
-            <div>
-                <h3 class="text-sm font-bold text-slate-800 uppercase">
-                    Votações
-                </h3>
+            <div class="mb-5">
+                <h2 class="text-lg font-bold text-slate-800">
+                    Resultado das votações
+                </h2>
 
-                <p class="text-xs text-slate-500 mt-1">
-                    Indicadores das votações realizadas no período.
+                <p class="mt-1 text-sm text-slate-500">
+                    Distribuição das rodadas encerradas.
                 </p>
             </div>
 
-            <div class="grid grid-cols-3 gap-3">
-
-                <div class="bg-slate-50 rounded-xl px-4 py-3 text-center">
-                    <p class="text-lg font-bold text-slate-800">
-                        {{ $totalVotacoes }}
-                    </p>
-
-                    <p class="text-[10px] uppercase font-bold text-slate-500">
-                        Total
-                    </p>
-                </div>
-
-                <div class="bg-emerald-50 rounded-xl px-4 py-3 text-center">
-                    <p class="text-lg font-bold text-emerald-700">
-                        {{ $votacoesAprovadas }}
-                    </p>
-
-                    <p class="text-[10px] uppercase font-bold text-emerald-600">
-                        Aprovadas
-                    </p>
-                </div>
-
-                <div class="bg-red-50 rounded-xl px-4 py-3 text-center">
-                    <p class="text-lg font-bold text-red-600">
-                        {{ $votacoesReprovadas }}
-                    </p>
-
-                    <p class="text-[10px] uppercase font-bold text-red-500">
-                        Reprovadas
-                    </p>
-                </div>
-
+            <div class="relative h-[300px]">
+                <canvas id="resultadoVotacoes"></canvas>
             </div>
 
         </div>
 
-        <div class="relative h-80">
-            <canvas id="resultadoVotacoes"></canvas>
-        </div>
 
-    </div>
+        {{-- Ranking --}}
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
+            <div class="mb-5">
+                <h2 class="text-lg font-bold text-slate-800">
+                    Relatores
+                </h2>
 
-    {{-- RESUMO DOS VOTOS --}}
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-
-        <div class="mb-6">
-            <h3 class="text-sm font-bold text-slate-800 uppercase">
-                Resultado dos votos
-            </h3>
-
-            <p class="text-xs text-slate-500 mt-1">
-                Distribuição das opções registradas nas votações.
-            </p>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-
-            <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-5">
-                <p class="text-xs font-bold uppercase text-emerald-600">
-                    Aprova
-                </p>
-
-                <p class="text-3xl font-bold text-emerald-700 mt-2">
-                    {{ $resultadoVotos['aprova'] }}
+                <p class="mt-1 text-sm text-slate-500">
+                    Processos atribuídos no período selecionado.
                 </p>
             </div>
 
-            <div class="rounded-xl bg-red-50 border border-red-100 p-5">
-                <p class="text-xs font-bold uppercase text-red-500">
-                    Desaprova
-                </p>
+            @if(isset($rankingRelatores) && $rankingRelatores->count())
 
-                <p class="text-3xl font-bold text-red-600 mt-2">
-                    {{ $resultadoVotos['desaprova'] }}
-                </p>
-            </div>
+                <div class="space-y-4">
 
-            <div class="rounded-xl bg-blue-50 border border-blue-100 p-5">
-                <p class="text-xs font-bold uppercase text-blue-600">
-                    Aprova com ressalva
-                </p>
+                    @foreach($rankingRelatores as $index => $relator)
 
-                <p class="text-3xl font-bold text-blue-700 mt-2">
-                    {{ $resultadoVotos['aprova com resalva'] }}
-                </p>
-            </div>
+                        <div class="flex items-center gap-4">
 
-            <div class="rounded-xl bg-slate-50 border border-slate-200 p-5">
-                <p class="text-xs font-bold uppercase text-slate-500">
-                    Abstenção
-                </p>
+                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full
+                                {{ $index === 0
+                                    ? 'bg-emerald-100 text-emerald-700'
+                                    : 'bg-slate-100 text-slate-600' }}
+                                text-sm font-bold">
 
-                <p class="text-3xl font-bold text-slate-700 mt-2">
-                    {{ $resultadoVotos['abstenho'] }}
-                </p>
-            </div>
+                                {{ $index + 1 }}
 
-        </div>
+                            </div>
 
-    </div>
+                            <div class="min-w-0 flex-1">
 
+                                <p class="truncate text-sm font-semibold text-slate-700">
+                                    {{ $relator->nome ?? 'Relator não identificado' }}
+                                </p>
 
-    {{-- RANKING --}}
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                                <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100">
 
-        <div class="mb-6">
-            <h3 class="text-sm font-bold text-slate-800 uppercase">
-                Relatores com mais processos
-            </h3>
+                                    @php
+                                        $maiorQuantidade = max(
+                                            1,
+                                            $rankingRelatores->max('processos_count')
+                                        );
 
-            <p class="text-xs text-slate-500 mt-1">
-                Ranking dos membros responsáveis por processos no período.
-            </p>
-        </div>
+                                        $percentual = ($relator->processos_count / $maiorQuantidade) * 100;
+                                    @endphp
 
-        <div class="space-y-4">
+                                    <div
+                                        class="h-full rounded-full bg-emerald-500 transition-all"
+                                        style="width: {{ $percentual }}%">
+                                    </div>
 
-            @forelse($rankingRelatores as $index => $relator)
+                                </div>
 
-                <div class="flex items-center gap-4">
+                            </div>
 
-                    <div class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
-                        {{ $index + 1 }}
-                    </div>
+                            <div class="text-right">
 
-                    <div class="flex-1">
+                                <p class="text-lg font-bold text-slate-800">
+                                    {{ $relator->processos_count }}
+                                </p>
 
-                        <div class="flex items-center justify-between mb-2">
+                                <p class="text-[11px] text-slate-400">
+                                    processos
+                                </p>
 
-                            <p class="text-sm font-semibold text-slate-700">
-                                {{ $relator->nome }}
-                            </p>
-
-                            <p class="text-xs font-bold text-slate-500">
-                                {{ $relator->processos_count }} processos
-                            </p>
-
-                        </div>
-
-                        @php
-                            $maiorRanking = max(
-                                $rankingRelatores->max('processos_count'),
-                                1
-                            );
-
-                            $percentualRanking =
-                                ($relator->processos_count / $maiorRanking) * 100;
-                        @endphp
-
-                        <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-
-                            <div
-                                class="h-full bg-emerald-500 rounded-full"
-                                style="width: {{ $percentualRanking }}%">
                             </div>
 
                         </div>
 
+                    @endforeach
+
+                </div>
+
+            @else
+
+                <div class="flex h-[250px] items-center justify-center">
+
+                    <div class="text-center">
+
+                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
+                            <svg class="h-6 w-6 text-slate-400"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M12 4.354a4 4 0 110 7.292M15 21H3v-1a6 6 0 0112 0v1zm6 0h-6v-1a6 6 0 0112 0v1zm-3-10a4 4 0 10-8 0"/>
+                            </svg>
+                        </div>
+
+                        <p class="mt-3 text-sm font-medium text-slate-600">
+                            Nenhum relator encontrado
+                        </p>
+
+                        <p class="mt-1 text-xs text-slate-400">
+                            Não há processos atribuídos no período.
+                        </p>
+
                     </div>
 
                 </div>
 
-            @empty
-
-                <div class="text-center py-10">
-
-                    <p class="text-sm font-semibold text-slate-500">
-                        Nenhum relator encontrado no período.
-                    </p>
-
-                </div>
-
-            @endforelse
+            @endif
 
         </div>
 
     </div>
 
 
-    {{-- RESUMO FINAL --}}
-    <div class="bg-gradient-to-r from-emerald-700 to-emerald-600 rounded-2xl p-6 text-white">
+    {{-- ============================================================
+         RESUMO FINAL
+    ============================================================= --}}
+    <div class="overflow-hidden rounded-2xl bg-emerald-700 shadow-lg">
 
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div class="flex flex-col gap-6 p-7 lg:flex-row lg:items-center lg:justify-between">
 
-            <div>
+            <div class="max-w-2xl">
 
-                <p class="text-emerald-100 text-xs font-bold uppercase tracking-wide">
-                    Resumo do período
-                </p>
+                <div class="flex items-center gap-3">
 
-                <h3 class="text-xl font-bold mt-2">
-                    {{ $nomePeriodo }}
-                </h3>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
 
-                <p class="text-sm text-emerald-100 mt-2">
-                    {{ $totalProcessos }} processo(s) admitido(s),
-                    {{ $processosFinalizados }} finalizado(s) e
-                    {{ $totalVotacoes }} votação(ões) registrada(s).
+                        <svg class="h-5 w-5 text-white"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h8l5 5v11a2 2 0 01-2 2z"/>
+                        </svg>
+
+                    </div>
+
+                    <h2 class="text-lg font-bold text-white">
+                        Visão geral do período
+                    </h2>
+
+                </div>
+
+                <p class="mt-3 text-sm leading-6 text-emerald-50">
+
+                    No período de
+                    <strong>
+                        {{ $inicio->format('d/m/Y') }}
+                    </strong>
+                    a
+                    <strong>
+                        {{ $fim->format('d/m/Y') }}
+                    </strong>,
+                    foram registrados
+                    <strong>{{ $totalProcessos }}</strong>
+                    processos, sendo
+                    <strong>{{ $processosFinalizados }}</strong>
+                    concluídos.
+
                 </p>
 
             </div>
 
-            <div class="flex gap-3">
 
-                <div class="bg-white/10 rounded-xl px-5 py-3 text-center">
-                    <p class="text-2xl font-bold">
-                        {{ $totalVotos }}
-                    </p>
+            {{-- Botão PDF --}}
+            <button
+                type="button"
+                onclick="window.print()"
+                class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-emerald-700 shadow-sm transition hover:bg-emerald-50">
 
-                    <p class="text-[10px] uppercase text-emerald-100 font-bold">
-                        Votos
-                    </p>
-                </div>
+                <svg class="h-5 w-5"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2z"/>
+                </svg>
 
-                <div class="bg-white/10 rounded-xl px-5 py-3 text-center">
-                    <p class="text-2xl font-bold">
-                        {{ $membrosAtivos }}
-                    </p>
+                Exportar relatório
 
-                    <p class="text-[10px] uppercase text-emerald-100 font-bold">
-                        Membros ativos
-                    </p>
-                </div>
-
-            </div>
+            </button>
 
         </div>
-
-    </div>
-
-
-    {{-- EXPORTAÇÃO --}}
-    <div class="flex justify-center pt-2 pb-8">
-
-        <button
-            type="button"
-            class="border border-emerald-600 text-emerald-700 font-bold px-8 py-3 rounded-xl hover:bg-emerald-50 transition-all">
-
-            📄 Exportar relatório em PDF
-
-        </button>
 
     </div>
 
 </div>
 
 
-{{-- CHART.JS --}}
+{{-- ================================================================
+     CHART.JS
+================================================================= --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | DADOS DO BACKEND
+    | Dados vindos do Laravel
     |--------------------------------------------------------------------------
     */
 
@@ -619,282 +652,344 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | EVOLUÇÃO DOS PROCESSOS
+    | Configuração padrão
     |--------------------------------------------------------------------------
     */
 
-    new Chart(document.getElementById('evolucaoProcessos'), {
+    Chart.defaults.font.family = 'Inter, ui-sans-serif, system-ui, sans-serif';
 
-        type: 'line',
+    Chart.defaults.color = '#64748b';
 
-        data: {
 
-            labels: evolucao.map(item => item.label),
+    /*
+    |--------------------------------------------------------------------------
+    | Evolução
+    |--------------------------------------------------------------------------
+    */
 
-            datasets: [
+    const evolucaoCanvas = document.getElementById('evolucaoProcessos');
 
-                {
-                    label: 'Recebidos',
+    if (evolucaoCanvas) {
 
-                    data: evolucao.map(item => item.criados),
+        new Chart(evolucaoCanvas, {
+            type: 'line',
+
+            data: {
+                labels: evolucao.labels,
+
+                datasets: [
+                    {
+                        label: 'Processos recebidos',
+                        data: evolucao.entraram,
+                        borderColor: '#059669',
+                        backgroundColor: 'rgba(5, 150, 105, 0.10)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'Finalizados',
+                        data: evolucao.finalizados,
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.05)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.35,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    },
+                    {
+                        label: 'Devolvidos',
+                        data: evolucao.devolvidos,
+                        borderColor: '#f97316',
+                        backgroundColor: 'rgba(249, 115, 22, 0.05)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.35,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }
+                ]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        padding: 12,
+                        cornerRadius: 10
+                    }
+                },
+
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Status
+    |--------------------------------------------------------------------------
+    */
+
+    const statusCanvas = document.getElementById('statusProcessos');
+
+    if (statusCanvas) {
+
+        new Chart(statusCanvas, {
+            type: 'doughnut',
+
+            data: {
+                labels: Object.keys(processosPorStatus),
+
+                datasets: [{
+                    data: Object.values(processosPorStatus),
+
+                    backgroundColor: [
+                        '#f59e0b',
+                        '#10b981',
+                        '#8b5cf6',
+                        '#f97316',
+                        '#64748b',
+                        '#2563eb'
+                    ],
 
                     borderWidth: 3,
-
-                    tension: 0.35,
-
-                    fill: false
-                },
-
-                {
-                    label: 'Finalizados',
-
-                    data: evolucao.map(item => item.finalizados),
-
-                    borderWidth: 3,
-
-                    tension: 0.35,
-
-                    fill: false
-                },
-
-                {
-                    label: 'Devolvidos',
-
-                    data: evolucao.map(item => item.devolvidos),
-
-                    borderWidth: 2,
-
-                    tension: 0.35,
-
-                    fill: false
-                },
-
-                {
-                    label: 'Arquivados',
-
-                    data: evolucao.map(item => item.arquivados),
-
-                    borderWidth: 2,
-
-                    tension: 0.35,
-
-                    fill: false
-                }
-
-            ]
-
-        },
-
-        options: {
-
-            responsive: true,
-
-            maintainAspectRatio: false,
-
-            plugins: {
-
-                legend: {
-                    position: 'bottom'
-                }
-
+                    borderColor: '#ffffff'
+                }]
             },
 
-            scales: {
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
 
-                y: {
-                    beginAtZero: true,
+                cutout: '68%',
 
-                    ticks: {
-                        precision: 0
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 18
+                        }
+                    },
+
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        padding: 12,
+                        cornerRadius: 10
                     }
                 }
-
             }
-
-        }
-
-    });
+        });
+    }
 
 
     /*
     |--------------------------------------------------------------------------
-    | STATUS DOS PROCESSOS
+    | Tipos / Etapas
     |--------------------------------------------------------------------------
     */
 
-    new Chart(document.getElementById('statusProcessos'), {
+    const tiposCanvas = document.getElementById('tiposProcessos');
 
-        type: 'doughnut',
+    if (tiposCanvas) {
 
-        data: {
+        new Chart(tiposCanvas, {
+            type: 'bar',
 
-            labels: Object.keys(processosPorStatus),
+            data: {
+                labels: Object.keys(processosPorTipo),
 
-            datasets: [{
+                datasets: [{
+                    label: 'Processos',
+                    data: Object.values(processosPorTipo),
+                    backgroundColor: '#059669',
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
 
-                data: Object.values(processosPorStatus),
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
 
-                borderWidth: 2
+                plugins: {
+                    legend: {
+                        display: false
+                    },
 
-            }]
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        padding: 12,
+                        cornerRadius: 10
+                    }
+                },
 
-        },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
 
-        options: {
+                        ticks: {
+                            maxRotation: 0
+                        }
+                    },
 
-            responsive: true,
-
-            maintainAspectRatio: false,
-
-            cutout: '65%',
-
-            plugins: {
-
-                legend: {
-                    position: 'bottom'
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
                 }
-
             }
-
-        }
-
-    });
+        });
+    }
 
 
     /*
     |--------------------------------------------------------------------------
-    | TIPOS DE PROCESSO
+    | Resultado das votações
     |--------------------------------------------------------------------------
     */
 
-    new Chart(document.getElementById('tiposProcessos'), {
+    const votacoesCanvas = document.getElementById('resultadoVotacoes');
 
-        type: 'bar',
+    if (votacoesCanvas) {
 
-        data: {
+        new Chart(votacoesCanvas, {
+            type: 'bar',
 
-            labels: Object.keys(processosPorTipo),
+            data: {
+                labels: Object.keys(resultadoVotos),
 
-            datasets: [{
-
-                label: 'Processos',
-
-                data: Object.values(processosPorTipo),
-
-                borderRadius: 8
-
-            }]
-
-        },
-
-        options: {
-
-            responsive: true,
-
-            maintainAspectRatio: false,
-
-            plugins: {
-
-                legend: {
-                    display: false
-                }
-
+                datasets: [{
+                    label: 'Votações',
+                    data: Object.values(resultadoVotos),
+                    backgroundColor: [
+                        '#059669',
+                        '#ef4444'
+                    ],
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
             },
 
-            scales: {
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
 
-                y: {
+                plugins: {
+                    legend: {
+                        display: false
+                    },
 
-                    beginAtZero: true,
-
-                    ticks: {
-                        precision: 0
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        padding: 12,
+                        cornerRadius: 10
                     }
+                },
 
-                }
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
 
-            }
-
-        }
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | RESULTADO DOS VOTOS
-    |--------------------------------------------------------------------------
-    */
-
-    new Chart(document.getElementById('resultadoVotacoes'), {
-
-        type: 'bar',
-
-        data: {
-
-            labels: [
-                'Aprova',
-                'Desaprova',
-                'Aprova com ressalva',
-                'Abstenção'
-            ],
-
-            datasets: [{
-
-                label: 'Votos',
-
-                data: [
-
-                    resultadoVotos['aprova'],
-
-                    resultadoVotos['desaprova'],
-
-                    resultadoVotos['aprova com resalva'],
-
-                    resultadoVotos['abstenho']
-
-                ],
-
-                borderRadius: 8
-
-            }]
-
-        },
-
-        options: {
-
-            responsive: true,
-
-            maintainAspectRatio: false,
-
-            plugins: {
-
-                legend: {
-                    display: false
-                }
-
-            },
-
-            scales: {
-
-                y: {
-
-                    beginAtZero: true,
-
-                    ticks: {
-                        precision: 0
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
                     }
-
                 }
-
             }
-
-        }
-
-    });
+        });
+    }
 
 });
-
 </script>
+
+
+{{-- ================================================================
+     IMPRESSÃO
+================================================================= --}}
+<style>
+@media print {
+
+    body {
+        background: white !important;
+    }
+
+    aside,
+    header,
+    nav {
+        display: none !important;
+    }
+
+    main {
+        width: 100% !important;
+        background: white !important;
+    }
+
+    main > div {
+        padding: 0 !important;
+    }
+
+    button {
+        display: none !important;
+    }
+
+    canvas {
+        max-height: 300px !important;
+    }
+
+    .shadow-sm,
+    .shadow-lg {
+        box-shadow: none !important;
+    }
+
+    @page {
+        size: A4;
+        margin: 12mm;
+    }
+}
+</style>
 
 @endsection
