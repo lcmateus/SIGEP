@@ -1,7 +1,5 @@
 @extends('layouts/main_layout', [
-    'title' => 'Perfil - SIGEP',
     'titulo' => 'PERFIL',
-    'usuario' => 'Usuario'
 ])
 @section('content')
 @if(session('status'))

@@ -45,19 +45,4 @@ class RodadaVotacao extends Model
     {
         return $this->hasMany(Voto::class, 'id_rodada', 'id');
     }
-
-    public function getVotosAprova()
-    {
-        return $this->votos()->where('opcao', 'aprova')->count();
-    }
-
-    public function getVotosDesaprova()
-    {
-        return $this->votos()->where('opcao', 'desaprova')->count();
-    }
-
-    public function getVotosRessalva()
-    {
-        return $this->votos()->where('opcao', 'aprova com resalva')->count();
-    }
 }

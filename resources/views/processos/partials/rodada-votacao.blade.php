@@ -39,6 +39,7 @@
                         'aprova' => 'Aprovou',
                         'aprova com resalva' => 'Aprovou com ressalva',
                         'desaprova' => 'Reprovou',
+                        'desaprova com resalva' => 'Reprovou com ressalva',
                         'abstenho' => 'Abstenção',
                         default => $voto->opcao,
                     };

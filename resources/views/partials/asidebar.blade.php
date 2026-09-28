@@ -1,7 +1,7 @@
 <aside class="w-64 bg-emerald-700 border-r border-slate-200 flex flex-col space-y-8">
     <div class="bg-emerald-500 p-6 h-32 flex items-center">
         <div>
-            <img src="{{ asset('images/logo-ifpr.png') }}"
+            <img src="{{ asset('images/logo-ifpr.png') }}">
             <h1 class="font-bold text-xl leading-none text-white">SIGEP</h1>
             <p class="text-[10px] text-emerald-950 uppercase">Sistema de Gestão da Ética Pública</p>
         </div>

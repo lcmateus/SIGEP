@@ -46,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/processos/publicos', [ProcessoController::class, 'publicos'])->name('processos.publicos');
 
     Route::get('/usuarios', [UsuarioMembroController::class, 'index'])->name('usuarios.list');
-    Route::put('/usuarios/{usuario}', [UsuarioMembroController::class, 'update'])->name('usuarios.update');
+    
     Route::patch('/usuarios/{usuario}/aprovar', [UsuarioMembroController::class, 'approve'])->name('usuarios.approve');
     Route::delete('/usuarios/{usuario}', [UsuarioMembroController::class, 'destroy'])->name('usuarios.destroy');
 
@@ -69,9 +69,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/processos/{processo}/proxima-etapa', [ProcessoController::class, 'proximaEtapa'])->name('processos.proxima-etapa');
     Route::post('/processos/{processo}/proxima-etapa', [ProcessoController::class, 'definirProximaEtapa'])->name('processos.proxima-etapa.store');
 
-    Route::get('/processos/{processo}/votar', [VotacaoController::class, 'create'])->name('processos.votar');
-    Route::post('/processos/{processo}/votar', [VotacaoController::class, 'store'])->name('processos.votar.store');
-
+    
     Route::get('/votacoes/disponiveis', [VotacaoController::class, 'disponiveis'])->name('votacoes.disponiveis');
     Route::get('/votacoes/minerva', [VotacaoController::class, 'minerva'])->name('votacoes.minerva');
     Route::get('/votacoes/minerva/{rodada}', [VotacaoController::class, 'minervaVotar'])->name('votacoes.minerva.votar-pagina');

@@ -16,8 +16,8 @@
             @csrf
 
             @if (!$hasAdmin)
-                <h2 class="text-xl font-bold">{{ __('Cadastro de Secretário(a) Geral') }}</h2>
-                <p class="text-sm text-slate-500">{{ __('Nenhum Secretário(a) Geral cadastrado. O primeiro cadastro será o Secretário(a) Geral do sistema.') }}</p>
+                <h2 class="text-xl font-bold">{{ __('Cadastro de Secretário(a)') }}</h2>
+                <p class="text-sm text-slate-500">{{ __('Nenhum Secretário(a). O primeiro cadastro será o Secretário(a) do sistema.') }}</p>
             @else
                 <h2 class="text-xl font-bold">{{ __('Cadastro de Membro') }}</h2>
                 <p class="text-sm text-slate-500">{{ __('Seu cadastro será enviado para aprovação.') }}</p>
@@ -25,19 +25,19 @@
 
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1">SIAPE</label>
-                <input type="text" name="siape" class="w-full border border-slate-300 p-2 rounded outline-none focus:ring-2 focus:ring-green-600" placeholder="Digite seu SIAPE" value="{{ old('siape') }}" required>
+                <input type="text" name="siape" maxlength="7" class="w-full border border-slate-300 p-2 rounded outline-none focus:ring-2 focus:ring-green-600" placeholder="Digite seu SIAPE" value="{{ old('siape') }}" required>
                 @error('siape') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1">Nome completo</label>
-                <input type="text" name="nome" class="w-full border border-slate-300 p-2 rounded outline-none focus:ring-2 focus:ring-green-600" placeholder="Digite seu nome completo" value="{{ old('nome') }}" required>
+                <input type="text" name="nome" maxlength="50" class="w-full border border-slate-300 p-2 rounded outline-none focus:ring-2 focus:ring-green-600" placeholder="Digite seu nome completo" value="{{ old('nome') }}" required>
                 @error('nome') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1">E-mail institucional</label>
-                <input type="email" name="email" class="w-full border border-slate-300 p-2 rounded outline-none focus:ring-2 focus:ring-green-600" placeholder="Digite seu e-mail" value="{{ old('email') }}" required>
+                <input type="email" name="email" maxlength="50" class="w-full border border-slate-300 p-2 rounded outline-none focus:ring-2 focus:ring-green-600" placeholder="Digite seu e-mail" value="{{ old('email') }}" required>
                 @error('email') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
             </div>
 

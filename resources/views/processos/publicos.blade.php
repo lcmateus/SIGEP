@@ -26,7 +26,7 @@
                         <td class="p-4">
                             <button type="button" data-abrir-detalhe="#detalhe-pub-{{ $loop->index }}"
                                 class="text-white bg-blue-600 px-4 py-1 rounded-lg font-bold hover:bg-blue-700 transition-colors">
-                                Ver Detalhes
+                                Detalhes
                             </button>
                         </td>
                     </tr>

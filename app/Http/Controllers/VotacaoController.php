@@ -87,7 +87,7 @@ class VotacaoController extends Controller
         );
 
         $data = $request->validate([
-            'opcao' => ['required', 'in:aprova,desaprova,aprova com resalva,abstenho'],
+            'opcao' => ['required', 'in:aprova,desaprova,aprova com resalva,desaprova com resalva,abstenho'],
             'justificativa' => ['nullable', 'string'],
         ]);
 
@@ -287,46 +287,5 @@ $rodadas = RodadaVotacao::query()
 
         return redirect()->route('votacoes.minerva')
             ->with('status', 'Voto de Minerva registrado. Resultado apurado com sucesso.');
-    }
-
-    public function create(Processo $processo): View
-    {
-        abort_unless(auth()->check() && auth()->user()->isAtivo(), 403);
-
-        return view('processos.votar', [
-            'processo' => $processo,
-        ]);
-    }
-
-    public function store(Request $request, Processo $processo): RedirectResponse
-    {
-        abort_unless(auth()->check() && auth()->user()->isAtivo(), 403);
-
-        $data = $request->validate([
-            'id_rodada' => ['required', 'integer', 'exists:rodada_votacao,id'],
-            'opcao' => ['required', 'in:aprova,desaprova,aprova com resalva'],
-            'justificativa' => ['nullable', 'string'],
-        ]);
-
-        $siape = auth()->user()->siape;
-
-        abort_if(
-            Voto::query()
-                ->where('id_membro', $siape)
-                ->where('id_rodada', $data['id_rodada'])
-                ->exists(),
-            422,
-            'Usuario ja votou nesta rodada.'
-        );
-
-        Voto::query()->create([
-            'opcao' => $data['opcao'],
-            'justificativa' => $data['justificativa'] ?? null,
-            'is_minerva' => false,
-            'id_membro' => $siape,
-            'id_rodada' => $data['id_rodada'],
-        ]);
-
-        return redirect()->route('resultados')->with('status', 'Voto registrado.');
     }
 }

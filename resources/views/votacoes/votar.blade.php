@@ -62,7 +62,7 @@
                         <button type="button"
                             data-confirm-form="form-aprova"
                             data-confirm-titulo="Registrar voto?"
-                            data-confirm-mensagem="Confirmar seu voto: APROVO?"
+                            data-confirm-mensagem="Confirmar seu voto: APROVO"
                             data-confirm-botao="Confirmar Aprovo"
                             class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg transition-colors">
                             Aprovo
@@ -75,7 +75,7 @@
                         <button type="button"
                             data-confirm-form="form-desaprova"
                             data-confirm-titulo="Registrar voto?"
-                            data-confirm-mensagem="Confirmar seu voto: DESAPROVO?"
+                            data-confirm-mensagem="Confirmar seu voto: DESAPROVO"
                             data-confirm-botao="Confirmar Desaprovo"
                             class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-lg transition-colors">
                             Desaprovo
@@ -97,9 +97,34 @@
                                     <button type="button" id="btn-enviar-ressalva"
                                         data-confirm-form="form-ressalva"
                                         data-confirm-titulo="Registrar voto?"
-                                        data-confirm-mensagem="Confirmar seu voto: APROVO, COM RESSALVA?"
+                                        data-confirm-mensagem="Confirmar seu voto: APROVO, COM RESSALVA"
                                         data-confirm-botao="Confirmar Voto"
                                         class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">
+                                        Enviar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="button" id="btn-ressalva-desaprova"
+                            class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-4 rounded-lg transition-colors">
+                            Desaprovo, com ressalva
+                        </button>
+                        <div id="desaprova-ressalva-area" class="hidden mt-3">
+                            <form id="form-ressalva-desaprova" action="{{ route('votacoes.votar.store', $rodada) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="opcao" value="desaprova com resalva">
+                                <textarea name="justificativa" id="desaprova-ressalva-texto" rows="3" placeholder="Escreva sua ressalva..."
+                                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                                <div class="flex justify-end mt-2">
+                                    <button type="button" id="btn-enviar-ressalva-desaprova"
+                                        data-confirm-form="form-ressalva-desaprova"
+                                        data-confirm-titulo="Registrar voto?"
+                                        data-confirm-mensagem="Confirmar seu voto: DESAPROVO, COM RESSALVA"
+                                        data-confirm-botao="Confirmar Voto"
+                                        class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">
                                         Enviar
                                     </button>
                                 </div>
@@ -114,7 +139,7 @@
                             data-confirm-form="form-abstencao"
                             data-confirm-titulo="Registrar voto?"
                             data-confirm-mensagem="Confirmar sua abstenção?"
-                            data-confirm-botao="Confirmar Abstenção"
+                            data-confirm-botao="Confirmar abstenção"
                             class="w-full bg-slate-500 hover:bg-slate-600 text-white font-bold py-2.5 px-4 rounded-lg transition-colors">
                             Abstenho
                         </button>
@@ -182,6 +207,15 @@
             if (btnRessalva && areaRessalva) {
                 btnRessalva.addEventListener('click', function () {
                     areaRessalva.classList.toggle('hidden');
+                });
+            }
+
+            var btnRessalvaDesaprova = document.getElementById('btn-ressalva-desaprova');
+            var areaRessalvaDesaprova = document.getElementById('desaprova-ressalva-area');
+
+            if (btnRessalvaDesaprova && areaRessalvaDesaprova) {
+                btnRessalvaDesaprova.addEventListener('click', function () {
+                    areaRessalvaDesaprova.classList.toggle('hidden');
                 });
             }
         })();

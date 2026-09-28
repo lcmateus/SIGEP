@@ -32,16 +32,6 @@ class UsuarioAdministrador extends Authenticatable
     ];
 
     //Relacionamentos
-
-    public function ativacao(){
-        return $this->hasMany(UsuarioMembro::class, 'siape', 'siape');
-    }
-
-    public function inserirProcesso(){
-        return $this->hasMany(Processo::class, 'id_administrador', 'siape');
-    }
-
-
     /**
      * Get the attributes that should be cast.
      *

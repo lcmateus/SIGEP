@@ -63,9 +63,9 @@
                         <input type="hidden" name="opcao" value="aprova">
                         <button type="button"
                             data-confirm-form="form-aprova"
-                            data-confirm-titulo="Voto de Minerva: Aprovar?"
-                            data-confirm-mensagem="Confirmar voto de Minerva APROVANDO o processo {{ $processo->numero_sei }}?"
-                            data-confirm-botao="Confirmar Aprova"
+                            data-confirm-titulo="Voto de Minerva: Aprovar"
+                            data-confirm-mensagem="Confirmar voto de Minerva APROVANDO {{ $processo->numero_sei }}?"
+                            data-confirm-botao="Confirmar Aprovar"
                             class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg transition-colors">
                             Aprovar
                         </button>
@@ -76,9 +76,9 @@
                         <input type="hidden" name="opcao" value="desaprova">
                         <button type="button"
                             data-confirm-form="form-reprova"
-                            data-confirm-titulo="Voto de Minerva: Reprovar?"
-                            data-confirm-mensagem="Confirmar voto de Minerva REPROVANDO o processo {{ $processo->numero_sei }}?"
-                            data-confirm-botao="Confirmar Reprova"
+                            data-confirm-titulo="Voto de Minerva: Reprovar"
+                            data-confirm-mensagem="Confirmar voto de Minerva REPROVANDO {{ $processo->numero_sei }}?"
+                            data-confirm-botao="Confirmar Reprovar"
                             class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-lg transition-colors">
                             Reprovar
                         </button>

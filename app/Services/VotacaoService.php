@@ -33,7 +33,7 @@ class VotacaoService
         foreach ($votos as $voto) {
             match ($voto->opcao) {
                 'aprova', 'aprova com resalva' => $aprova++,
-                'desaprova' => $desaprova++,
+                'desaprova', 'desaprova com resalva' => $desaprova++,
                 'abstenho' => $abstencoes++,
                 default => null,
             };

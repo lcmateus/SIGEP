@@ -273,7 +273,7 @@ class RelatorioController extends Controller
             ->count();
 
         $votosDesaprova = $votos
-            ->where('opcao', 'desaprova')
+            ->whereIn('opcao', ['desaprova', 'desaprova com resalva'])
             ->count();
 
         /*

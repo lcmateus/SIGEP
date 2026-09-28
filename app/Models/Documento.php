@@ -34,16 +34,6 @@ class Documento extends Model
         return $this->belongsTo(Etapa::class, 'etapa_id', 'id');
     }
 
-    public function getUrlAttribute(): string
-    {
-        return asset($this->caminho);
-    }
-
-    public function arquivoExiste(): bool
-    {
-        return file_exists(public_path($this->caminho));
-    }
-
     public function getNomeOriginalAttribute(): string
     {
         return $this->titulo . ($this->descricao ? '.' . $this->descricao : '');

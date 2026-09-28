@@ -25,15 +25,6 @@ class Etapa extends Model
     public const STATUS_DEVOLVIDO = 'Devolvido';
     public const STATUS_ARQUIVADO = 'Arquivado';
 
-    public const STATUSES = [
-        self::STATUS_EM_ELABORACAO,
-        self::STATUS_EM_VOTACAO,
-        self::STATUS_AGUARDANDO_MINERVA,
-        self::STATUS_FINALIZADO,
-        self::STATUS_DEVOLVIDO,
-        self::STATUS_ARQUIVADO,
-    ];
-
     protected $table = 'etapa';
 
     protected $primaryKey = 'id';
@@ -66,29 +57,10 @@ class Etapa extends Model
     }
 
     // Métodos auxiliares
-    public function isEmElaboracao()
-    {
-        return $this->status === self::STATUS_EM_ELABORACAO;
-    }
-
-    public function isEmVotacao()
-    {
-        return $this->status === self::STATUS_EM_VOTACAO;
-    }
 
     public function isAguardandoMinerva()
     {
         return $this->status === self::STATUS_AGUARDANDO_MINERVA;
-    }
-
-    public function isFinalizada()
-    {
-        return $this->status === self::STATUS_FINALIZADO;
-    }
-
-    public function isDevolvido()
-    {
-        return $this->status === self::STATUS_DEVOLVIDO;
     }
 
     public function isArquivado()

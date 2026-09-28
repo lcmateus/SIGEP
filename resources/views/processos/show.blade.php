@@ -107,9 +107,9 @@
                         </form>
                         <button type="button"
                             data-confirm-form="form-decisao-nao"
-                            data-confirm-titulo="Devolver ao Secretário Geral?"
-                            data-confirm-mensagem="O processo será devolvido ao Secretário Geral."
-                            data-confirm-botao="Sim, Devolver"
+                            data-confirm-titulo="Devolver ao(à) Secretário(a)?"
+                            data-confirm-mensagem="O processo será devolvido ao(à) Secretário(a)."
+                            data-confirm-botao="Sim, devolver"
                             class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
                             NÃO
                         </button>
@@ -123,7 +123,7 @@
                             data-confirm-form="form-decisao-sim"
                             data-confirm-titulo="Prosseguir para Procedimento Preliminar?"
                             data-confirm-mensagem="O processo seguirá para a etapa de Procedimento Preliminar."
-                            data-confirm-botao="Sim, Prosseguir"
+                            data-confirm-botao="Sim, prosseguir"
                             class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
                             SIM
                         </button>
@@ -141,11 +141,11 @@
                         </form>
                         <button type="button"
                             data-confirm-form="form-devolver-secretario"
-                            data-confirm-titulo="Devolver a(o) Secretária(o)?"
-                            data-confirm-mensagem="O processo será devolvido a(o) Secretária(o)."
-                            data-confirm-botao="Sim, Devolver"
+                            data-confirm-titulo="Devolver ao(à) Secretário(a)?"
+                            data-confirm-mensagem="O processo será devolvido ao(à) Secretário(a)."
+                            data-confirm-botao="Sim, devolver"
                             class="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
-                            Devolver a(o) Secretária(o)
+                            Devolver ao(à) Secretário(a)
                         </button>
 
                         <form id="form-iniciar-votacao" action="{{ route('processos.iniciar-votacao', $processo) }}" method="POST">
@@ -181,9 +181,9 @@
                         </form>
                         <button type="button"
                             data-confirm-form="form-admin-reativar"
-                            data-confirm-titulo="Devolver ao Relator?"
+                            data-confirm-titulo="Devolver ao(à) Relator(a)?"
                             data-confirm-mensagem="O status da etapa voltará para Em Elaboração."
-                            data-confirm-botao="Sim, Devolver"
+                            data-confirm-botao="Sim, devolver"
                             class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-4 py-2 rounded-lg">
                             Devolver Ao Relator
                         </button>
@@ -197,7 +197,7 @@
                             data-confirm-form="form-admin-arquivar"
                             data-confirm-titulo="Arquivar este processo?"
                             data-confirm-mensagem="O processo será arquivado."
-                            data-confirm-botao="Sim, Arquivar"
+                            data-confirm-botao="Sim, arquivar"
                             class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-4 py-2 rounded-lg">
                             Arquivar
                         </button>

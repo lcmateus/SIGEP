@@ -44,42 +44,13 @@ class UsuarioMembro extends Authenticatable
     ];
 
     //Relacionamentos
-
-    public function ativadoPor(){
-        return $this->belongsTo(UsuarioAdministrador::class, 'ativado_por', 'siape');
-    }
     
     public function processosComoRelator()
     {
         return $this->hasMany(Processo::class, 'id_relator', 'siape');
     }
 
-    public function votos()
-    {
-        return $this->hasMany(Voto::class, 'id_membro', 'siape');
-    }
-
-    public function rodadasVotacao()
-    {
-        return $this->belongsToMany(RodadaVotacao::class, 'rodada_votacao_membros', 'membro_id', 'rodada_id');
-    }
-
     // Escopos locais
-
-    public function isAdmin()
-    {
-        return $this instanceof UsuarioAdministrador;
-    }
-
-    public function isTitular()
-    {
-        return true;
-    }
-
-    public function isPresidente()
-    {
-        return (bool) $this->is_presidente;
-    }
 
     public function isAtivo()
     {
