@@ -7,11 +7,9 @@ use App\Models\Processo;
 use App\Models\RodadaVotacao;
 use App\Models\UsuarioAdministrador;
 use App\Models\UsuarioMembro;
-use App\Models\Voto;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -116,11 +114,17 @@ class RelatorioController extends Controller
             }
 
             if ($processosPorStatus->has($etapaAtual->status)) {
-                $processosPorStatus[$etapaAtual->status]++;
+                $processosPorStatus->put(
+                    $etapaAtual->status,
+                    $processosPorStatus->get($etapaAtual->status, 0) + 1
+                );
             }
 
             if ($processosPorTipo->has($etapaAtual->tipo)) {
-                $processosPorTipo[$etapaAtual->tipo]++;
+                $processosPorTipo->put(
+                    $etapaAtual->tipo,
+                    $processosPorTipo->get($etapaAtual->tipo, 0) + 1
+                );
             }
         }
 
@@ -175,7 +179,6 @@ class RelatorioController extends Controller
             ->whereIn('opcao', ['desaprova', 'desaprova com resalva'])
             ->count();
 
-        // A migration do SIGEP grava "resalva", sem o segundo "s".
         $votosRessalva = $votos
             ->where('opcao', 'aprova com resalva')
             ->count();
@@ -261,7 +264,6 @@ class RelatorioController extends Controller
 
     public function pdf(Request $request)
     {
-        // Reaproveita os mesmos filtros e cálculos da tela de resultados.
         $dados = $this->index($request)->getData();
 
         $nomePeriodo = Str::slug($dados['periodoLabel'] ?? 'relatorio');
@@ -308,8 +310,6 @@ class RelatorioController extends Controller
                 ->whereBetween('data_encerramento', [$inicioMes, $fimMes])
                 ->count();
 
-            // O banco não tem uma data específica de devolução da etapa.
-            // updated_at é usado como aproximação para esse indicador mensal.
             $evolucao['devolvidos'][] = Etapa::query()
                 ->where('status', Etapa::STATUS_DEVOLVIDO)
                 ->whereBetween('updated_at', [$inicioMes, $fimMes])
