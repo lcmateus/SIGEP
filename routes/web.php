@@ -86,6 +86,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/perfil', [PerfilController::class, 'edit'])->name('perfil');
     Route::put('/perfil', [PerfilController::class, 'update'])->name('perfil.update');
 
-    Route::get('/resultados', [RelatorioController::class, 'index'])
-    ->name('resultados');
+    Route::get('/resultados/pdf', [RelatorioController::class, 'pdf'])->name('resultados.pdf');
+
+    Route::get('/resultados', [RelatorioController::class, 'index'])->name('resultados');
 });

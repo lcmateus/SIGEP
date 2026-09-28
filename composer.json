@@ -2,14 +2,15 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "laravel/laravel",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "The skeleton application for Laravel.",
     "keywords": [
         "laravel",
         "framework"
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.0",
+        "php": "^8.2",
+        "barryvdh/laravel-dompdf": "~3.1",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^3.0"
     },
