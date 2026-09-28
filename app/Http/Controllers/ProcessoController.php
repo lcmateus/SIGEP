@@ -8,6 +8,7 @@ use App\Models\Processo;
 use App\Models\RodadaVotacao;
 use App\Models\UsuarioAdministrador;
 use App\Models\UsuarioMembro;
+use App\Services\DocumentoService;
 use App\Services\NotificacaoService;
 use App\Services\RelatorService;
 use App\Services\VotacaoService;
@@ -116,6 +117,8 @@ class ProcessoController extends Controller
 
         $data = $request->validate([
             'numero_sei' => ['required', 'string', 'max:255', 'unique:processo,numero_sei'],
+            'arquivo' => ['required', 'file', 'max:10240'],
+            'tipo' => ['required', 'string', 'max:255'],
         ]);
 
         $relator = app(RelatorService::class)->proximoRelator();
@@ -126,19 +129,35 @@ class ProcessoController extends Controller
                 ->withInput();
         }
 
-        $processo = Processo::query()->create($data + [
+        $processo = Processo::query()->create([
+            'numero_sei' => $data['numero_sei'],
             'data_admissao' => Carbon::today(),
             'data_devolucao' => null,
             'id_administrador' => auth()->user()->siape,
             'id_relator' => $relator->siape,
         ]);
 
-        Etapa::query()->create([
+        $etapa = Etapa::query()->create([
             'numero_sei_processo' => $processo->numero_sei,
             'ordem' => 1,
             'tipo' => Etapa::TIPO_JUIZO,
             'status' => Etapa::STATUS_EM_ELABORACAO,
         ]);
+
+        try {
+            app(DocumentoService::class)->salvar(
+                $request->file('arquivo'),
+                $etapa->id,
+                $data['tipo'],
+                auth()->user()->siape,
+            );
+        } catch (\Throwable $e) {
+            $processo->delete();
+
+            return back()
+                ->withErrors(['arquivo' => 'Falha ao anexar o documento: ' . $e->getMessage()])
+                ->withInput();
+        }
 
         app(NotificacaoService::class)->notificarProcessoDesignado($relator, $processo);
 

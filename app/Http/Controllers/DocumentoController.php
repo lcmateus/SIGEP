@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Documento;
-use App\Models\Etapa;
+use App\Services\DocumentoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class DocumentoController extends Controller
 {
@@ -19,34 +18,12 @@ class DocumentoController extends Controller
                 'tipo' => ['required', 'string', 'max:255'],
             ]);
 
-            $arquivo = $request->file('arquivo');
-
-            if (!$arquivo || !$arquivo->isValid()) {
-                return response()->json(['ok' => false, 'erro' => 'Arquivo invalido.'], 422);
-            }
-
-            $nomeOriginal = $arquivo->getClientOriginalName();
-            $titulo = pathinfo($nomeOriginal, PATHINFO_FILENAME);
-            $extensao = pathinfo($nomeOriginal, PATHINFO_EXTENSION);
-            $nomeSalvo = Str::uuid() . '.' . $extensao;
-
-            $diretorio = public_path('uploads');
-            if (!is_dir($diretorio)) {
-                mkdir($diretorio, 0755, true);
-            }
-
-            $arquivo->move($diretorio, $nomeSalvo);
-            $caminho = 'uploads/' . $nomeSalvo;
-
-            $documento = Documento::query()->create([
-                'titulo' => $titulo,
-                'descricao' => $extensao,
-                'caminho' => $caminho,
-                'upload_feito_por' => auth()->user()->siape,
-                'etapa_id' => $data['etapa_id'],
-                'tipo' => $data['tipo'],
-                'data_upload' => now(),
-            ]);
+            $documento = app(DocumentoService::class)->salvar(
+                $request->file('arquivo'),
+                $data['etapa_id'],
+                $data['tipo'],
+                auth()->user()->siape,
+            );
 
             return response()->json([
                 'ok' => true,
