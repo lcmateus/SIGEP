@@ -62,7 +62,7 @@ Os perfis de usuários do Sistema é um espelho da Comissão na vida real, cada 
     </tr>
     <tr>
         <td>Presidente da CE</td>
-        <td>Exerce voto de minerva (desempate) e atua como relator quando selecionado<td>
+        <td>Exerce voto de minerva (desempate) e atua como relator quando selecionado</td>
     </tr>
 </table>
 
@@ -82,7 +82,7 @@ Acreditamos que, com a implementação do SIGEP e, por consequência, a agiliza�
     <li>Composer v2.10.13</li>
     <li>Node.js v.26.9.0</li>
     <li>MySQL 8.4 LTS</li>
-    <li>Sistema Operacional: Windows 11 25H2, Ubuntu 26.04 LTS</li>
+    <li>Sistema Operacional: Windows 11 25H2</li>
     <li>Gerenciamento de versão: Git 2.55.0/GitHub</li>
     <li>Visual Studio Code 1.138</li>
 </ul>
@@ -94,15 +94,22 @@ Acreditamos que, com a implementação do SIGEP e, por consequência, a agiliza�
     <li>16 GB de memória RAM</li>
 </ul>
 
-<h1>Colaboradores</h1>
-<ul>
-    <li>Lucas Canestraro Mateus de Oliveira</li>
-    <li>Miguel Marques Borges</li>
-    <li>Raphaelly Daphny Ferreira</li>
-    <li>Orientador: Fábio Albini</li>
-    <li>Co-orientador: Fernando Amorim</li>
-</ul>
+<h1>Como executar o projeto?</h1>
+<ol>
+    <li>Abra o terminal e clone o repositório;</li>
+    <li>Abra o explorador de arquivos e abra o projeto;</li>
+    <li>renomeie o arquivo .env.example para .env;</li>
+    <li>abra o arquivo .env, altere o atributo "DB_PASSWORD" para a senha do seu banco de dados e salve o arquivo;</li>
+    <li>volte ao terminal e acesse o diretório do projeto;</li>
+    <li>execute o comando composer update e depois composer upgrade</li>
+    <li>execute o comando php artisan key:generate;</li>
+    <li>php artisan migrate;</li>
+    <li>php artisan serve.</li>
+</ol>
+<p></p>
 
 <h1>Saiba mais sobre o projeto</h1>
-
-Vídeo de apresentação do projeto: https://www.youtube.com/watch?v=Ss2oeBPBhDI 
+    
+<p>Vídeo de apresentação do projeto: https://www.youtube.com/watch?v=Ss2oeBPBhDI</p> 
+<p>Primeiro vídeo de demonstração das telas: https://youtu.be/63aGhfENQqE?si=Ho7h472oMOOB86Dc</p>
+<p>Vídeo de apresentação da versão Alpha: https://youtu.be/9ALqNUudgDY?si=Louvc0eiGgz-AGJ-</p>
