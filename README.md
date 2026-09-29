@@ -106,7 +106,15 @@ Acreditamos que, com a implementação do SIGEP e, por consequência, a agiliza�
     <li>php artisan migrate;</li>
     <li>php artisan serve.</li>
 </ol>
-<p></p>
+
+<h1>Responsáveis</h1>
+<h2>Desenvolvedores</h2>
+<p>Lucas Canestraro Mateus de Oliveira</p>
+<p>Miguel Marques Borges</p>
+<p>Raphaelly Daphny Ferreira</p>
+<h2>Orientadores</h2>
+<p>Orientador: Fábio Albini</p>
+<p>Co-orientador: Fernando Roberto Amorim Souza</p>
 
 <h1>Saiba mais sobre o projeto</h1>
     
