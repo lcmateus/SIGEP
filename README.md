@@ -22,18 +22,24 @@ Atualmente, o gerenciamento das demandas éticas do IFPR é feito de forma manua
 
 ## Propósito do Sistema
 
-O propósito do SIGEP é automatizar e centralizar o fluxo de trabalho da Comissão de Ética. Com ele, será possível:
+O propósito do SIGEP é automatizar e centralizar o fluxo de trabalho da Comissão de Ética. Com ele, o usuário pode:
 
-- Cadastro e autenticação de usuários (membros da comissão, secretária, presidente);
-- Cadastro de processos com tipificação e partes envolvidas;
-- Análise de admissibilidade;
-- Sorteio/designação automática de relator;
-- Definição automática de prazos conforme etapas regimentais;
-- Área do relator: elaboração de relatório preliminar;
-- Módulo de votação (aberta ou fechada);
-- Registro de decisão final e encaminhamentos;
-- Painel de acompanhamento (dashboard) com status dos processos;
-- Notificações por e-mail sobre prazos e movimentações.
+- Efetuar o auto-cadastro;
+- Validar usuários, no caso do administrador;
+- Anexar e baixar documentos (PDF exportado do SEI, relatórios de etapas, diligências, etc.);
+- Acompanhar o andamento dos processos sob relatoria;
+- Consultar processos públicos;
+- Filtrar e exportar os resultados dos processos;
+- Encaminhar/arquivar processos;
+- Consultar resultados.
+
+  
+Além disso, o próprio sistema realiza tarefas de maneira automática, como:
+
+- Designação de relatores, tendo como critério o menor número de processos sob relatoria;
+- Definição de prazos para votações;
+- Registro de resultados de votações;
+- Envio de notificações por e-mail sobre prazos e movimentações.
 
 ## Resultados esperados
 
@@ -89,10 +95,6 @@ Co-orientador: Fernando Roberto Amorim Souza
 # Saiba mais sobre o projeto
 
 Vídeo de apresentação do projeto: https://www.youtube.com/watch?v=Ss2oeBPBhDI
-
-Primeiro vídeo de demonstração das telas: https://youtu.be/63aGhfENQqE?si=Ho7h472oMOOB86Dc
-
-Vídeo de apresentação da versão Alpha: https://youtu.be/9ALqNUudgDY?si=Louvc0eiGgz-AGJ-
 
 Primeiro vídeo de demonstração das telas: https://youtu.be/63aGhfENQqE?si=Ho7h472oMOOB86Dc
 
