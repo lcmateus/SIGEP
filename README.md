@@ -99,3 +99,5 @@ Vídeo de apresentação do projeto: https://www.youtube.com/watch?v=Ss2oeBPBhDI
 Primeiro vídeo de demonstração das telas: https://youtu.be/63aGhfENQqE?si=Ho7h472oMOOB86Dc
 
 Vídeo de apresentação da versão Alpha: https://youtu.be/9ALqNUudgDY?si=Louvc0eiGgz-AGJ-
+
+Vídeo de apresentação da versão Beta: https://youtu.be/xgdFLs9LLyg?si=9JGC5b8kWrKS8lL8
