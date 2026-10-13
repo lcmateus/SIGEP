@@ -25,7 +25,7 @@
                         <th class="p-4">Nome completo</th>
                         <th class="p-4">E-mail institucional</th>
                         <th class="p-4">SIAPE</th>
-                        <th class="p-4">Tipo</th>
+                        <th class="p-4">Presidente</th>
                         <th class="p-4">Status</th>
                         <th class="p-4 text-center">Ações</th>
                     </tr>
@@ -36,12 +36,18 @@
                             <td class="p-4">{{ $usuario->nome }}</td>
                             <td class="p-4">{{ $usuario->email }}</td>
                             <td class="p-4">{{ $usuario->siape }}</td>
-                            <td class="p-4">{{ in_array($usuario->siape, $siapePresidentes) ? 'Presidente' : 'Membro' }}</td>
+                            <td class="p-4">
+                                @if($usuario->isPresidente())
+                                    <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Sim</span>
+                                @else
+                                    <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500">Nao</span>
+                                @endif
+                            </td>
                             <td class="p-4">{{ $usuario->data_ativacao ? 'Ativo' : 'Pendente' }}</td>
                             <td class="p-4">
                                 <div class="flex justify-center gap-2">
                                     @if(! $usuario->data_ativacao)
-                                        <form id="form-aprovar-{{ $usuario->id }}" method="POST" action="{{ route('usuarios.approve', $usuario) }}">
+                                        <form id="form-aprovar-{{ $usuario->siape }}" method="POST" action="{{ route('usuarios.approve', $usuario) }}">
                                             @csrf
                                             @method('PATCH')
                                             <button type="button"
@@ -49,13 +55,27 @@
                                                 data-confirm-mensagem="Deseja aprovar o cadastro de {{ $usuario->nome }}?"
                                                 data-confirm-botao="Aprovar"
                                                 data-confirm-cor="emerald"
-                                                data-confirm-form="form-aprovar-{{ $usuario->id }}"
+                                                data-confirm-form="form-aprovar-{{ $usuario->siape }}"
                                                 class="border border-emerald-500 text-emerald-600 px-3 py-1 rounded-lg hover:bg-emerald-50">
                                                 Aprovar
                                             </button>
                                         </form>
+                                    @elseif(! $usuario->isPresidente())
+                                        <form id="form-presidente-{{ $usuario->siape }}" method="POST" action="{{ route('usuarios.eleger-presidente', $usuario) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="button"
+                                                data-confirm-titulo="Eleger presidente"
+                                                data-confirm-mensagem="Deseja eleger {{ $usuario->nome }} como presidente? O presidente atual sera substituido."
+                                                data-confirm-botao="Eleger"
+                                                data-confirm-cor="emerald"
+                                                data-confirm-form="form-presidente-{{ $usuario->siape }}"
+                                                class="border border-emerald-500 text-emerald-600 px-3 py-1 rounded-lg hover:bg-emerald-50">
+                                                Eleger presidente
+                                            </button>
+                                        </form>
                                     @endif
-                                    <form id="form-excluir-{{ $usuario->id }}" method="POST" action="{{ route('usuarios.destroy', $usuario) }}">
+                                    <form id="form-excluir-{{ $usuario->siape }}" method="POST" action="{{ route('usuarios.destroy', $usuario) }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="button"
@@ -63,7 +83,7 @@
                                             data-confirm-mensagem="Deseja excluir definitivamente o usuário {{ $usuario->nome }}?"
                                             data-confirm-botao="Excluir"
                                             data-confirm-cor="red"
-                                            data-confirm-form="form-excluir-{{ $usuario->id }}"
+                                            data-confirm-form="form-excluir-{{ $usuario->siape }}"
                                             class="border border-red-500 text-red-500 px-3 py-1 rounded-lg hover:bg-red-50">
                                             Excluir
                                         </button>

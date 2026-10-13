@@ -18,10 +18,11 @@
 
             <div>
                 <label for="arquivo" class="font-bold text-emerald-900 text-xl">Documento inicial (obrigatório)</label>
-                <p class="text-sm text-slate-500 mt-1">Anexe o documento inicial do processo relacionado no SEI.</p>
+                <p class="text-sm text-slate-500 mt-1">Anexe o documento inicial do processo relacionado no SEI. Tamanho máximo: {{ round(config('sigep.upload_max_kb') / 1024) }} MB.</p>
                 <input type="file" id="arquivo" name="arquivo" required
                     class="w-full text-sm text-slate-600 mt-3 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700">
                 @error('arquivo') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                <p id="arquivo-erro" class="hidden text-red-600 text-sm mt-1"></p>
             </div>
 
             <div>
@@ -56,3 +57,26 @@
         </form>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    (function () {
+        var maxKb = {{ (int) config('sigep.upload_max_kb') }};
+        var form = document.querySelector('form[action="{{ route('processos.store') }}"]');
+        var input = document.getElementById('arquivo');
+        var erro = document.getElementById('arquivo-erro');
+
+        if (!form || !input) return;
+
+        form.addEventListener('submit', function (e) {
+            erro.classList.add('hidden');
+
+            if (input.files.length && input.files[0].size > maxKb * 1024) {
+                e.preventDefault();
+                erro.textContent = 'O arquivo selecionado excede o limite de ' + Math.round(maxKb / 1024) + ' MB.';
+                erro.classList.remove('hidden');
+            }
+        });
+    })();
+</script>
+@endpush

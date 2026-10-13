@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RodadaVotacao;
 use App\Models\UsuarioAdministrador;
 use App\Models\UsuarioMembro;
 use App\Rules\EmailUnico;
@@ -21,12 +20,6 @@ class UsuarioMembroController extends Controller
 
         return view('usuarios.list', [
             'usuarios' => UsuarioMembro::query()->latest()->get(),
-            'siapePresidentes' => RodadaVotacao::query()
-                ->whereNull('resultado')
-                ->whereNotNull('id_presidente')
-                ->distinct()
-                ->pluck('id_presidente')
-                ->all(),
             'totalAdmins' => UsuarioAdministrador::query()->count(),
             'totalPendentes' => UsuarioMembro::query()->whereNull('data_ativacao')->count(),
         ]);
@@ -42,12 +35,24 @@ class UsuarioMembroController extends Controller
             'siape' => ['required', 'string', 'max:20', new SiapeUnico($usuario->siape)],
             'data_ativacao' => ['nullable', 'date'],
             'ativado_por' => ['nullable', 'exists:usuario_administrador,siape'],
-            'is_presidente' => ['boolean'],
         ]);
 
         $usuario->update($data);
 
         return redirect()->route('usuarios.list')->with('status', 'Usuario atualizado.');
+    }
+
+    public function elegerPresidente(UsuarioMembro $usuario): RedirectResponse
+    {
+        $this->authorizeAdmin();
+
+        if (! $usuario->isAtivo()) {
+            return back()->with('error', 'Apenas membros ativos podem ser eleitos presidente.');
+        }
+
+        app(MembroService::class)->elegerPresidente($usuario);
+
+        return redirect()->route('usuarios.list')->with('status', 'Presidente eleito.');
     }
 
     public function approve(UsuarioMembro $usuario): RedirectResponse
@@ -64,6 +69,10 @@ class UsuarioMembroController extends Controller
     public function destroy(UsuarioMembro $usuario): RedirectResponse
     {
         $this->authorizeAdmin();
+
+        if ($usuario->isPresidente()) {
+            return back()->with('error', 'Nao e possivel excluir o presidente atual. Eleja outro presidente antes.');
+        }
 
         $haOutrosAtivos = UsuarioMembro::query()
             ->whereNotNull('data_ativacao')

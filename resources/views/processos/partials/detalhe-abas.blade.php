@@ -175,7 +175,7 @@
             <input type="hidden" name="etapa_id" id="upload-etapa-id">
 
             <div class="mb-4">
-                <label class="block text-sm font-bold text-emerald-900 mb-1">Arquivo</label>
+                <label class="block text-sm font-bold text-emerald-900 mb-1">Arquivo <span class="font-normal text-slate-400">(máx. {{ round(config('sigep.upload_max_kb') / 1024) }} MB)</span></label>
                 <input type="file" name="arquivo" id="upload-arquivo" required
                     class="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700">
             </div>
@@ -280,6 +280,13 @@
 
             erroDiv.classList.add('hidden');
             sucessoDiv.classList.add('hidden');
+
+            var arquivoInput = document.getElementById('upload-arquivo');
+            if (arquivoInput.files.length && arquivoInput.files[0].size > {{ (int) config('sigep.upload_max_kb') }} * 1024) {
+                erroDiv.textContent = 'O arquivo selecionado excede o limite de ' + Math.round({{ (int) config('sigep.upload_max_kb') }} / 1024) + ' MB.';
+                erroDiv.classList.remove('hidden');
+                return;
+            }
 
             var fd = new FormData(form);
 

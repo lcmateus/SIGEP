@@ -2,13 +2,13 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PerfilController;
-use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\ProcessoController;
+use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\UsuarioMembroController;
 use App\Http\Controllers\VotacaoController;
-use App\Http\Controllers\RelatorioController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/recuperar-senha', [PasswordResetController::class, 'showRequestForm'])->name('forgot-password');
@@ -46,8 +46,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/processos/publicos', [ProcessoController::class, 'publicos'])->name('processos.publicos');
 
     Route::get('/usuarios', [UsuarioMembroController::class, 'index'])->name('usuarios.list');
-    
+
     Route::patch('/usuarios/{usuario}/aprovar', [UsuarioMembroController::class, 'approve'])->name('usuarios.approve');
+    Route::patch('/usuarios/{usuario}/presidente', [UsuarioMembroController::class, 'elegerPresidente'])->name('usuarios.eleger-presidente');
+    Route::put('/usuarios/{usuario}', [UsuarioMembroController::class, 'update'])->name('usuarios.update');
     Route::delete('/usuarios/{usuario}', [UsuarioMembroController::class, 'destroy'])->name('usuarios.destroy');
 
     Route::get('/processos/criar', [ProcessoController::class, 'create'])->name('processos.create');
@@ -69,7 +71,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/processos/{processo}/proxima-etapa', [ProcessoController::class, 'proximaEtapa'])->name('processos.proxima-etapa');
     Route::post('/processos/{processo}/proxima-etapa', [ProcessoController::class, 'definirProximaEtapa'])->name('processos.proxima-etapa.store');
 
-    
     Route::get('/votacoes/disponiveis', [VotacaoController::class, 'disponiveis'])->name('votacoes.disponiveis');
     Route::get('/votacoes/minerva', [VotacaoController::class, 'minerva'])->name('votacoes.minerva');
     Route::get('/votacoes/minerva/{rodada}', [VotacaoController::class, 'minervaVotar'])->name('votacoes.minerva.votar-pagina');

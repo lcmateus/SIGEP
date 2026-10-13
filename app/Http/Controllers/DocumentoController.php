@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Documento;
+use App\Models\UsuarioAdministrador;
 use App\Services\DocumentoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class DocumentoController extends Controller
 {
@@ -13,7 +15,7 @@ class DocumentoController extends Controller
     {
         try {
             $data = $request->validate([
-                'arquivo' => ['required', 'file', 'max:10240'],
+                'arquivo' => ['required', 'file', 'max:'.config('sigep.upload_max_kb')],
                 'etapa_id' => ['required', 'integer', 'exists:etapa,id'],
                 'tipo' => ['required', 'string', 'max:255'],
             ]);
@@ -38,10 +40,10 @@ class DocumentoController extends Controller
                     'pode_excluir' => $this->podeExcluir($documento),
                 ],
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             return response()->json(['ok' => false, 'errors' => $e->errors()], 422);
         } catch (\Throwable $e) {
-            return response()->json(['ok' => false, 'erro' => 'Erro ao salvar arquivo: ' . $e->getMessage()], 500);
+            return response()->json(['ok' => false, 'erro' => 'Erro ao salvar arquivo: '.$e->getMessage()], 500);
         }
     }
 
@@ -49,7 +51,7 @@ class DocumentoController extends Controller
     {
         $caminhoCompleto = public_path($documento->caminho);
 
-        if (!file_exists($caminhoCompleto)) {
+        if (! file_exists($caminhoCompleto)) {
             abort(404, 'Arquivo nao encontrado.');
         }
 
@@ -58,7 +60,7 @@ class DocumentoController extends Controller
 
     public function destroy(Documento $documento): JsonResponse
     {
-        if (!$this->podeExcluir($documento)) {
+        if (! $this->podeExcluir($documento)) {
             return response()->json(['ok' => false, 'erro' => 'Sem permissao para excluir este documento.'], 403);
         }
 
@@ -74,13 +76,13 @@ class DocumentoController extends Controller
 
     private function podeExcluir(Documento $documento): bool
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return false;
         }
 
         $user = auth()->user();
 
-        if ($user instanceof \App\Models\UsuarioAdministrador) {
+        if ($user instanceof UsuarioAdministrador) {
             return true;
         }
 

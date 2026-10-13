@@ -1,6 +1,5 @@
 <?php
 
-use App\Mail\NovoPresidente;
 use App\Mail\ProcessoDesignado;
 use App\Models\Etapa;
 use App\Models\Processo;
@@ -98,27 +97,18 @@ it('nao redistribui processos arquivados ou finalizados', function () {
     expect($arquivado->fresh()->id_relator)->toBeNull();
 });
 
-it('exclui o presidente e redesigna as rodadas abertas para outro membro', function () {
+it('bloqueia excluir o presidente atual', function () {
     $admin = adminParaExclusao();
-    $presidente = membroAtivoParaExclusao('1000001');
-    $outro = membroAtivoParaExclusao('1000002');
-
-    $processo = processoParaExclusao('00000000000005', '1000002');
-
-    $rodada = RodadaVotacao::query()->create([
-        'data_abertura' => now(),
-        'data_encerramento' => now()->addWeek(),
-        'resultado' => null,
-        'id_etapa' => $processo->etapas->first()->id,
-        'id_presidente' => '1000001',
-    ]);
+    $presidente = membroAtivoParaExclusao('1000001', true);
+    membroAtivoParaExclusao('1000002');
 
     $this->actingAs($admin)
         ->delete(route('usuarios.destroy', $presidente))
-        ->assertRedirect();
+        ->assertRedirect()
+        ->assertSessionHas('error');
 
-    $this->assertDatabaseMissing('usuario_membro', ['siape' => '1000001']);
-    expect($rodada->fresh()->id_presidente)->toBe($outro->siape);
+    $this->assertDatabaseHas('usuario_membro', ['siape' => '1000001']);
+    expect($presidente->fresh()->is_presidente)->toBeTrue();
 });
 
 it('bloqueia excluir o ultimo membro ativo', function () {
@@ -186,30 +176,18 @@ it('permite excluir um membro pendente de aprovacao', function () {
     $this->assertDatabaseMissing('usuario_membro', ['siape' => '1000003']);
 });
 
-it('envia e-mail ao novo relator e ao novo presidente da rodada', function () {
+it('envia e-mail ao novo relator ao excluir o membro', function () {
     Mail::fake();
 
     $admin = adminParaExclusao();
-    $presidente = membroAtivoParaExclusao('1000001', true);
+    $relator = membroAtivoParaExclusao('1000001');
     $outro = membroAtivoParaExclusao('1000002');
 
-    $processo = processoParaExclusao('00000000000004', '1000001');
-
-    RodadaVotacao::query()->create([
-        'data_abertura' => now(),
-        'data_encerramento' => now()->addWeek(),
-        'resultado' => null,
-        'id_etapa' => $processo->etapas->first()->id,
-        'id_presidente' => '1000001',
-    ]);
+    processoParaExclusao('00000000000004', '1000001');
 
     $this->actingAs($admin)
-        ->delete(route('usuarios.destroy', $presidente))
+        ->delete(route('usuarios.destroy', $relator))
         ->assertRedirect();
-
-    Mail::assertSent(NovoPresidente::class, function (NovoPresidente $mail) use ($outro) {
-        return $mail->nome === $outro->nome;
-    });
 
     Mail::assertSent(ProcessoDesignado::class, function (ProcessoDesignado $mail) use ($outro) {
         return $mail->nome === $outro->nome;

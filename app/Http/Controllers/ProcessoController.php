@@ -117,13 +117,13 @@ class ProcessoController extends Controller
 
         $data = $request->validate([
             'numero_sei' => ['required', 'string', 'max:255', 'unique:processo,numero_sei'],
-            'arquivo' => ['required', 'file', 'max:10240'],
+            'arquivo' => ['required', 'file', 'max:'.config('sigep.upload_max_kb')],
             'tipo' => ['required', 'string', 'max:255'],
         ]);
 
         $relator = app(RelatorService::class)->proximoRelator();
 
-        if (!$relator) {
+        if (! $relator) {
             return back()
                 ->withErrors(['numero_sei' => 'Nenhum membro ativo disponivel para ser relator.'])
                 ->withInput();
@@ -155,7 +155,7 @@ class ProcessoController extends Controller
             $processo->delete();
 
             return back()
-                ->withErrors(['arquivo' => 'Falha ao anexar o documento: ' . $e->getMessage()])
+                ->withErrors(['arquivo' => 'Falha ao anexar o documento: '.$e->getMessage()])
                 ->withInput();
         }
 
@@ -225,7 +225,7 @@ class ProcessoController extends Controller
             ->sortByDesc('ordem')
             ->first(fn ($etapa) => $etapa->status !== Etapa::STATUS_FINALIZADO);
 
-        if (!$etapaAtual || $etapaAtual->tipo !== Etapa::TIPO_JUIZO) {
+        if (! $etapaAtual || $etapaAtual->tipo !== Etapa::TIPO_JUIZO) {
             return back()->withErrors(['decisao' => 'Etapa invalida para esta operacao.']);
         }
 
@@ -285,7 +285,7 @@ class ProcessoController extends Controller
 
         $etapaAtual = $processo->etapa_atual;
 
-        if (!$etapaAtual || $etapaAtual->status !== Etapa::STATUS_DEVOLVIDO) {
+        if (! $etapaAtual || $etapaAtual->status !== Etapa::STATUS_DEVOLVIDO) {
             return back()->with('error', 'Etapa invalida para esta operacao.');
         }
 
@@ -318,7 +318,7 @@ class ProcessoController extends Controller
             ->sortByDesc('ordem')
             ->first(fn ($etapa) => $etapa->status === Etapa::STATUS_EM_ELABORACAO);
 
-        if (!$etapaEmElaboracao) {
+        if (! $etapaEmElaboracao) {
             return back()->with('error', 'Nenhuma etapa em elaboracao para devolver.');
         }
 
@@ -344,23 +344,27 @@ class ProcessoController extends Controller
             ->sortByDesc('ordem')
             ->first(fn ($etapa) => $etapa->status === Etapa::STATUS_EM_ELABORACAO);
 
-        if (!$etapaEmElaboracao) {
+        if (! $etapaEmElaboracao) {
             return back()->with('error', 'Nenhuma etapa em elaboracao para iniciar votacao.');
         }
 
-        $etapaEmElaboracao->update(['status' => Etapa::STATUS_EM_VOTACAO]);
-
         $presidente = UsuarioMembro::query()
+            ->where('is_presidente', true)
             ->whereNotNull('data_ativacao')
-            ->inRandomOrder()
             ->first();
+
+        if (! $presidente) {
+            return back()->with('error', 'Eleja um presidente antes de iniciar a votacao.');
+        }
+
+        $etapaEmElaboracao->update(['status' => Etapa::STATUS_EM_VOTACAO]);
 
         $rodada = RodadaVotacao::query()->create([
             'data_abertura' => now(),
             'data_encerramento' => now()->addWeeks(2),
             'resultado' => null,
             'id_etapa' => $etapaEmElaboracao->id,
-            'id_presidente' => $presidente?->siape,
+            'id_presidente' => $presidente->siape,
         ]);
 
         app(NotificacaoService::class)->notificarNovaVotacao($rodada);
@@ -397,7 +401,7 @@ class ProcessoController extends Controller
         );
 
         $data = $request->validate([
-            'tipo' => ['required', 'in:' . Etapa::TIPO_ACPP . ',' . Etapa::TIPO_PAE],
+            'tipo' => ['required', 'in:'.Etapa::TIPO_ACPP.','.Etapa::TIPO_PAE],
         ]);
 
         $service->criarProximaEtapa($processo, $data['tipo']);
