@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Documento extends Model
 {
+    public const TIPO_PDF_SEI = 'pdf_sei';
+
     protected $table = 'documento';
 
     protected $primaryKey = 'id';
@@ -36,13 +38,13 @@ class Documento extends Model
 
     public function getNomeOriginalAttribute(): string
     {
-        return $this->titulo . ($this->descricao ? '.' . $this->descricao : '');
+        return $this->titulo.($this->descricao ? '.'.$this->descricao : '');
     }
 
     public function getTipoDisplayAttribute(): string
     {
         return match ($this->tipo) {
-            'pdf_sei' => 'PDF do SEI',
+            self::TIPO_PDF_SEI => 'PDF do SEI',
             'relatorio_juizo' => 'Relatório do Juízo',
             'relatorio_pp' => 'Relatório do PP',
             'minuta_acpp' => 'Minuta do ACPP',

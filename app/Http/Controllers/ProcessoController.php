@@ -12,6 +12,7 @@ use App\Services\DocumentoService;
 use App\Services\NotificacaoService;
 use App\Services\RelatorService;
 use App\Services\VotacaoService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -174,17 +175,27 @@ class ProcessoController extends Controller
             ->get()
             ->groupBy('etapa_id');
 
-        $rodadas = RodadaVotacao::query()
-            ->whereHas('etapa', fn ($query) => $query->where('numero_sei_processo', $processo->numero_sei))
-            ->with(['etapa', 'presidente', 'votos.membro'])
-            ->orderBy('data_abertura')
-            ->get();
+        $rodadas = $this->rodadasDoProcesso($processo);
 
         return view('processos.show', [
             'processo' => $processo,
             'documentosPorEtapa' => $documentos,
             'rodadas' => $rodadas,
         ]);
+    }
+
+    public function historicoVotacaoPdf(Processo $processo)
+    {
+        $processo->load(['relator', 'administrador', 'etapas']);
+
+        $rodadas = $this->rodadasDoProcesso($processo);
+
+        return Pdf::loadView('processos.historico-votacao-pdf', [
+            'processo' => $processo,
+            'rodadas' => $rodadas,
+        ])
+            ->setPaper('a4', 'portrait')
+            ->download('sigep-historico-votacoes-'.$processo->numero_sei.'.pdf');
     }
 
     public function aceitar(Processo $processo): View
@@ -197,11 +208,7 @@ class ProcessoController extends Controller
             ->get()
             ->groupBy('etapa_id');
 
-        $rodadas = RodadaVotacao::query()
-            ->whereHas('etapa', fn ($query) => $query->where('numero_sei_processo', $processo->numero_sei))
-            ->with(['etapa', 'presidente', 'votos.membro'])
-            ->orderBy('data_abertura')
-            ->get();
+        $rodadas = $this->rodadasDoProcesso($processo);
 
         return view('processos.aceitar', [
             'processo' => $processo,
@@ -408,6 +415,15 @@ class ProcessoController extends Controller
 
         return redirect()->route('processos.show', $processo)
             ->with('status', 'Proxima etapa definida.');
+    }
+
+    private function rodadasDoProcesso(Processo $processo)
+    {
+        return RodadaVotacao::query()
+            ->whereHas('etapa', fn ($query) => $query->where('numero_sei_processo', $processo->numero_sei))
+            ->with(['etapa', 'presidente', 'votos.membro'])
+            ->orderBy('data_abertura')
+            ->get();
     }
 
     private function authorizeAdmin(): void

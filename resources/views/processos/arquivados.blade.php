@@ -34,7 +34,7 @@
                         <td class="p-4">{{ $processo->relator?->nome ?? '-' }}</td>
                         <td class="p-4">{{ $etapaArquivada?->tipo_display ?? '-' }}</td>
                         <td class="p-4">
-                            <a class="text-white bg-blue-600 px-4 py-1 rounded-xl font-bold" href="{{ route('processos.show', $processo) }}">Detalhes</a>
+                            <a class="text-white bg-blue-600 px-4 py-1 rounded-xl font-bold" href="{{ route('processos.show', ['processo' => $processo, 'origem' => 'arquivados']) }}">Detalhes</a>
                         </td>
                     </tr>
                 @empty

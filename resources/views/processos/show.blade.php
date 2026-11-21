@@ -34,10 +34,18 @@
                 @endif
             </div>
 
-            <div class="mt-6 flex gap-3">
-                <a href="{{ request('origem') === 'meus' ? route('processos.meus') : route('processos.index') }}" class="inline-block text-center bg-slate-200 hover:bg-slate-300 text-emerald-900 text-sm font-bold px-5 py-2 rounded-md">
+            <div class="mt-6 flex flex-wrap items-center gap-3">
+                @php
+                    $rotaVolta = match (request('origem')) {
+                        'meus' => route('processos.meus'),
+                        'arquivados' => route('processos.arquivados'),
+                        default => route('processos.index'),
+                    };
+                @endphp
+                <a href="{{ $rotaVolta }}" class="inline-block text-center bg-slate-200 hover:bg-slate-300 text-emerald-900 text-sm font-bold px-5 py-2 rounded-md">
                     Voltar
                 </a>
+                @include('processos.partials.acoes-download', ['processo' => $processo])
             </div>
         </div>
 
