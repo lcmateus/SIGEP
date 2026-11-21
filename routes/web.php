@@ -58,6 +58,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/processos/{processo}', [ProcessoController::class, 'destroy'])->name('processos.destroy');
 
     Route::get('/processos/{processo}', [ProcessoController::class, 'show'])->name('processos.show');
+    Route::get('/processos/{processo}/votacoes/pdf', [ProcessoController::class, 'historicoVotacaoPdf'])->name('processos.votacoes.pdf');
 
     Route::get('/processos/{processo}/aceitar', [ProcessoController::class, 'aceitar'])->name('processos.aceitar');
     Route::put('/processos/{processo}/aceitar', [ProcessoController::class, 'processarAceitar'])->name('processos.aceitar.processar');
@@ -83,6 +84,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/documentos', [DocumentoController::class, 'store'])->name('documentos.store');
     Route::get('/documentos/{documento}/download', [DocumentoController::class, 'download'])->name('documentos.download');
     Route::delete('/documentos/{documento}', [DocumentoController::class, 'destroy'])->name('documentos.destroy');
+
+    Route::get('/processos/{processo}/documentos/download', [DocumentoController::class, 'downloadTodos'])->name('processos.documentos.download');
 
     Route::get('/perfil', [PerfilController::class, 'edit'])->name('perfil');
     Route::put('/perfil', [PerfilController::class, 'update'])->name('perfil.update');

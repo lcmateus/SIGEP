@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Documento;
 use App\Models\Etapa;
-use App\Models\Processo;
 use App\Models\RodadaVotacao;
+use App\Models\UsuarioAdministrador;
+use App\Models\UsuarioMembro;
 use App\Models\Voto;
 use App\Services\VotacaoService;
 use Illuminate\Http\RedirectResponse;
@@ -14,26 +15,25 @@ use Illuminate\View\View;
 
 class VotacaoController extends Controller
 {
-    public function votar(RodadaVotacao $rodada): View
+    public function votar(RodadaVotacao $rodada): View|RedirectResponse
     {
         abort_unless(
-            auth()->check() && auth()->user() instanceof \App\Models\UsuarioMembro,
+            auth()->check() && auth()->user() instanceof UsuarioMembro,
             403
         );
 
         $processo = $rodada->etapa?->processo;
 
         abort_if(
-            !$processo || $rodada->resultado !== null,
+            ! $processo || $rodada->resultado !== null,
             404,
             'Votacao indisponivel.'
         );
 
-        abort_if(
-            $rodada->data_encerramento !== null && now()->gt($rodada->data_encerramento),
-            404,
-            'Votacao encerrada.'
-        );
+        if ($rodada->data_encerramento !== null && now()->gt($rodada->data_encerramento)) {
+            return redirect()->route('votacoes.disponiveis')
+                ->with('error', 'O prazo desta votação foi encerrado.');
+        }
 
         abort_if(
             $rodada->etapa?->status === Etapa::STATUS_AGUARDANDO_MINERVA,
@@ -70,7 +70,7 @@ class VotacaoController extends Controller
     public function registrarVoto(Request $request, RodadaVotacao $rodada, VotacaoService $service): RedirectResponse
     {
         abort_unless(
-            auth()->check() && auth()->user() instanceof \App\Models\UsuarioMembro,
+            auth()->check() && auth()->user() instanceof UsuarioMembro,
             403
         );
 
@@ -122,11 +122,11 @@ class VotacaoController extends Controller
     public function abertas(): View
     {
         abort_unless(
-            auth()->check() && auth()->user() instanceof \App\Models\UsuarioAdministrador,
+            auth()->check() && auth()->user() instanceof UsuarioAdministrador,
             403
         );
 
-$rodadas = RodadaVotacao::query()
+        $rodadas = RodadaVotacao::query()
             ->whereNull('resultado')
             ->with(['etapa.processo.relator', 'etapa.processo.administrador', 'presidente'])
             ->orderByDesc('data_abertura')
@@ -140,7 +140,7 @@ $rodadas = RodadaVotacao::query()
     public function atualizarEncerramento(Request $request, RodadaVotacao $rodada): RedirectResponse
     {
         abort_unless(
-            auth()->check() && auth()->user() instanceof \App\Models\UsuarioAdministrador,
+            auth()->check() && auth()->user() instanceof UsuarioAdministrador,
             403
         );
 
@@ -156,12 +156,15 @@ $rodadas = RodadaVotacao::query()
 
     public function disponiveis(): View
     {
-        abort_unless(auth()->check() && auth()->user() instanceof \App\Models\UsuarioMembro, 403);
+        abort_unless(auth()->check() && auth()->user() instanceof UsuarioMembro, 403);
 
         $siape = auth()->user()->siape;
 
-$rodadas = RodadaVotacao::query()
+        $rodadas = RodadaVotacao::query()
             ->whereNull('resultado')
+            ->where(fn ($query) => $query
+                ->whereNull('data_encerramento')
+                ->orWhere('data_encerramento', '>=', now()))
             ->whereDoesntHave('etapa', fn ($q) => $q->where('status', Etapa::STATUS_AGUARDANDO_MINERVA))
             ->whereDoesntHave('votos', fn ($q) => $q->where('id_membro', $siape))
             ->with(['etapa.processo.relator', 'etapa.processo.administrador', 'presidente'])
@@ -175,11 +178,11 @@ $rodadas = RodadaVotacao::query()
 
     public function minerva(): View
     {
-        abort_unless(auth()->check() && auth()->user() instanceof \App\Models\UsuarioMembro, 403);
+        abort_unless(auth()->check() && auth()->user() instanceof UsuarioMembro, 403);
 
         $siape = auth()->user()->siape;
 
-$rodadas = RodadaVotacao::query()
+        $rodadas = RodadaVotacao::query()
             ->where('id_presidente', $siape)
             ->whereHas('etapa', fn ($q) => $q->where('status', Etapa::STATUS_AGUARDANDO_MINERVA))
             ->with(['etapa.processo.relator', 'etapa.processo.administrador', 'presidente'])
@@ -194,14 +197,14 @@ $rodadas = RodadaVotacao::query()
     public function minervaVotar(RodadaVotacao $rodada): View
     {
         abort_unless(
-            auth()->check() && auth()->user() instanceof \App\Models\UsuarioMembro,
+            auth()->check() && auth()->user() instanceof UsuarioMembro,
             403
         );
 
         $processo = $rodada->etapa?->processo;
 
         abort_if(
-            !$processo || $rodada->resultado !== null,
+            ! $processo || $rodada->resultado !== null,
             404,
             'Votacao indisponivel.'
         );
@@ -246,7 +249,7 @@ $rodadas = RodadaVotacao::query()
 
     public function votarMinerva(Request $request, RodadaVotacao $rodada, VotacaoService $service): RedirectResponse
     {
-        abort_unless(auth()->check() && auth()->user() instanceof \App\Models\UsuarioMembro, 403);
+        abort_unless(auth()->check() && auth()->user() instanceof UsuarioMembro, 403);
 
         abort_if($rodada->id_presidente !== auth()->user()->siape, 403, 'Apenas o presidente desta rodada pode registrar voto de Minerva.');
 
@@ -259,7 +262,7 @@ $rodadas = RodadaVotacao::query()
         $etapa = $rodada->etapa;
 
         abort_if(
-            !$etapa || $etapa->status !== Etapa::STATUS_AGUARDANDO_MINERVA,
+            ! $etapa || $etapa->status !== Etapa::STATUS_AGUARDANDO_MINERVA,
             422,
             'Etapa nao esta Aguardando Minerva.'
         );

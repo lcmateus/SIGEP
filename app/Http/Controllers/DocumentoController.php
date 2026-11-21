@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Documento;
+use App\Models\Processo;
 use App\Models\UsuarioAdministrador;
 use App\Services\DocumentoService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use ZipArchive;
 
 class DocumentoController extends Controller
 {
@@ -58,6 +63,60 @@ class DocumentoController extends Controller
         return response()->download($caminhoCompleto, $documento->nome_original);
     }
 
+    public function downloadTodos(Processo $processo): RedirectResponse|BinaryFileResponse
+    {
+        $documentos = Documento::query()
+            ->whereHas('etapa', fn ($query) => $query->where('numero_sei_processo', $processo->numero_sei))
+            ->where('tipo', '!=', Documento::TIPO_PDF_SEI)
+            ->with('etapa')
+            ->orderBy('data_upload')
+            ->get();
+
+        $caminhoZip = tempnam(sys_get_temp_dir(), 'sigep-docs-');
+
+        if ($caminhoZip === false) {
+            return back()->with('error', 'Não foi possível gerar o arquivo compactado.');
+        }
+
+        $zip = new ZipArchive;
+
+        if ($zip->open($caminhoZip, ZipArchive::OVERWRITE) !== true) {
+            if (is_file($caminhoZip)) {
+                unlink($caminhoZip);
+            }
+
+            return back()->with('error', 'Não foi possível gerar o arquivo compactado.');
+        }
+
+        $contadores = [];
+        $adicionados = 0;
+
+        foreach ($documentos as $documento) {
+            $caminho = public_path($documento->caminho);
+
+            if (! is_file($caminho)) {
+                continue;
+            }
+
+            $zip->addFile($caminho, $this->nomeArquivoZip($documento, $contadores));
+            $adicionados++;
+        }
+
+        $zip->close();
+
+        if ($adicionados === 0) {
+            if (is_file($caminhoZip)) {
+                unlink($caminhoZip);
+            }
+
+            return back()->with('error', 'Não há documentos disponíveis para download.');
+        }
+
+        return response()
+            ->download($caminhoZip, 'sigep-documentos-'.$processo->numero_sei.'.zip')
+            ->deleteFileAfterSend(true);
+    }
+
     public function destroy(Documento $documento): JsonResponse
     {
         if (! $this->podeExcluir($documento)) {
@@ -72,6 +131,22 @@ class DocumentoController extends Controller
         $documento->delete();
 
         return response()->json(['ok' => true]);
+    }
+
+    private function nomeArquivoZip(Documento $documento, array &$contadores): string
+    {
+        $extensao = Str::slug((string) $documento->descricao, '');
+        $base = Str::slug(pathinfo($documento->nome_original, PATHINFO_FILENAME)) ?: 'documento';
+        $prefixo = 'etapa_'.($documento->etapa?->ordem ?? 0).'_'.Str::slug($documento->tipo, '_');
+        $chave = $prefixo.'_'.$base.($extensao !== '' ? '.'.$extensao : '');
+
+        $contadores[$chave] = ($contadores[$chave] ?? 0) + 1;
+
+        if ($contadores[$chave] === 1) {
+            return $chave;
+        }
+
+        return $prefixo.'_'.$base.'_'.$contadores[$chave].($extensao !== '' ? '.'.$extensao : '');
     }
 
     private function podeExcluir(Documento $documento): bool
