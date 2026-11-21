@@ -141,7 +141,7 @@ class ProcessoController extends Controller
             'numero_sei_processo' => $processo->numero_sei,
             'ordem' => 1,
             'tipo' => Etapa::TIPO_JUIZO,
-            'status' => Etapa::STATUS_EM_ELABORACAO,
+            'status' => Etapa::STATUS_EM_DISTRIBUICAO,
         ]);
 
         try {
@@ -230,28 +230,25 @@ class ProcessoController extends Controller
         }
 
         if ($data['decisao'] === 'nao') {
-            $etapaAtual->update(['status' => Etapa::STATUS_DEVOLVIDO]);
-            $processo->update(['data_devolucao' => now()]);
+            $relatorAnterior = $processo->id_relator;
+            $proximoRelator = app(RelatorService::class)->proximoRelator($relatorAnterior);
+            $processo->update(['id_relator' => $proximoRelator?->siape]);
+            $etapaAtual->update(['status' => Etapa::STATUS_EM_DISTRIBUICAO]);
 
-            app(NotificacaoService::class)->notificarProcessoDevolvido($processo);
+            if ($proximoRelator) {
+                app(NotificacaoService::class)->notificarProcessoDesignado($proximoRelator, $processo);
+            }
 
             return redirect()->route('processos.meus')
-                ->with('status', 'Processo devolvido ao Secretario Geral.');
+                ->with('status', $proximoRelator
+                    ? 'Processo redistribuido para o proximo relator.'
+                    : 'Processo em distribuicao: nao ha outro membro ativo disponivel.');
         }
 
-        $etapaAtual->update(['status' => Etapa::STATUS_FINALIZADO]);
-
-        $proximaOrdem = ($processo->etapas->max('ordem') ?? 0) + 1;
-
-        Etapa::query()->create([
-            'numero_sei_processo' => $processo->numero_sei,
-            'ordem' => $proximaOrdem,
-            'tipo' => Etapa::TIPO_PROCEDIMENTO_PRELIMINAR,
-            'status' => Etapa::STATUS_EM_ELABORACAO,
-        ]);
+        $etapaAtual->update(['status' => Etapa::STATUS_EM_ELABORACAO]);
 
         return redirect()->route('processos.show', $processo)
-            ->with('status', 'Processo encaminhado para Procedimento Preliminar.');
+            ->with('status', 'Processo aceito. O Juízo de Admissibilidade permanece em elaboração.');
     }
 
     public function update(Request $request, Processo $processo): RedirectResponse
