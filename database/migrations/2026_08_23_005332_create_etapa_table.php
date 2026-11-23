@@ -19,14 +19,13 @@ return new class extends Migration
                 'Processo de Apuração',
             ])->default('Juízo de Admissibilidade');
             $table->enum('status', [
-                'Em Distribuição',
                 'Em Elaboração',
                 'Em Votação',
                 'Aguardando Minerva',
                 'Devolvido',
                 'Arquivado',
                 'Finalizado',
-            ])->default('Em Distribuicao');
+            ])->default('Em Elaboração');
             $table->longText('relatorio_texto')->nullable();
             $table->timestamp('data_inicio')->useCurrent();
             $table->timestamp('data_envio_votacao')->nullable();
