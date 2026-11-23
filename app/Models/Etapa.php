@@ -18,6 +18,7 @@ class Etapa extends Model
         self::TIPO_PAE,
     ];
 
+    public const STATUS_EM_DISTRIBUICAO = 'Em Distribuição';
     public const STATUS_EM_ELABORACAO = 'Em Elaboração';
     public const STATUS_EM_VOTACAO = 'Em Votação';
     public const STATUS_AGUARDANDO_MINERVA = 'Aguardando Minerva';

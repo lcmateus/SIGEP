@@ -25,7 +25,7 @@
 
                 @if($processo->etapa_atual)
                     <span class="bg-emerald-600 px-5 py-1 rounded-md text-sm font-semibold tracking-wide text-white">
-                        {{ $processo->etapa_atual->tipo_display }}
+                        {{ $processo->etapa_atual->tipo_display }} · {{ $processo->etapa_atual->status_display }}
                     </span>
                 @else
                     <span class="bg-slate-400 px-5 py-1 rounded-md text-sm font-semibold tracking-wide text-white">
@@ -54,7 +54,6 @@
                 $isAdmin = auth()->user() instanceof \App\Models\UsuarioAdministrador;
                 $isMembro = auth()->user() instanceof \App\Models\UsuarioMembro;
                 $isRelator = $isMembro && $processo->id_relator === auth()->user()->siape;
-                $podeEscrever = $isAdmin || $isRelator;
             @endphp
 
             @include('processos.partials.detalhe-abas', [
@@ -62,30 +61,27 @@
                 'processo' => $processo,
                 'documentosPorEtapa' => $documentosPorEtapa,
                 'rodadas' => $rodadas,
-                'somenteLeitura' => !$podeEscrever,
+                'somenteLeitura' => !$isRelator,
             ])
 
             @php
                 $etapaAtual = $processo->etapa_atual;
 
-                $juizoEmElaboracao = $processo->etapas->first(function ($etapa) {
+                $juizoEmDistribuicao = $processo->etapas->first(function ($etapa) {
                     return $etapa->tipo === \App\Models\Etapa::TIPO_JUIZO
-                        && $etapa->status === \App\Models\Etapa::STATUS_EM_ELABORACAO;
+                        && $etapa->status === \App\Models\Etapa::STATUS_EM_DISTRIBUICAO;
                 });
 
-                $juizoFinalizada = $processo->etapas->first(function ($etapa) {
-                    return $etapa->tipo === \App\Models\Etapa::TIPO_JUIZO
-                        && $etapa->status === \App\Models\Etapa::STATUS_FINALIZADO;
-                });
-
-                $mostrarAceitar = $podeEscrever && $juizoEmElaboracao;
-                $mostrarNovoCard = $podeEscrever
-                    && $juizoFinalizada
+                $mostrarAceitar = $isRelator
+                    && $etapaAtual
+                    && $etapaAtual->tipo === \App\Models\Etapa::TIPO_JUIZO
+                    && $etapaAtual->status === \App\Models\Etapa::STATUS_EM_DISTRIBUICAO;
+                $mostrarNovoCard = $isRelator
                     && $etapaAtual
                     && $etapaAtual->status === \App\Models\Etapa::STATUS_EM_ELABORACAO;
-
+                
                 $ultimaEtapa = $processo->etapas->sortByDesc('ordem')->first();
-                $precisaEscolherProxima = $podeEscrever
+                $precisaEscolherProxima = $isRelator
                     && $ultimaEtapa
                     && $ultimaEtapa->status === \App\Models\Etapa::STATUS_FINALIZADO
                     && !$processo->etapas->contains(fn ($e) => $e->status === \App\Models\Etapa::STATUS_EM_ELABORACAO);
@@ -129,9 +125,9 @@
                         </form>
                         <button type="button"
                             data-confirm-form="form-decisao-sim"
-                            data-confirm-titulo="Prosseguir para Procedimento Preliminar?"
-                            data-confirm-mensagem="O processo seguirá para a etapa de Procedimento Preliminar."
-                            data-confirm-botao="Sim, prosseguir"
+                            data-confirm-titulo="Aceitar o processo?"
+                            data-confirm-mensagem="O Juízo de Admissibilidade permanecerá na etapa atual e passará para Em Elaboração."
+                            data-confirm-botao="Sim, aceitar"
                             class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
                             SIM
                         </button>

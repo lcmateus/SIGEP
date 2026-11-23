@@ -62,7 +62,7 @@ class DatabaseSeeder extends Seeder
                 ['numero_sei_processo' => $processos->get($i - 1)->numero_sei, 'ordem' => 1],
                 [
                     'tipo' => Etapa::TIPO_JUIZO,
-                    'status' => Etapa::STATUS_EM_ELABORACAO,
+                    'status' => Etapa::STATUS_EM_DISTRIBUICAO,
                     'relatorio_texto' => 'Etapa inicial do processo de teste.',
                     'data_inicio' => now(),
                     'data_envio_votacao' => null,
