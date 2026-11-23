@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use ZipArchive;
 
 class DocumentoController extends Controller
@@ -41,6 +42,7 @@ class DocumentoController extends Controller
                     'tipo_display' => $documento->tipo_display,
                     'data_upload' => $documento->data_upload->format('d/m/Y H:i'),
                     'url' => asset($documento->caminho),
+                    'preview_url' => route('documentos.visualizar', $documento),
                     'download_url' => route('documentos.download', $documento),
                     'pode_excluir' => $this->podeExcluir($documento),
                 ],
@@ -61,6 +63,129 @@ class DocumentoController extends Controller
         }
 
         return response()->download($caminhoCompleto, $documento->nome_original);
+    }
+
+    public function visualizar(Documento $documento)
+    {
+        $caminhoCompleto = $this->caminhoSeguro($documento);
+        $extensao = strtolower(pathinfo($documento->nome_original, PATHINFO_EXTENSION));
+
+        if ($extensao === 'docx') {
+            return view('documentos.visualizar-docx', [
+                'documento' => $documento,
+                'blocos' => $this->lerDocx($caminhoCompleto),
+            ]);
+        }
+
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($caminhoCompleto);
+        $tiposVisualizaveis = [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'image/webp',
+            'text/plain',
+        ];
+
+        abort_unless(in_array($mime, $tiposVisualizaveis, true), 415, 'A visualizacao no navegador nao esta disponivel para este formato. Use o botao de download.');
+
+        $response = response()->file($caminhoCompleto, [
+            'Content-Type' => $mime,
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, no-store',
+        ]);
+        $response->setContentDisposition(
+            ResponseHeaderBag::DISPOSITION_INLINE,
+            $documento->nome_original,
+            Str::ascii($documento->nome_original),
+        );
+
+        return $response;
+    }
+
+    private function caminhoSeguro(Documento $documento): string
+    {
+        $diretorioUploads = realpath(public_path('uploads'));
+        $caminhoCompleto = realpath(public_path($documento->caminho));
+
+        abort_if(
+            ! $diretorioUploads
+                || ! $caminhoCompleto
+                || ! is_file($caminhoCompleto)
+                || ! str_starts_with($caminhoCompleto, $diretorioUploads.DIRECTORY_SEPARATOR),
+            404,
+            'Arquivo nao encontrado.',
+        );
+
+        return $caminhoCompleto;
+    }
+
+    /**
+     * Retorna os paragrafos e tabelas do corpo principal de um arquivo DOCX.
+     * A leitura usa apenas o XML local do pacote e nao carrega entidades externas.
+     *
+     * @return array<int, array{tipo:string, texto?:string, linhas?:array<int, array<int, string>>}>
+     */
+    private function lerDocx(string $caminho): array
+    {
+        $zip = new ZipArchive;
+        abort_if($zip->open($caminho) !== true, 422, 'Nao foi possivel abrir este documento DOCX.');
+
+        $xml = $zip->getFromName('word/document.xml');
+        $zip->close();
+
+        abort_if($xml === false, 422, 'O documento DOCX nao possui conteudo legivel.');
+
+        $dom = new \DOMDocument;
+        $carregado = @$dom->loadXML($xml, LIBXML_NONET | LIBXML_NOBLANKS);
+        abort_unless($carregado, 422, 'O conteudo deste documento DOCX e invalido.');
+
+        $xpath = new \DOMXPath($dom);
+        $xpath->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
+        $blocos = [];
+
+        foreach ($xpath->query('/w:document/w:body/*') as $elemento) {
+            if ($elemento->localName === 'p') {
+                $texto = $this->textoDocx($xpath, $elemento);
+                if ($texto !== '') {
+                    $blocos[] = ['tipo' => 'paragrafo', 'texto' => $texto];
+                }
+
+                continue;
+            }
+
+            if ($elemento->localName === 'tbl') {
+                $linhas = [];
+                foreach ($xpath->query('./w:tr', $elemento) as $linha) {
+                    $celulas = [];
+                    foreach ($xpath->query('./w:tc', $linha) as $celula) {
+                        $paragrafos = [];
+                        foreach ($xpath->query('./w:p', $celula) as $paragrafo) {
+                            $paragrafos[] = $this->textoDocx($xpath, $paragrafo);
+                        }
+                        $celulas[] = implode("\n", array_filter($paragrafos, fn ($texto) => $texto !== ''));
+                    }
+                    $linhas[] = $celulas;
+                }
+                $blocos[] = ['tipo' => 'tabela', 'linhas' => $linhas];
+            }
+        }
+
+        return $blocos;
+    }
+
+    private function textoDocx(\DOMXPath $xpath, \DOMNode $elemento): string
+    {
+        $texto = '';
+        foreach ($xpath->query('.//w:t | .//w:tab | .//w:br | .//w:cr', $elemento) as $parte) {
+            $texto .= match ($parte->localName) {
+                'tab' => "\t",
+                'br', 'cr' => "\n",
+                default => $parte->textContent,
+            };
+        }
+
+        return trim($texto);
     }
 
     public function downloadTodos(Processo $processo): RedirectResponse|BinaryFileResponse

@@ -82,6 +82,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/votacoes/disponiveis/{rodada}/votar', [VotacaoController::class, 'registrarVoto'])->name('votacoes.votar.store');
 
     Route::post('/documentos', [DocumentoController::class, 'store'])->name('documentos.store');
+    Route::get('/documentos/{documento}/visualizar', [DocumentoController::class, 'visualizar'])->name('documentos.visualizar');
     Route::get('/documentos/{documento}/download', [DocumentoController::class, 'download'])->name('documentos.download');
     Route::delete('/documentos/{documento}', [DocumentoController::class, 'destroy'])->name('documentos.destroy');
 
