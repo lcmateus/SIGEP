@@ -113,9 +113,9 @@
                 btnConfirmar.textContent = 'Sim, Devolver';
                 btnConfirmar.className = 'bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg';
             } else {
-                titulo.textContent = 'Aceitar o processo?';
-                mensagem.textContent = 'O Juízo de Admissibilidade permanecerá na etapa atual e passará para Em Elaboração.';
-                btnConfirmar.textContent = 'Sim, Aceitar';
+                titulo.textContent = 'Prosseguir para Procedimento Preliminar?';
+                mensagem.textContent = 'O processo seguirá para a etapa de Procedimento Preliminar.';
+                btnConfirmar.textContent = 'Sim, Prosseguir';
                 btnConfirmar.className = 'bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg';
             }
 
