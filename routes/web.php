@@ -60,9 +60,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/processos/{processo}', [ProcessoController::class, 'show'])->name('processos.show');
     Route::get('/processos/{processo}/votacoes/pdf', [ProcessoController::class, 'historicoVotacaoPdf'])->name('processos.votacoes.pdf');
 
-    Route::get('/processos/{processo}/aceitar', [ProcessoController::class, 'aceitar'])->name('processos.aceitar');
-    Route::put('/processos/{processo}/aceitar', [ProcessoController::class, 'processarAceitar'])->name('processos.aceitar.processar');
-
     Route::put('/processos/{processo}/admin-acao', [ProcessoController::class, 'acaoAdmin'])->name('processos.admin-acao');
 
     Route::put('/processos/{processo}/devolver-secretario', [ProcessoController::class, 'devolverSecretario'])->name('processos.devolver-secretario');

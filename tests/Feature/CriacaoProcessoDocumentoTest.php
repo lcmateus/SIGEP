@@ -5,6 +5,7 @@ use App\Models\Etapa;
 use App\Models\Processo;
 use App\Models\UsuarioAdministrador;
 use App\Models\UsuarioMembro;
+use App\Services\DocumentoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 
@@ -66,7 +67,7 @@ it('cria o processo, a primeira etapa e anexa o documento a ela', function () {
             'arquivo' => $arquivo,
             'tipo' => 'pdf_sei',
         ])
-        ->assertRedirect(route('processos.index'));
+        ->assertRedirect(route('processos.publicos'));
 
     $processo = Processo::query()->where('numero_sei', '00000000000031')->first();
     expect($processo)->not->toBeNull();
@@ -89,8 +90,8 @@ it('nao deixa processo orfao quando o anexo falha', function () {
     $admin = adminDeCriacao();
     membroAtivoDeCriacao('1000001');
 
-    $this->mock(\App\Services\DocumentoService::class, function ($mock) {
-        $mock->shouldReceive('salvar')->once()->andThrow(new \RuntimeException('Falha simulada.'));
+    $this->mock(DocumentoService::class, function ($mock) {
+        $mock->shouldReceive('salvar')->once()->andThrow(new RuntimeException('Falha simulada.'));
     })->makePartial();
 
     $this->actingAs($admin)

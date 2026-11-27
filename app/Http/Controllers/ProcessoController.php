@@ -198,69 +198,6 @@ class ProcessoController extends Controller
             ->download('sigep-historico-votacoes-'.$processo->numero_sei.'.pdf');
     }
 
-    public function aceitar(Processo $processo): View
-    {
-        $processo->load(['relator', 'administrador', 'etapas']);
-
-        $documentos = Documento::query()
-            ->whereIn('etapa_id', $processo->etapas->pluck('id'))
-            ->orderBy('data_upload')
-            ->get()
-            ->groupBy('etapa_id');
-
-        $rodadas = $this->rodadasDoProcesso($processo);
-
-        return view('processos.aceitar', [
-            'processo' => $processo,
-            'documentosPorEtapa' => $documentos,
-            'rodadas' => $rodadas,
-        ]);
-    }
-
-    public function processarAceitar(Request $request, Processo $processo): RedirectResponse
-    {
-        abort_unless(
-            auth()->check() && auth()->user()->siape === $processo->id_relator,
-            403
-        );
-
-        $data = $request->validate([
-            'decisao' => ['required', 'in:sim,nao'],
-        ]);
-
-        $etapaAtual = $processo->etapas
-            ->sortByDesc('ordem')
-            ->first(fn ($etapa) => $etapa->status !== Etapa::STATUS_FINALIZADO);
-
-        if (! $etapaAtual || $etapaAtual->tipo !== Etapa::TIPO_JUIZO) {
-            return back()->withErrors(['decisao' => 'Etapa invalida para esta operacao.']);
-        }
-
-        if ($data['decisao'] === 'nao') {
-            $etapaAtual->update(['status' => Etapa::STATUS_DEVOLVIDO]);
-            $processo->update(['data_devolucao' => now()]);
-
-            app(NotificacaoService::class)->notificarProcessoDevolvido($processo);
-
-            return redirect()->route('processos.meus')
-                ->with('status', 'Processo devolvido ao Secretario Geral.');
-        }
-
-        $etapaAtual->update(['status' => Etapa::STATUS_FINALIZADO]);
-
-        $proximaOrdem = ($processo->etapas->max('ordem') ?? 0) + 1;
-
-        Etapa::query()->create([
-            'numero_sei_processo' => $processo->numero_sei,
-            'ordem' => $proximaOrdem,
-            'tipo' => Etapa::TIPO_PROCEDIMENTO_PRELIMINAR,
-            'status' => Etapa::STATUS_EM_ELABORACAO,
-        ]);
-
-        return redirect()->route('processos.show', $processo)
-            ->with('status', 'Processo encaminhado para Procedimento Preliminar.');
-    }
-
     public function update(Request $request, Processo $processo): RedirectResponse
     {
         $this->authorizeAdmin();
@@ -321,15 +258,16 @@ class ProcessoController extends Controller
             403
         );
 
-        $etapaEmElaboracao = $processo->etapas
-            ->sortByDesc('ordem')
-            ->first(fn ($etapa) => $etapa->status === Etapa::STATUS_EM_ELABORACAO);
+        $etapas = $processo->etapas->sortByDesc('ordem');
 
-        if (! $etapaEmElaboracao) {
-            return back()->with('error', 'Nenhuma etapa em elaboracao para devolver.');
+        $etapaParaDevolver = $etapas->first(fn ($etapa) => $etapa->status === Etapa::STATUS_EM_ELABORACAO)
+            ?? $etapas->first(fn ($etapa) => $etapa->status === Etapa::STATUS_FINALIZADO);
+
+        if (! $etapaParaDevolver) {
+            return back()->with('error', 'Nenhuma etapa elegivel para devolucao.');
         }
 
-        $etapaEmElaboracao->update(['status' => Etapa::STATUS_DEVOLVIDO]);
+        $etapaParaDevolver->update(['status' => Etapa::STATUS_DEVOLVIDO]);
         $processo->update(['data_devolucao' => now()]);
 
         app(NotificacaoService::class)->notificarProcessoDevolvido($processo);
@@ -395,6 +333,7 @@ class ProcessoController extends Controller
 
         return view('processos.proxima-etapa', [
             'processo' => $processo,
+            'opcoes' => $service->opcoesProximaEtapa($processo),
         ]);
     }
 
@@ -407,8 +346,12 @@ class ProcessoController extends Controller
             403
         );
 
+        abort_unless($service->precisaEscolherProximaEtapa($processo), 404, 'Nao ha decisao de proxima etapa pendente.');
+
+        $opcoes = $service->opcoesProximaEtapa($processo);
+
         $data = $request->validate([
-            'tipo' => ['required', 'in:'.Etapa::TIPO_ACPP.','.Etapa::TIPO_PAE],
+            'tipo' => ['required', 'in:'.implode(',', $opcoes)],
         ]);
 
         $service->criarProximaEtapa($processo, $data['tipo']);

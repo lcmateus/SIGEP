@@ -7,11 +7,14 @@ use App\Models\Processo;
 use App\Models\RodadaVotacao;
 use App\Models\UsuarioMembro;
 use App\Models\Voto;
+use Illuminate\Support\Collection;
 
 class VotacaoService
 {
     public const AGUARDA_MINERVA = 'aguarda_minerva';
+
     public const APROVADO = 'aprovado';
+
     public const REPROVADO = 'reprovado';
 
     /**
@@ -77,6 +80,7 @@ class VotacaoService
 
         if ($decisao === self::AGUARDA_MINERVA) {
             $this->colocarAguardandoMinerva($rodada);
+
             return $decisao;
         }
 
@@ -103,8 +107,8 @@ class VotacaoService
      * Grava o resultado e retorna o processo ao relator.
      *
      * A etapa atual e finalizada. A proxima etapa nao e criada automaticamente:
-     * o relator escolhera (Acordo de Conduta ou Processo de Apuracao) numa tela
-     * dedicada.
+     * o relator escolhera numa tela dedicada, entre as opcoes permitidas para
+     * o tipo da etapa concluida.
      */
     protected function finalizarRodada(RodadaVotacao $rodada, string $decisao): void
     {
@@ -161,11 +165,11 @@ class VotacaoService
      * Se todos os membros ativos ja votaram, apura a rodada automaticamente.
      *
      * @return string|null Estado decidido (APROVADO, REPROVADO ou AGUARDA_MINERVA),
-     *                      ou null quando ainda faltam votos.
+     *                     ou null quando ainda faltam votos.
      */
     public function apurarSeTodosVotaram(RodadaVotacao $rodada): ?string
     {
-        if (!$this->todosMembrosVotaram($rodada)) {
+        if (! $this->todosMembrosVotaram($rodada)) {
             return null;
         }
 
@@ -173,7 +177,7 @@ class VotacaoService
     }
 
     /**
-     * Cria a proxima etapa escolhida pelo relator (Acordo de Conduta ou Processo de Apuracao).
+     * Cria a proxima etapa escolhida pelo relator.
      */
     public function criarProximaEtapa(Processo $processo, string $tipo): Etapa
     {
@@ -192,21 +196,62 @@ class VotacaoService
     }
 
     /**
+     * Opcoes permitidas para a proxima etapa, conforme a ultima etapa finalizada.
+     * Apos o Juizo, o Procedimento Preliminar tambem pode ser escolhido.
+     *
+     * @return array<int, string>
+     */
+    public function opcoesProximaEtapa(Processo $processo): array
+    {
+        $ultima = $this->ultimaEtapa($processo);
+
+        if ($ultima?->tipo === Etapa::TIPO_JUIZO) {
+            return [
+                Etapa::TIPO_PROCEDIMENTO_PRELIMINAR,
+                Etapa::TIPO_ACPP,
+                Etapa::TIPO_PAE,
+            ];
+        }
+
+        return [
+            Etapa::TIPO_ACPP,
+            Etapa::TIPO_PAE,
+        ];
+    }
+
+    /**
      * Indica se o processo aguarda a decisao do relator sobre a proxima etapa
      * (ultima etapa finalizada e nenhuma em elaboracao pendente).
      */
     public function precisaEscolherProximaEtapa(Processo $processo): bool
     {
-        $etapas = $processo->relationLoaded('etapas')
-            ? $processo->etapas
-            : $processo->etapas()->get();
+        $etapas = $this->etapasDoProcesso($processo);
 
         $ultima = $etapas->sortByDesc('ordem')->first();
 
-        if (!$ultima || $ultima->status !== Etapa::STATUS_FINALIZADO) {
+        if (! $ultima || $ultima->status !== Etapa::STATUS_FINALIZADO) {
             return false;
         }
 
-        return !$etapas->contains(fn ($etapa) => $etapa->status === Etapa::STATUS_EM_ELABORACAO);
+        if ($etapas->contains(fn ($etapa) => $etapa->status === Etapa::STATUS_EM_ELABORACAO)) {
+            return false;
+        }
+
+        return $this->opcoesProximaEtapa($processo) !== [];
+    }
+
+    /**
+     * @return Collection<int, Etapa>
+     */
+    private function etapasDoProcesso(Processo $processo)
+    {
+        return $processo->relationLoaded('etapas')
+            ? $processo->etapas
+            : $processo->etapas()->get();
+    }
+
+    private function ultimaEtapa(Processo $processo): ?Etapa
+    {
+        return $this->etapasDoProcesso($processo)->sortByDesc('ordem')->first();
     }
 }

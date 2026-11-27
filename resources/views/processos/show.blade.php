@@ -68,24 +68,12 @@
             @php
                 $etapaAtual = $processo->etapa_atual;
 
-                $juizoEmElaboracao = $processo->etapas->first(function ($etapa) {
-                    return $etapa->tipo === \App\Models\Etapa::TIPO_JUIZO
-                        && $etapa->status === \App\Models\Etapa::STATUS_EM_ELABORACAO;
-                });
-
-                $juizoFinalizada = $processo->etapas->first(function ($etapa) {
-                    return $etapa->tipo === \App\Models\Etapa::TIPO_JUIZO
-                        && $etapa->status === \App\Models\Etapa::STATUS_FINALIZADO;
-                });
-
-                $mostrarAceitar = $podeEscrever && $juizoEmElaboracao;
-                $mostrarNovoCard = $podeEscrever
-                    && $juizoFinalizada
+                $podeAgirNaEtapa = $isRelator
                     && $etapaAtual
                     && $etapaAtual->status === \App\Models\Etapa::STATUS_EM_ELABORACAO;
 
                 $ultimaEtapa = $processo->etapas->sortByDesc('ordem')->first();
-                $precisaEscolherProxima = $podeEscrever
+                $precisaEscolherProxima = $isRelator
                     && $ultimaEtapa
                     && $ultimaEtapa->status === \App\Models\Etapa::STATUS_FINALIZADO
                     && !$processo->etapas->contains(fn ($e) => $e->status === \App\Models\Etapa::STATUS_EM_ELABORACAO);
@@ -97,49 +85,29 @@
                     <p class="text-sm text-slate-600 mb-4">
                         A votação deste processo foi concluída. Defina como o processo deve prosseguir.
                     </p>
-                    <a href="{{ route('processos.proxima-etapa', $processo) }}"
-                        class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
-                        Definir próxima etapa
-                    </a>
-                </div>
-            @endif
+                    <div class="flex flex-wrap gap-3">
+                        <a href="{{ route('processos.proxima-etapa', $processo) }}"
+                            class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                            Definir próxima etapa
+                        </a>
 
-            @if($mostrarAceitar)
-                <div class="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
-                    <h3 class="text-lg font-bold text-emerald-900 mb-4">Aceitar Processo?</h3>
-                    <div class="flex gap-3">
-                        <form id="form-decisao-nao" action="{{ route('processos.aceitar.processar', $processo) }}" method="POST">
+                        <form id="form-devolver-secretario-proxima" action="{{ route('processos.devolver-secretario', $processo) }}" method="POST">
                             @csrf
                             @method('PUT')
-                            <input type="hidden" name="decisao" value="nao">
                         </form>
                         <button type="button"
-                            data-confirm-form="form-decisao-nao"
+                            data-confirm-form="form-devolver-secretario-proxima"
                             data-confirm-titulo="Devolver ao(à) Secretário(a)?"
                             data-confirm-mensagem="O processo será devolvido ao(à) Secretário(a)."
                             data-confirm-botao="Sim, devolver"
-                            class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
-                            NÃO
-                        </button>
-
-                        <form id="form-decisao-sim" action="{{ route('processos.aceitar.processar', $processo) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="decisao" value="sim">
-                        </form>
-                        <button type="button"
-                            data-confirm-form="form-decisao-sim"
-                            data-confirm-titulo="Prosseguir para Procedimento Preliminar?"
-                            data-confirm-mensagem="O processo seguirá para a etapa de Procedimento Preliminar."
-                            data-confirm-botao="Sim, prosseguir"
-                            class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
-                            SIM
+                            class="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                            Devolver ao(à) Secretário(a)
                         </button>
                     </div>
                 </div>
             @endif
 
-            @if($mostrarNovoCard)
+            @if($podeAgirNaEtapa)
                 <div class="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
                     <h3 class="text-lg font-bold text-emerald-900 mb-4">Qual o próximo passo?</h3>
                     <div class="flex gap-3">
