@@ -197,23 +197,40 @@ class VotacaoService
 
     /**
      * Opcoes permitidas para a proxima etapa, conforme a ultima etapa finalizada.
-     * Apos o Juizo, o Procedimento Preliminar tambem pode ser escolhido.
+     * A Mediacao so pode ser escolhida apos o Procedimento Preliminar.
      *
      * @return array<int, string>
      */
     public function opcoesProximaEtapa(Processo $processo): array
     {
-        $ultima = $this->ultimaEtapa($processo);
+        $ultimaTipo = $this->ultimaEtapa($processo)?->tipo;
 
-        if ($ultima?->tipo === Etapa::TIPO_JUIZO) {
-            return [
+        $opcoesPorEtapa = [
+            Etapa::TIPO_JUIZO => [
                 Etapa::TIPO_PROCEDIMENTO_PRELIMINAR,
                 Etapa::TIPO_ACPP,
                 Etapa::TIPO_PAE,
-            ];
-        }
+            ],
+            Etapa::TIPO_PROCEDIMENTO_PRELIMINAR => [
+                Etapa::TIPO_MEDIACAO,
+                Etapa::TIPO_ACPP,
+                Etapa::TIPO_PAE,
+            ],
+            Etapa::TIPO_MEDIACAO => [
+                Etapa::TIPO_ACPP,
+                Etapa::TIPO_PAE,
+            ],
+            Etapa::TIPO_ACPP => [
+                Etapa::TIPO_ACPP,
+                Etapa::TIPO_PAE,
+            ],
+            Etapa::TIPO_PAE => [
+                Etapa::TIPO_ACPP,
+                Etapa::TIPO_PAE,
+            ],
+        ];
 
-        return [
+        return $opcoesPorEtapa[$ultimaTipo] ?? [
             Etapa::TIPO_ACPP,
             Etapa::TIPO_PAE,
         ];

@@ -7,22 +7,33 @@ use Illuminate\Database\Eloquent\Model;
 class Etapa extends Model
 {
     public const TIPO_JUIZO = 'Juízo de Admissibilidade';
+
     public const TIPO_PROCEDIMENTO_PRELIMINAR = 'Procedimento Preliminar';
+
+    public const TIPO_MEDIACAO = 'Mediação';
+
     public const TIPO_ACPP = 'Acordo de Conduta';
+
     public const TIPO_PAE = 'Processo de Apuração';
 
     public const TIPOS = [
         self::TIPO_JUIZO,
         self::TIPO_PROCEDIMENTO_PRELIMINAR,
+        self::TIPO_MEDIACAO,
         self::TIPO_ACPP,
         self::TIPO_PAE,
     ];
 
     public const STATUS_EM_ELABORACAO = 'Em Elaboração';
+
     public const STATUS_EM_VOTACAO = 'Em Votação';
+
     public const STATUS_AGUARDANDO_MINERVA = 'Aguardando Minerva';
+
     public const STATUS_FINALIZADO = 'Finalizado';
+
     public const STATUS_DEVOLVIDO = 'Devolvido';
+
     public const STATUS_ARQUIVADO = 'Arquivado';
 
     protected $table = 'etapa';

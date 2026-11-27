@@ -6,12 +6,14 @@
     @php
         $estilosEtapa = [
             \App\Models\Etapa::TIPO_PROCEDIMENTO_PRELIMINAR => 'bg-sky-50 hover:bg-sky-100 border-sky-400',
+            \App\Models\Etapa::TIPO_MEDIACAO => 'bg-purple-50 hover:bg-purple-100 border-purple-400',
             \App\Models\Etapa::TIPO_ACPP => 'bg-yellow-50 hover:bg-yellow-100 border-yellow-400',
             \App\Models\Etapa::TIPO_PAE => 'bg-red-50 hover:bg-red-100 border-red-400',
         ];
 
         $descricoesEtapa = [
             \App\Models\Etapa::TIPO_PROCEDIMENTO_PRELIMINAR => 'Seguir para a etapa de Procedimento Preliminar (PP).',
+            \App\Models\Etapa::TIPO_MEDIACAO => 'Seguir para a etapa de Mediação.',
             \App\Models\Etapa::TIPO_ACPP => 'Seguir para a etapa de Acordo de Conduta (ACPP).',
             \App\Models\Etapa::TIPO_PAE => 'Seguir para a etapa de Processo de Apuração (PAE).',
         ];

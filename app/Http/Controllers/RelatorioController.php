@@ -47,8 +47,7 @@ class RelatorioController extends Controller
 
         $processosFinalizados = $processosComEtapaAtual
             ->filter(
-                fn (Processo $processo) =>
-                    $processo->etapa_atual_relatorio?->status === Etapa::STATUS_FINALIZADO
+                fn (Processo $processo) => $processo->etapa_atual_relatorio?->status === Etapa::STATUS_FINALIZADO
             )
             ->count();
 
@@ -68,15 +67,13 @@ class RelatorioController extends Controller
 
         $processosDevolvidos = $processosComEtapaAtual
             ->filter(
-                fn (Processo $processo) =>
-                    $processo->etapa_atual_relatorio?->status === Etapa::STATUS_DEVOLVIDO
+                fn (Processo $processo) => $processo->etapa_atual_relatorio?->status === Etapa::STATUS_DEVOLVIDO
             )
             ->count();
 
         $processosArquivados = $processosComEtapaAtual
             ->filter(
-                fn (Processo $processo) =>
-                    $processo->etapa_atual_relatorio?->status === Etapa::STATUS_ARQUIVADO
+                fn (Processo $processo) => $processo->etapa_atual_relatorio?->status === Etapa::STATUS_ARQUIVADO
             )
             ->count();
 
@@ -102,6 +99,7 @@ class RelatorioController extends Controller
         $processosPorTipo = collect([
             Etapa::TIPO_JUIZO => 0,
             Etapa::TIPO_PROCEDIMENTO_PRELIMINAR => 0,
+            Etapa::TIPO_MEDIACAO => 0,
             Etapa::TIPO_ACPP => 0,
             Etapa::TIPO_PAE => 0,
         ]);
