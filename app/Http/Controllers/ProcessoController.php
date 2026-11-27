@@ -162,7 +162,7 @@ class ProcessoController extends Controller
 
         app(NotificacaoService::class)->notificarProcessoDesignado($relator, $processo);
 
-        return redirect()->route('processos.index')->with('status', 'Processo criado.');
+        return redirect()->route('processos.publicos')->with('status', 'Processo criado.');
     }
 
     public function show(Processo $processo): View
